@@ -1,0 +1,67 @@
+{
+  "items": [
+    {
+      "id": "C001",
+      "type": "potion",
+      "basePrice": 100,
+      "qualities": [
+        {
+          "quality": "poor",
+          "name": "빈약 회복 포션",
+          "priceMultiplier": 0.7,
+          "iconKey": "C001_0",
+          "explanation": "상처를 빠르게 회복시킨다"
+        },
+        {
+          "quality": "common",
+          "name": "평범 회복 포션",
+          "priceMultiplier": 1.0,
+          "iconKey": "C001_1",
+          "explanation": "상처를 빠르게 회복시킨다"
+        },
+        {
+          "quality": "superior",
+          "name": "상급 회복 포션",
+          "priceMultiplier": 1.2,
+          "iconKey": "C001_2",
+          "explanation": "상처를 빠르게 회복시킨다"
+        },
+        {
+          "quality": "perfect",
+          "name": "완벽 회복 포션",
+          "priceMultiplier": 1.5,
+          "iconKey": "C001_3",
+          "explanation": "상처를 빠르게 회복시킨다"
+        },
+        {
+          "quality": "masterpiece",
+          "name": "걸작 회복 포션",
+          "priceMultiplier": 2.0,
+          "iconKey": "C001_4",
+          "explanation": "상처를 빠르게 회복시킨다"
+        },
+        {
+          "quality": "legendary",
+          "name": "전설 회복 포션",
+          "priceMultiplier": 2.5,
+          "iconKey": "C001_5",
+          "explanation": "상처를 빠르게 회복시킨다"
+        }
+      ]
+    },
+    {
+      "id": "E001",
+      "type": "food",
+      "basePrice": 0,
+      "qualities": [
+        {
+          "quality": "none",
+          "name": "빵",
+          "priceMultiplier": 1.0,
+          "iconKey": "E001_0",
+          "explanation": "정성이 들어가 있다"
+        }
+      ]
+    }
+  ]
+}
