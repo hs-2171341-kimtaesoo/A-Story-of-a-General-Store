@@ -16,8 +16,7 @@ namespace GeneralStore.Inventory
             ItemProposal proposal;
             if (panel == null || !panel.drag.TryGetProposal(out proposal)) return;
             panel.drag.Cancel(false);
-            QualityDefinition quality = panel.Catalog.FindQuality(proposal.itemId, proposal.quality);
-            panel.ShowMessage("추천 후보 전달: " + quality.name + " 1개 (재고 차감/판매 없음)");
+            if (!panel.shop.Recommend(proposal.containerId, proposal.instanceId)) return;
             // 확정 시 instanceId가 여전히 존재하는지 다시 검증해야 합니다. 예약 기능은 아닙니다.
             onProposed.Invoke(proposal);
         }

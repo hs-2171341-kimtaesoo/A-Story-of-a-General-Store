@@ -32,14 +32,29 @@ namespace GeneralStore.Inventory
     {
         // 이전 중첩 저장과 혼동하지 않도록 새 포맷을 명시합니다.
         public string format = "general-store-individual";
-        public int version = 2;
+        public int version = 3;
+        public long gold;
+        public List<DisplayListing> listings = new List<DisplayListing>();
         public List<ContainerRecord> containers = new List<ContainerRecord>();
         public InventorySave Copy()
         {
-            var result = new InventorySave { format = format, version = version };
+            var result = new InventorySave { format = format, version = version, gold = gold };
+            foreach (DisplayListing listing in listings) result.listings.Add(listing == null ? null : listing.Copy());
             foreach (ContainerRecord container in containers) result.containers.Add(container == null ? null : container.Copy());
             return result;
         }
+    }
+    // 판매가는 물건 자체가 아니라 진열 등록에 속합니다.
+    [Serializable] public sealed class DisplayListing
+    {
+        public string instanceId;
+        public int price;
+        public DisplayListing Copy() { return (DisplayListing)MemberwiseClone(); }
+    }
+    public sealed class SaleLine
+    {
+        public string containerId, instanceId;
+        public int price;
     }
     public sealed class MoveRequest
     {

@@ -96,10 +96,7 @@ namespace GeneralStore.Inventory
         {
             if (!active || target.Panel != panel) return;
             MoveRequest request = CreateRequest(target, position);
-            string error = "격자 밖에는 놓을 수 없습니다.";
-            if (request != null && panel.Model.TryMove(request, out error))
-            { panel.Select(target.containerId, selectedItem.instanceId); panel.ShowMessage("물건을 옮겼습니다."); }
-            else panel.ShowMessage(error);
+            panel.HandleDrop(request);
             Cancel(false);
         }
         public bool TryGetProposal(out ItemProposal proposal)

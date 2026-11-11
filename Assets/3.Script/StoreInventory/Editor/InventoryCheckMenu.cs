@@ -13,7 +13,7 @@ public static class InventoryCheckMenu
         if (json == null) throw new System.InvalidOperationException("JSON 파일이 없습니다.");
         // 실제 프로젝트 JSON도 Unity의 실제 JsonUtility로 읽어서 검사합니다.
         var catalog = new ItemCatalog(JsonUtility.FromJson<ItemDatabase>(json.text));
-        Debug.Log("실제 JSON " + catalog.Count + "종 검증 완료 / 모델 " + InventoryModelChecks.Run() + "개 검사 통과");
+        Debug.Log("실제 JSON " + catalog.Count + "종 검증 완료 / 모델 " + InventoryModelChecks.Run() + "개 / 상점 검사 " + ShopFeatureChecks.Run() + "개 통과");
     }
 }
 

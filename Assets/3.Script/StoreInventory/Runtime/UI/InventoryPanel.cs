@@ -11,8 +11,9 @@ namespace GeneralStore.Inventory
         public Canvas canvas;
         public InventoryDragHandler drag;
         public InventoryGridView[] grids;
-        public global::UnityEngine.UI.Image detailIcon;
-        public Text titleLabel, detailNameLabel, detailBodyLabel, messageLabel;
+        public InventoryDetailsView[] detailViews;
+        public ShopfrontUI shop;
+        public Text titleLabel, messageLabel;
         public Font koreanFont;
         public InventoryModel Model { get { return inventory.Model; } }
         public ItemCatalog Catalog { get { return inventory.Catalog; } }
@@ -20,10 +21,12 @@ namespace GeneralStore.Inventory
         readonly Dictionary<string, Sprite> icons = new Dictionary<string, Sprite>();
         bool initialized, dirty;
         string selectedContainer, selectedInstance;
+        public string SelectedContainerId { get { return selectedContainer; } }
+        public string SelectedInstanceId { get { return selectedInstance; } }
         void Start()
         {
             if (inventory == null || canvas == null || drag == null || drag.dragLayer == null || grids == null || grids.Length == 0
-                || detailIcon == null || titleLabel == null || detailNameLabel == null || detailBodyLabel == null || messageLabel == null)
+                || shop == null || titleLabel == null || messageLabel == null || detailViews == null || detailViews.Length == 0)
             { Debug.LogError("InventoryPanel의 Inspector 참조를 확인하세요.", this); enabled = false; return; }
             foreach (InventoryGridView grid in grids)
             {
@@ -32,6 +35,9 @@ namespace GeneralStore.Inventory
                     || grid.itemTemplate.GetComponent<global::UnityEngine.UI.Image>() == null)
                 { Debug.LogError("격자/아이템 템플릿 참조를 확인하세요.", this); enabled = false; return; }
             }
+            foreach (InventoryDetailsView detail in detailViews)
+                if (detail == null || detail.icon == null || detail.nameLabel == null || detail.bodyLabel == null)
+                { Debug.LogError("상세창 참조를 확인하세요.", this); enabled = false; return; }
             string error; if (!inventory.TryInitialize(out error)) { Debug.LogError(error, this); enabled = false; return; }
             foreach (InventoryGridView grid in grids)
                 if (Model.GetContainer(grid.containerId) == null)
@@ -49,7 +55,7 @@ namespace GeneralStore.Inventory
             if (!initialized || !dirty) return; dirty = false;
             // 마우스 이벤트 처리 중 원본 UI를 지우지 않고, 프레임 끝에 갱신합니다.
             drag.Cancel(false);
-            foreach (InventoryGridView grid in grids) grid.Refresh();
+            foreach (InventoryGridView grid in grids) if (grid.gameObject.activeInHierarchy) grid.Refresh();
             RefreshDetails();
         }
         public Sprite FindIcon(string iconKey)
@@ -72,16 +78,18 @@ namespace GeneralStore.Inventory
             if (warehouse != null) foreach (ItemRecord record in warehouse.items) usedCells += Catalog.Shape(record.itemId).CellCount;
             titleLabel.text = warehouse == null ? "격자 인벤토리" : "보관함 " + warehouse.items.Count + "개 / " + usedCells
                 + "칸 사용 (전체 " + warehouse.columns * warehouse.rows + "칸)";
-            detailNameLabel.text = "물건을 선택하세요."; detailBodyLabel.text = "";
-            detailIcon.sprite = null; detailIcon.enabled = false;
-            ItemRecord item = Model.GetItem(selectedContainer, selectedInstance); if (item == null) return;
-            QualityDefinition quality = Catalog.FindQuality(item.itemId, item.quality);
-            detailNameLabel.text = quality.name; detailIcon.sprite = FindIcon(quality.iconKey);
-            detailIcon.enabled = detailIcon.sprite != null; detailIcon.preserveAspect = true;
-            detailBodyLabel.text = "품질: " + item.quality + "\n물건 한 개 / 중첩 없음\n크기: " + Model.Width(item) + " × " + Model.Height(item)
-                + "\n실제 점유 칸: " + Catalog.Shape(item.itemId).CellCount + " / 회전: " + (item.rotation * 90) + "도"
-                + "\n개별 매입가: " + item.purchasePrice + "\n품질 반영 기준가: " + Catalog.ReferencePrice(item.itemId, item.quality)
-                + "\n(시세/진열 판매가와 별개)\n\n" + quality.explanation;
+            ItemRecord item = Model.GetItem(selectedContainer, selectedInstance);
+            foreach (InventoryDetailsView detail in detailViews) detail.Render(this, item);
+
+        }
+        public void HandleDrop(MoveRequest request)
+        {
+            if (request == null) { ShowMessage("격자 밖에는 놓을 수 없습니다."); return; }
+            if (InventoryModel.IsDisplay(request.targetContainer) && request.sourceContainer != request.targetContainer)
+            { shop.RequestDisplayPlacement(request); return; }
+            string error;
+            if (Model.TryMove(request, out error)) { Select(request.targetContainer, request.instanceId); ShowMessage("물건을 옮겼습니다."); }
+            else ShowMessage(error);
         }
         public void SaveInventory()
         {
@@ -91,7 +99,7 @@ namespace GeneralStore.Inventory
         }
         public void LoadInventory()
         {
-            if (!initialized) return; drag.Cancel(false);
+            if (!initialized) return; drag.Cancel(false); shop.CancelDisplayPrice();
             string error; ShowMessage(inventory.Load(out error) ? "불러오기 완료" : "불러오기 실패: " + error);
         }
         void OnDisable() { if (drag != null) drag.Cancel(false); }

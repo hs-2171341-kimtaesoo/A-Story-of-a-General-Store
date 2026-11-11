@@ -11,9 +11,11 @@ namespace GeneralStore.Inventory
         [Range(1, 32)] public int warehouseColumns = 10;
         [Range(1, 32)] public int warehouseRows = 8;
         public bool addDemoItems = true;
+        public long initialGold = 1000;
         public ItemCatalog Catalog { get; private set; }
         public InventoryModel Model { get; private set; }
-        public string SavePath { get { return Path.Combine(Application.persistentDataPath, "store-shaped-inventory-v2.json"); } }
+        public RecommendationSession Sales { get; private set; }
+        public string SavePath { get { return Path.Combine(Application.persistentDataPath, "store-shop-layout-v3.json"); } }
         void Awake() { string error; if (!TryInitialize(out error)) Debug.LogError(error, this); }
         public bool TryInitialize(out string error)
         {
@@ -23,10 +25,11 @@ namespace GeneralStore.Inventory
                 TextAsset file = itemJson != null ? itemJson : Resources.Load<TextAsset>("StoreInventory/items");
                 if (file == null) throw new InvalidOperationException("Resources/StoreInventory/items.json이 없습니다.");
                 var catalog = new ItemCatalog(JsonUtility.FromJson<ItemDatabase>(file.text));
-                var save = new InventorySave();
+                var save = new InventorySave { gold = initialGold };
                 save.containers.Add(new ContainerRecord { containerId = "warehouse", columns = warehouseColumns, rows = warehouseRows });
-                // 아래 공간은 진열장 로직이 아닌, 다른 격자로 드래그하는 연결 예제입니다.
-                save.containers.Add(new ContainerRecord { containerId = "display_preview", columns = 6, rows = 4 });
+                // 진열장 두 개입니다. 진열 등록 가격은 InventorySave.listings에 따로 저장합니다.
+                save.containers.Add(new ContainerRecord { containerId = "display_1", columns = 6, rows = 4 });
+                save.containers.Add(new ContainerRecord { containerId = "display_2", columns = 6, rows = 4 });
                 var model = new InventoryModel(catalog, save);
                 if (addDemoItems)
                 {
@@ -36,7 +39,7 @@ namespace GeneralStore.Inventory
                     Seed(model, "sample_bag", "common", 1, 150);
                     Seed(model, "sample_lframe", "common", 1, 50); Seed(model, "sample_cframe", "common", 1, 70);
                 }
-                Catalog = catalog; Model = model; return true;
+                Catalog = catalog; Model = model; Sales = new RecommendationSession(model); return true;
             }
             catch (Exception e) { error = "인벤토리 초기화 실패: " + e.Message; return false; }
         }
@@ -63,12 +66,16 @@ namespace GeneralStore.Inventory
                 if (!TryInitialize(out error)) return false;
                 if (!File.Exists(SavePath)) { error = "저장 파일이 없습니다."; return false; }
                 InventorySave save = JsonUtility.FromJson<InventorySave>(File.ReadAllText(SavePath));
-                // UI가 사용하는 두 컨테이너가 없는 파일은 모델 교체 전에 거절합니다.
+                // UI가 사용하는 보관함/진열장이 없는 저장 파일은 교체 전에 거절합니다.
                 if (save == null || save.containers == null
                     || !save.containers.Exists(c => c != null && c.containerId == "warehouse")
-                    || !save.containers.Exists(c => c != null && c.containerId == "display_preview"))
+                    || !save.containers.Exists(c => c != null && c.containerId == "display_1"))
                 { error = "보관함/연결 공간이 없는 저장 파일입니다."; return false; }
-                return Model.TryRestore(save, out error);
+                if (!save.containers.Exists(c => c != null && c.containerId == "display_2"))
+                { error = "두 번째 진열 공간이 없는 저장 파일입니다."; return false; }
+                bool restored = Model.TryRestore(save, out error);
+                if (restored) Sales.Leave();
+                return restored;
             }
             catch (Exception e) { error = e.Message; return false; }
         }

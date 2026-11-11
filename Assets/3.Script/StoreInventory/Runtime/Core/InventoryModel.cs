@@ -9,6 +9,7 @@ namespace GeneralStore.Inventory
         public readonly ItemCatalog Catalog;
         InventorySave state;
         public long Revision { get; private set; }
+        public long Gold { get { return state.gold; } }
         public event Action Changed;
         public InventoryModel(ItemCatalog catalog, InventorySave initial)
         {
@@ -51,8 +52,8 @@ namespace GeneralStore.Inventory
         }
         void Validate(InventorySave save)
         {
-            if (save == null || save.format != "general-store-individual" || save.version != 2 || save.containers == null
-                || save.containers.Count < 1 || save.containers.Count > 32) throw new ArgumentException("모양 마스크 v2 저장 파일이 아닙니다.");
+            if (save == null || save.format != "general-store-individual" || save.version != 3 || save.gold < 0 || save.listings == null || save.containers == null
+                || save.containers.Count < 1 || save.containers.Count > 32) throw new ArgumentException("상점 v3 저장 파일이 아닙니다.");
             var containers = new HashSet<string>(StringComparer.Ordinal); var ids = new HashSet<string>(StringComparer.Ordinal);
             foreach (ContainerRecord c in save.containers)
             {
@@ -70,6 +71,16 @@ namespace GeneralStore.Inventory
                 }
                 foreach (ItemRecord item in c.items)
                     if (!InspectPlacement(c, item, item.instanceId).allowed) throw new ArgumentException("점유 칸이 겹치거나 범위를 벗어났습니다.");
+            }
+            var listingIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (DisplayListing listing in save.listings)
+            {
+                if (listing == null || string.IsNullOrEmpty(listing.instanceId) || !listingIds.Add(listing.instanceId) || listing.price < 0)
+                    throw new ArgumentException("진열 가격 등록 오류입니다.");
+                bool found = false;
+                foreach (ContainerRecord c in save.containers)
+                    if (IsDisplay(c.containerId) && c.items.Exists(i => i.instanceId == listing.instanceId)) found = true;
+                if (!found) throw new ArgumentException("진열되지 않은 물건의 가격 등록입니다.");
             }
         }
         void Commit(InventorySave next) { state = next; Revision++; if (Changed != null) Changed(); }
@@ -122,14 +133,75 @@ namespace GeneralStore.Inventory
             PlacementPreview preview = InspectRequest(trial, request, out source, out target, out item); error = preview.error;
             if (!preview.allowed) return false;
             ItemRecord moved = item.Copy(); moved.x = request.x; moved.y = request.y; moved.rotation = request.rotation;
-            source.items.Remove(item); target.items.Add(moved); Commit(trial); return true;
+            source.items.Remove(item); target.items.Add(moved);
+            if (!IsDisplay(target.containerId)) trial.listings.RemoveAll(l => l.instanceId == item.instanceId);
+            Commit(trial); return true;
         }
         public bool TryRemove(string containerId, string instanceId, out string error)
         {
             error = ""; InventorySave trial = state.Copy(); ContainerRecord c = Find(trial, containerId);
             ItemRecord item = c == null ? null : c.items.Find(i => i.instanceId == instanceId);
             if (item == null) { error = "물건이 없거나 이미 출고되었습니다."; return false; }
-            c.items.Remove(item); Commit(trial); return true;
+            c.items.Remove(item); trial.listings.RemoveAll(l => l.instanceId == instanceId); Commit(trial); return true;
+        }
+
+        public static bool IsDisplay(string containerId)
+        { return containerId != null && containerId.StartsWith("display_", StringComparison.Ordinal); }
+        // 진열 시에만 가격을 받습니다. 창고 자체에는 판매가 수정 API가 없습니다.
+        public bool TryListOnDisplay(MoveRequest request, int price, out string error)
+        {
+            error = "";
+            if (request == null || !IsDisplay(request.targetContainer) || price < 0)
+            { error = "진열 공간과 0 이상의 판매가를 지정하세요."; return false; }
+            InventorySave trial = state.Copy(); ContainerRecord source, target; ItemRecord item;
+            PlacementPreview preview = InspectRequest(trial, request, out source, out target, out item);
+            if (!preview.allowed) { error = preview.error; return false; }
+            ItemRecord moved = item.Copy(); moved.x = request.x; moved.y = request.y; moved.rotation = request.rotation;
+            source.items.Remove(item); target.items.Add(moved);
+            trial.listings.RemoveAll(l => l.instanceId == moved.instanceId);
+            trial.listings.Add(new DisplayListing { instanceId = moved.instanceId, price = price });
+            Commit(trial); return true;
+        }
+        public bool TryGetOfferPrice(string containerId, string instanceId, out int price)
+        {
+            price = 0; ItemRecord item = GetItem(containerId, instanceId); if (item == null) return false;
+            if (IsDisplay(containerId))
+            {
+                DisplayListing listing = state.listings.Find(l => l.instanceId == instanceId);
+                if (listing == null) return false;
+                price = listing.price; return true;
+            }
+            // 창고에서 바로 추천할 때는 기준가를 읽기만 합니다. 추후 여기서 시세 공급자를 사용하면 됩니다.
+            price = Catalog.ReferencePrice(item.itemId, item.quality); return true;
+        }
+        // 재고 차감 + 진열 해제 + 돈 지급을 한 스냅샷으로 확정합니다.
+        public bool TrySell(IList<SaleLine> lines, long expectedRevision, out long revenue, out string error)
+        {
+            revenue = 0; error = "";
+            if (lines == null || lines.Count == 0 || (expectedRevision >= 0 && expectedRevision != Revision))
+            { error = "판매할 물건이 없거나 재고가 변경되었습니다."; return false; }
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            long total = 0;
+            foreach (SaleLine line in lines)
+            {
+                int currentPrice;
+                if (line == null || string.IsNullOrEmpty(line.instanceId) || !ids.Add(line.instanceId)
+                    || line.price < 0 || !TryGetOfferPrice(line.containerId, line.instanceId, out currentPrice) || line.price != currentPrice)
+                { error = "물건이 이동/소진되었거나 제안 가격이 변경되었습니다. 목록을 다시 확인하세요."; return false; }
+                try { total = checked(total + line.price); }
+                catch (OverflowException) { error = "판매 금액 범위를 초과했습니다."; return false; }
+            }
+            long nextGold;
+            try { nextGold = checked(state.gold + total); }
+            catch (OverflowException) { error = "보유 금액 범위를 초과했습니다."; return false; }
+            InventorySave trial = state.Copy();
+            foreach (SaleLine line in lines)
+            {
+                ContainerRecord container = Find(trial, line.containerId);
+                container.items.RemoveAll(i => i.instanceId == line.instanceId);
+                trial.listings.RemoveAll(l => l.instanceId == line.instanceId);
+            }
+            trial.gold = nextGold; Commit(trial); revenue = total; return true;
         }
         public bool TryRestore(InventorySave save, out string error)
         {

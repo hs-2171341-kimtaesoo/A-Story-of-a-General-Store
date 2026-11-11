@@ -9,7 +9,7 @@ namespace GeneralStore.Inventory
     public sealed class InventoryGridView : MonoBehaviour, IDropHandler
     {
         public string containerId = "warehouse";
-        [Min(16)] public float cellSize = 48;
+        [Min(16)] public float cellSize = 78;
         public Color cellColor = new Color(.16f, .14f, .1f);
         public Sprite cellSprite;
         public RectTransform itemLayer;
@@ -18,9 +18,10 @@ namespace GeneralStore.Inventory
         readonly List<GameObject> cellObjects = new List<GameObject>();
         readonly List<GameObject> itemObjects = new List<GameObject>();
         int columns, rows;
-        readonly List<global::UnityEngine.UI.Image> previewCells = new List<global::UnityEngine.UI.Image>();
+        PlacementPreviewGraphic previewGraphic;
         public RectTransform Rect { get { return (RectTransform)transform; } }
-        public void Initialize(InventoryPanel panel) { Panel = panel; Refresh(); }
+        public void Initialize(InventoryPanel panel) { Panel = panel; if(gameObject.activeInHierarchy) Refresh(); }
+        void OnEnable() { if(Panel!=null) Refresh(); }
         static RectTransform TopLeft(GameObject go)
         {
             var rect = (RectTransform)go.transform;
@@ -66,26 +67,16 @@ namespace GeneralStore.Inventory
         }
         public void ShowPreview(PlacementPreview preview)
         {
-            while (previewCells.Count < preview.cells.Count)
+            if(previewGraphic==null)
             {
-                var go = new GameObject("Placement Cell", typeof(RectTransform), typeof(global::UnityEngine.UI.Image));
-                go.transform.SetParent(transform, false); TopLeft(go);
-                var image = go.GetComponent<global::UnityEngine.UI.Image>(); image.raycastTarget = false;
-                previewCells.Add(image);
+                var go=new GameObject("Placement Preview Mesh",typeof(RectTransform),typeof(CanvasRenderer));go.transform.SetParent(transform,false);
+                RectTransform rect=TopLeft(go);rect.sizeDelta=Rect.sizeDelta;
+                previewGraphic=go.AddComponent<PlacementPreviewGraphic>();previewGraphic.raycastTarget=false;
             }
-            for (int i = 0; i < previewCells.Count; i++)
-            {
-                global::UnityEngine.UI.Image image = previewCells[i];
-                bool used = i < preview.cells.Count; image.gameObject.SetActive(used); if (!used) continue;
-                PlacementCell cell = preview.cells[i]; image.transform.SetAsLastSibling();
-                image.rectTransform.anchoredPosition = new Vector2((float)cell.x * cellSize + 1, -(float)cell.y * cellSize - 1);
-                image.rectTransform.sizeDelta = Vector2.one * (cellSize - 2);
-                // 한 칸이라도 막히면 전체 빨강, 실제 문제 칸은 더 진하게 표시합니다.
-                image.color = preview.allowed ? new Color(.1f, 1, .35f, .5f)
-                    : cell.state == PlacementCellState.Free ? new Color(1, .15f, .15f, .28f) : new Color(1, .05f, .05f, .7f);
-            }
+            previewGraphic.rectTransform.sizeDelta=Rect.sizeDelta;previewGraphic.transform.SetAsLastSibling();
+            previewGraphic.Show(preview,cellSize);
         }
-        public void HidePreview() { foreach (global::UnityEngine.UI.Image image in previewCells) image.gameObject.SetActive(false); }
+        public void HidePreview() { if(previewGraphic!=null)previewGraphic.ClearPreview(); }
         public void OnDrop(PointerEventData e) { if (Panel != null) Panel.drag.Drop(this, e.position); }
     }
 }
