@@ -17,9 +17,9 @@ namespace GeneralStore.Inventory
         }
 
         PlacementPreview preview;
-        float cellSize;
-        public void Show(PlacementPreview value,float cell) { preview=value;cellSize=cell;SetVerticesDirty(); }
-        public void ClearPreview() { preview=null;SetVerticesDirty(); }
+        Vector2 cellSize;
+        public void Show(PlacementPreview value,Vector2 cell) { preview=value;cellSize=cell;SetVerticesDirty(); }
+        public void ClearPreview() { if(preview==null)return;preview=null;SetVerticesDirty(); }
         protected override void OnPopulateMesh(VertexHelper helper)
         {
             helper.Clear(); if(preview==null) return; Rect rect=GetPixelAdjustedRect();
@@ -27,9 +27,9 @@ namespace GeneralStore.Inventory
             {
                 Color tint=preview.allowed?new Color(.1f,1,.35f,.5f):cell.state==PlacementCellState.Free
                     ?new Color(1,.15f,.15f,.28f):new Color(1,.05f,.05f,.7f);
-                float x=rect.xMin+(float)cell.x*cellSize+1,y=rect.yMax-(float)cell.y*cellSize-1,size=cellSize-2;
+                float x=rect.xMin+(float)cell.x*cellSize.x+1,y=rect.yMax-(float)cell.y*cellSize.y-1,w=cellSize.x-2,h=cellSize.y-2;
                 int start=helper.currentVertCount;
-                Add(helper,x,y,tint);Add(helper,x+size,y,tint);Add(helper,x+size,y-size,tint);Add(helper,x,y-size,tint);
+                Add(helper,x,y,tint);Add(helper,x+w,y,tint);Add(helper,x+w,y-h,tint);Add(helper,x,y-h,tint);
                 helper.AddTriangle(start,start+1,start+2);helper.AddTriangle(start+2,start+3,start);
             }
         }

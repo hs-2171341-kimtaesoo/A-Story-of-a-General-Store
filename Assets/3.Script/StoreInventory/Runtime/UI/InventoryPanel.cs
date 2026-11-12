@@ -47,7 +47,7 @@ namespace GeneralStore.Inventory
             drag.Initialize(this);
             foreach (InventoryGridView grid in grids) grid.Initialize(this);
             initialized = true; Model.Changed += MarkDirty;
-            RefreshDetails(); ShowMessage("드래그: 물건 1개 이동 / 드래그 중 R: 회전 / Esc: 취소");
+            RefreshDetails(); ShowMessage("드래그: 물건 1개 이동 / R: 회전 / Esc: 취소 / 빈 배경: 바닥에 내려놓기");
         }
         void MarkDirty() { dirty = true; }
         void LateUpdate()
@@ -58,6 +58,14 @@ namespace GeneralStore.Inventory
             foreach (InventoryGridView grid in grids) if (grid.gameObject.activeInHierarchy) grid.Refresh();
             RefreshDetails();
         }
+        // 처음 창을 만들 때만 등록하고 배열을 교체합니다. 매 프레임 할당하지 않습니다.
+        public void RegisterWindowGrid(InventoryGridView grid,InventoryDetailsView detail)
+        {
+            var v=new List<InventoryGridView>(grids);v.Add(grid);grids=v.ToArray();var d=new List<InventoryDetailsView>(detailViews);d.Add(detail);detailViews=d.ToArray();
+            if(koreanFont!=null)foreach(Text text in grid.GetComponentInParent<DisplayWindowView>().GetComponentsInChildren<Text>(true))text.font=koreanFont;grid.Initialize(this);
+        }
+        public void UnregisterWindowGrid(InventoryGridView grid,InventoryDetailsView detail)
+        {var v=new List<InventoryGridView>(grids);v.Remove(grid);grids=v.ToArray();var d=new List<InventoryDetailsView>(detailViews);d.Remove(detail);detailViews=d.ToArray();}
         public Sprite FindIcon(string iconKey)
         {
             Sprite sprite;
@@ -73,7 +81,7 @@ namespace GeneralStore.Inventory
         public void ShowMessage(string message) { if (messageLabel != null) messageLabel.text = message; }
         void RefreshDetails()
         {
-            ContainerRecord warehouse = Model.GetContainer("warehouse");
+            ContainerRecord warehouse = Model.GetContainer(grids[0].containerId);
             int usedCells = 0;
             if (warehouse != null) foreach (ItemRecord record in warehouse.items) usedCells += Catalog.Shape(record.itemId).CellCount;
             titleLabel.text = warehouse == null ? "격자 인벤토리" : "보관함 " + warehouse.items.Count + "개 / " + usedCells
@@ -85,6 +93,8 @@ namespace GeneralStore.Inventory
         public void HandleDrop(MoveRequest request)
         {
             if (request == null) { ShowMessage("격자 밖에는 놓을 수 없습니다."); return; }
+            string validationError;
+            if(!Model.CanMove(request,out validationError)){ShowMessage(validationError);return;}
             if (InventoryModel.IsDisplay(request.targetContainer) && request.sourceContainer != request.targetContainer)
             { shop.RequestDisplayPlacement(request); return; }
             string error;

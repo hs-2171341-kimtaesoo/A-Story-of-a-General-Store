@@ -1,0 +1,46 @@
+{
+  "types": [
+    {
+      "id": "shelf",
+      "title": "일반 선반",
+      "columns": 6,
+      "rows": 5,
+      "allowedItemTypes": [],
+      "purchasePrice": 900,
+      "maximumOwned": 1
+    },
+    {
+      "id": "wall_shelf",
+      "title": "벽 선반",
+      "columns": 6,
+      "rows": 2,
+      "allowedItemTypes": [],
+      "purchasePrice": 250,
+      "maximumOwned": 1
+    },
+    {
+      "id": "weapon_rack",
+      "title": "무기 거치대",
+      "columns": 4,
+      "rows": 6,
+      "allowedItemTypes": [
+        "weapon"
+      ],
+      "purchasePrice": 600,
+      "maximumOwned": 1
+    },
+    {
+      "id": "table",
+      "title": "진열 탁자",
+      "columns": 4,
+      "rows": 3,
+      "allowedItemTypes": [],
+      "purchasePrice": 400,
+      "maximumOwned": 1
+    }
+  ],
+  "initialTypes": [
+    "shelf",
+    "wall_shelf"
+  ]
+}

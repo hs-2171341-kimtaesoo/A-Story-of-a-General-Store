@@ -38,7 +38,7 @@ namespace GeneralStore.Inventory.Verification
         static InventoryModel NewModel(ItemCatalog catalog, int columns = 6, int rows = 4)
         {
             var save = new InventorySave();
-            save.containers.Add(new ContainerRecord { containerId = "warehouse", columns = columns, rows = rows });
+            save.containers.Add(new ContainerRecord { containerId = "test_storage", columns = columns, rows = rows });
             save.containers.Add(new ContainerRecord { containerId = "display_preview", columns = 6, rows = 4 });
             return new InventoryModel(catalog, save);
         }
@@ -81,44 +81,44 @@ namespace GeneralStore.Inventory.Verification
         {
             checks = 0; ItemCatalog catalog = Fixture();
             InventoryModel model = NewModel(catalog); string error;
-            Check(model.TryAdd("warehouse", "C001", "common", 1, 80, out error), "첫 입고");
-            Check(model.TryAdd("warehouse", "C001", "common", 1, 100, out error), "동일 종류/품질 재입고");
-            var items = model.GetContainer("warehouse").items; ItemRecord first = items[0], second = items[1];
+            Check(model.TryAdd("test_storage", "C001", "common", 1, 80, out error), "첫 입고");
+            Check(model.TryAdd("test_storage", "C001", "common", 1, 100, out error), "동일 종류/품질 재입고");
+            var items = model.GetContainer("test_storage").items; ItemRecord first = items[0], second = items[1];
             Check(items.Count == 2 && first.instanceId != second.instanceId, "낱개 ID 분리");
             Check(first.purchasePrice == 80 && second.purchasePrice == 100, "개별 매입가 보존");
             string before = Fingerprint(model); long revision = model.Revision;
-            Check(!model.TryMove(Move(model,"warehouse",first.instanceId,"warehouse",second.x,second.y,0),out error), "같은 물건 위에도 중첩 금지");
+            Check(!model.TryMove(Move(model,"test_storage",first.instanceId,"test_storage",second.x,second.y,0),out error), "같은 물건 위에도 중첩 금지");
             Check(before == Fingerprint(model) && revision == model.Revision, "실패 후 원본 유지");
-            var request = Move(model,"warehouse",first.instanceId,"display_preview",0,0,0);
+            var request = Move(model,"test_storage",first.instanceId,"display_preview",0,0,0);
             Check(model.CanMove(request,out error) && before == Fingerprint(model) && revision == model.Revision, "미리보기는 변경 없음");
             Check(model.TryMove(request,out error), "다른 컨테이너 이동");
             Check(model.GetItem("display_preview",first.instanceId).purchasePrice == 80
-                && model.GetContainer("warehouse").items.Count == 1, "이동 후 ID/매입가/개수 보존");
+                && model.GetContainer("test_storage").items.Count == 1, "이동 후 ID/매입가/개수 보존");
             Check(model.TryRemove("display_preview",first.instanceId,out error), "특정 물건 한 개 제거");
             Check(!model.TryRemove("display_preview",first.instanceId,out error), "중복 차감 거절");
-            Check(model.GetItem("warehouse",second.instanceId) != null, "다른 동일 상품은 유지");
+            Check(model.GetItem("test_storage",second.instanceId) != null, "다른 동일 상품은 유지");
             InventoryModel tight = NewModel(catalog,3,2);
-            Check(!tight.TryAdd("warehouse","C001","common",2,80,out error), "다 들어갈 수 없으면 전체 입고 거절");
-            Check(tight.GetContainer("warehouse").items.Count == 0 && tight.Revision == 0, "부분 입고 롤백");
-            Check(tight.TryAdd("warehouse","C001","common",1,80,out error), "한 개는 입고 가능");
-            Check(!tight.TryAdd("warehouse","C001","common",1,80,out error), "같은 상품도 빈 공간 필요");
-            Check(!tight.TryAdd("warehouse","C001","common",0,80,out error), "0개 입고 거절");
-            Check(!tight.TryAdd("warehouse","C001","missing",1,80,out error), "없는 품질 거절");
+            Check(!tight.TryAdd("test_storage","C001","common",2,80,out error), "다 들어갈 수 없으면 전체 입고 거절");
+            Check(tight.GetContainer("test_storage").items.Count == 0 && tight.Revision == 0, "부분 입고 롤백");
+            Check(tight.TryAdd("test_storage","C001","common",1,80,out error), "한 개는 입고 가능");
+            Check(!tight.TryAdd("test_storage","C001","common",1,80,out error), "같은 상품도 빈 공간 필요");
+            Check(!tight.TryAdd("test_storage","C001","common",0,80,out error), "0개 입고 거절");
+            Check(!tight.TryAdd("test_storage","C001","missing",1,80,out error), "없는 품질 거절");
             InventoryModel rotating = NewModel(catalog);
-            Check(rotating.TryAdd("warehouse","sample_rope","common",1,40,out error), "3x1 입고");
-            ItemRecord rope = rotating.GetContainer("warehouse").items[0];
-            Check(rotating.TryMove(Move(rotating,"warehouse",rope.instanceId,"warehouse",5,0,1),out error), "1x3 회전 이동");
-            ItemRecord turned = rotating.GetItem("warehouse",rope.instanceId);
+            Check(rotating.TryAdd("test_storage","sample_rope","common",1,40,out error), "3x1 입고");
+            ItemRecord rope = rotating.GetContainer("test_storage").items[0];
+            Check(rotating.TryMove(Move(rotating,"test_storage",rope.instanceId,"test_storage",5,0,1),out error), "1x3 회전 이동");
+            ItemRecord turned = rotating.GetItem("test_storage",rope.instanceId);
             Check(rotating.Width(turned)==1 && rotating.Height(turned)==3, "회전 크기");
-            Check(rotating.TryMove(Move(rotating,"warehouse",rope.instanceId,"warehouse",3,3,0),out error), "회전 해제");
-            Check(!rotating.TryMove(Move(rotating,"warehouse",rope.instanceId,"warehouse",4,3,0),out error), "경계 밖 거절");
-            var stale = Move(rotating,"warehouse",rope.instanceId,"display_preview",0,0,0);
+            Check(rotating.TryMove(Move(rotating,"test_storage",rope.instanceId,"test_storage",3,3,0),out error), "회전 해제");
+            Check(!rotating.TryMove(Move(rotating,"test_storage",rope.instanceId,"test_storage",4,3,0),out error), "경계 밖 거절");
+            var stale = Move(rotating,"test_storage",rope.instanceId,"display_preview",0,0,0);
             Check(rotating.TryAdd("display_preview","E001","none",1,0,out error), "외부 재고 변경");
             Check(!rotating.TryMove(stale,out error), "오래된 요청 거절");
             InventoryModel locked = NewModel(Fixture(false));
-            Check(locked.TryAdd("warehouse","sample_sword","common",1,20,out error), "회전 잠금 물건 입고");
-            ItemRecord sword = locked.GetContainer("warehouse").items[0];
-            Check(!locked.TryMove(Move(locked,"warehouse",sword.instanceId,"display_preview",0,0,1),out error), "회전 잠금 검사");
+            Check(locked.TryAdd("test_storage","sample_sword","common",1,20,out error), "회전 잠금 물건 입고");
+            ItemRecord sword = locked.GetContainer("test_storage").items[0];
+            Check(!locked.TryMove(Move(locked,"test_storage",sword.instanceId,"display_preview",0,0,1),out error), "회전 잠금 검사");
             InventorySave snapshot = model.Snapshot();
             InventoryModel restored = NewModel(catalog);
             Check(restored.TryRestore(snapshot,out error) && Fingerprint(restored)==Fingerprint(model), "저장 스냅샷 복원");
@@ -133,38 +133,38 @@ namespace GeneralStore.Inventory.Verification
             snapshot = restored.Snapshot(); snapshot.format = "old-stack-format";
             Check(!restored.TryRestore(snapshot,out error), "다른 포맷 거절");
             // 반환한 조회 객체를 수정해도 모델의 원본은 바뀌지 않아야 합니다.
-            ItemRecord copy = model.GetItem("warehouse",second.instanceId); copy.purchasePrice=999;
-            Check(model.GetItem("warehouse",second.instanceId).purchasePrice==100,"조회는 복사본");
+            ItemRecord copy = model.GetItem("test_storage",second.instanceId); copy.purchasePrice=999;
+            Check(model.GetItem("test_storage",second.instanceId).purchasePrice==100,"조회는 복사본");
 
             ShapeChecks(catalog);
             InventoryModel demo=NewModel(catalog,10,8);
-            Check(demo.TryAdd("warehouse","C001","common",2,80,out error),"데모 일반 포션 2개");
-            Check(demo.TryAdd("warehouse","C001","common",1,100,out error),"데모 추가 포션");
-            Check(demo.TryAdd("warehouse","C001","superior",1,110,out error),"데모 상급 포션");
-            Check(demo.TryAdd("warehouse","E001","none",2,0,out error),"데모 빵");
-            Check(demo.TryAdd("warehouse","sample_rope","common",1,40,out error),"데모 밧줄");
-            Check(demo.TryAdd("warehouse","sample_sword","common",1,90,out error),"데모 검");
-            Check(demo.TryAdd("warehouse","sample_bag","common",1,150,out error),"데모 가방");
-            Check(demo.TryAdd("warehouse","sample_lframe","common",1,50,out error),"데모 ㄱ자");
-            Check(demo.TryAdd("warehouse","sample_cframe","common",1,70,out error),"데모 ㄷ자");
-            Check(demo.GetContainer("warehouse").items.Count==11,"데모 전체 11개 배치");
+            Check(demo.TryAdd("test_storage","C001","common",2,80,out error),"데모 일반 포션 2개");
+            Check(demo.TryAdd("test_storage","C001","common",1,100,out error),"데모 추가 포션");
+            Check(demo.TryAdd("test_storage","C001","superior",1,110,out error),"데모 상급 포션");
+            Check(demo.TryAdd("test_storage","E001","none",2,0,out error),"데모 빵");
+            Check(demo.TryAdd("test_storage","sample_rope","common",1,40,out error),"데모 밧줄");
+            Check(demo.TryAdd("test_storage","sample_sword","common",1,90,out error),"데모 검");
+            Check(demo.TryAdd("test_storage","sample_bag","common",1,150,out error),"데모 가방");
+            Check(demo.TryAdd("test_storage","sample_lframe","common",1,50,out error),"데모 ㄱ자");
+            Check(demo.TryAdd("test_storage","sample_cframe","common",1,70,out error),"데모 ㄷ자");
+            Check(demo.GetContainer("test_storage").items.Count==11,"데모 전체 11개 배치");
             Geometry(demo);
             // 무작위 이동 후에도 ID/매입가/전체 물건 수와 실제 점유 칸을 독립적으로 검사합니다.
             var random = new Random(4242); InventoryModel fuzz = NewModel(catalog,8,6);
-            fuzz.TryAdd("warehouse","C001","common",2,80,out error);
-            fuzz.TryAdd("warehouse","sample_rope","common",1,40,out error);
-            fuzz.TryAdd("warehouse","sample_sword","common",1,90,out error);
-            fuzz.TryAdd("warehouse","sample_bag","common",1,150,out error);
-            Check(fuzz.TryAdd("warehouse","sample_lframe","common",1,50,out error),"무작위 ㄱ자 준비");
-            Check(fuzz.TryAdd("warehouse","sample_cframe","common",1,70,out error),"무작위 ㄷ자 준비");
+            fuzz.TryAdd("test_storage","C001","common",2,80,out error);
+            fuzz.TryAdd("test_storage","sample_rope","common",1,40,out error);
+            fuzz.TryAdd("test_storage","sample_sword","common",1,90,out error);
+            fuzz.TryAdd("test_storage","sample_bag","common",1,150,out error);
+            Check(fuzz.TryAdd("test_storage","sample_lframe","common",1,50,out error),"무작위 ㄱ자 준비");
+            Check(fuzz.TryAdd("test_storage","sample_cframe","common",1,70,out error),"무작위 ㄷ자 준비");
             var prices = new Dictionary<string,int>();
-            foreach (ItemRecord item in fuzz.GetContainer("warehouse").items) prices.Add(item.instanceId,item.purchasePrice);
+            foreach (ItemRecord item in fuzz.GetContainer("test_storage").items) prices.Add(item.instanceId,item.purchasePrice);
             for (int iteration=0; iteration<1000; iteration++)
             {
                 var candidates = new List<ItemRecord>(); var locations = new List<string>();
                 foreach (ContainerRecord container in fuzz.Snapshot().containers)
                     foreach (ItemRecord item in container.items) { candidates.Add(item); locations.Add(container.containerId); }
-                int index=random.Next(candidates.Count); string targetId=random.Next(2)==0?"warehouse":"display_preview";
+                int index=random.Next(candidates.Count); string targetId=random.Next(2)==0?"test_storage":"display_preview";
                 ContainerRecord target=fuzz.GetContainer(targetId);
                 MoveRequest move=Move(fuzz,locations[index],candidates[index].instanceId,targetId,
                     random.Next(-1,target.columns+1),random.Next(-1,target.rows+1),random.Next(4));
@@ -212,27 +212,27 @@ namespace GeneralStore.Inventory.Verification
             }
             // 같은 3x3 바깥 사각형 안에 ㄱ자와 2x2 포션을 함께 넣습니다.
             InventoryModel nested=NewModel(catalog,3,3);
-            Check(nested.TryAdd("warehouse","sample_lframe","common",1,50,out error),"ㄱ자 입고");
-            Check(nested.TryAdd("warehouse","C001","common",1,80,out error),"ㄱ자 빈 공간에 포션 배치");
-            ContainerRecord container=nested.GetContainer("warehouse");
+            Check(nested.TryAdd("test_storage","sample_lframe","common",1,50,out error),"ㄱ자 입고");
+            Check(nested.TryAdd("test_storage","C001","common",1,80,out error),"ㄱ자 빈 공간에 포션 배치");
+            ContainerRecord container=nested.GetContainer("test_storage");
             ItemRecord frame=container.items.Find(i=>i.itemId=="sample_lframe");
             ItemRecord potion=container.items.Find(i=>i.itemId=="C001");
             Check(potion.x==1 && potion.y==0 && container.items.Count==2,"서로 겹친 바깥 사각형 허용");
-            PlacementPreview good=nested.Preview(Move(nested,"warehouse",frame.instanceId,"warehouse",0,0,0));
+            PlacementPreview good=nested.Preview(Move(nested,"test_storage",frame.instanceId,"test_storage",0,0,0));
             Check(good.allowed && good.cells.Count==5 && good.cells.TrueForAll(c=>c.state==PlacementCellState.Free),"정상 위치는 점유 5칸만 초록");
-            PlacementPreview bad=nested.Preview(Move(nested,"warehouse",frame.instanceId,"warehouse",0,0,1));
+            PlacementPreview bad=nested.Preview(Move(nested,"test_storage",frame.instanceId,"test_storage",0,0,1));
             Check(!bad.allowed && bad.cells.FindAll(c=>c.state==PlacementCellState.Occupied).Count==2,"회전 충돌 칸 정확히 검출");
             long before=nested.Revision;
-            Check(!nested.TryMove(Move(nested,"warehouse",frame.instanceId,"warehouse",0,0,1),out error) && nested.Revision==before,"빨간 위치 실제 배치 거절");
-            PlacementPreview outside=nested.Preview(Move(nested,"warehouse",frame.instanceId,"warehouse",-1,0,0));
+            Check(!nested.TryMove(Move(nested,"test_storage",frame.instanceId,"test_storage",0,0,1),out error) && nested.Revision==before,"빨간 위치 실제 배치 거절");
+            PlacementPreview outside=nested.Preview(Move(nested,"test_storage",frame.instanceId,"test_storage",-1,0,0));
             Check(!outside.allowed && outside.cells.Exists(c=>c.state==PlacementCellState.Outside),"격자 밖 칸 표시");
-            Check(!nested.CanMove(Move(nested,"warehouse",frame.instanceId,"warehouse",int.MaxValue,int.MaxValue,0),out error),"큰 좌표도 오버플로 없이 거절");
-            Check(!nested.CanMove(Move(nested,"warehouse",frame.instanceId,"warehouse",0,0,4),out error),"잘못된 회전 거절");
+            Check(!nested.CanMove(Move(nested,"test_storage",frame.instanceId,"test_storage",int.MaxValue,int.MaxValue,0),out error),"큰 좌표도 오버플로 없이 거절");
+            Check(!nested.CanMove(Move(nested,"test_storage",frame.instanceId,"test_storage",0,0,4),out error),"잘못된 회전 거절");
             Geometry(nested);
             InventoryModel cShape=NewModel(catalog,3,3);
-            Check(cShape.TryAdd("warehouse","sample_cframe","common",1,70,out error),"ㄷ자 입고");
-            Check(cShape.TryAdd("warehouse","E001","none",1,0,out error),"ㄷ자 빈 2x1에 빵 배치");
-            ItemRecord bread=cShape.GetContainer("warehouse").items.Find(i=>i.itemId=="E001");
+            Check(cShape.TryAdd("test_storage","sample_cframe","common",1,70,out error),"ㄷ자 입고");
+            Check(cShape.TryAdd("test_storage","E001","none",1,0,out error),"ㄷ자 빈 2x1에 빵 배치");
+            ItemRecord bread=cShape.GetContainer("test_storage").items.Find(i=>i.itemId=="E001");
             Check(bread.x==1 && bread.y==1,"ㄷ자 내부 위치");
             Geometry(cShape);
             InventoryModel restored=NewModel(catalog);

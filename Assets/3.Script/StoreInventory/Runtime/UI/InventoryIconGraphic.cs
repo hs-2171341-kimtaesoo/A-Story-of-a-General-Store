@@ -23,11 +23,12 @@ namespace GeneralStore.Inventory
         Sprite iconSprite;
         ItemFootprint shape;
         int rotation;
+        float cellAspect=1;
         public override Texture mainTexture { get { return iconSprite != null ? iconSprite.texture : Texture2D.whiteTexture; } }
-        public void Configure(ItemFootprint footprint, Sprite sprite, int direction)
+        public void Configure(ItemFootprint footprint, Sprite sprite, int direction,float widthOverHeight)
         {
-            if(shape==footprint && iconSprite==sprite && rotation==direction) return;
-            shape=footprint; iconSprite=sprite; rotation=direction;
+            if(shape==footprint && iconSprite==sprite && rotation==direction && cellAspect==widthOverHeight) return;
+            shape=footprint; iconSprite=sprite; rotation=direction;cellAspect=widthOverHeight;
             SetVerticesDirty(); SetMaterialDirty();
         }
         protected override void OnPopulateMesh(VertexHelper helper)
@@ -39,7 +40,7 @@ namespace GeneralStore.Inventory
             Vector4 uv=hasSprite?DataUtility.GetOuterUV(iconSprite):new Vector4(0,0,1,1);
             float sx=rect.width/shape.Width(rotation),sy=rect.height/shape.Height(rotation);
             Color tint=hasSprite?color:missingIconColor;
-            foreach(IconQuad quad in IconMeshGeometry.Build(shape,rotation,hasSprite && preserveSpriteAspect,aspect))
+            foreach(IconQuad quad in IconMeshGeometry.Build(shape,rotation,hasSprite && preserveSpriteAspect,aspect,cellAspect))
             {
                 int start=helper.currentVertCount;
                 Add(helper,rect.xMin+quad.x0*sx,rect.yMax-quad.y0*sy,quad.topLeft,uv,tint);

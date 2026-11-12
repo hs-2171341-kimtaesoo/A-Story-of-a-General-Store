@@ -13,18 +13,21 @@ namespace GeneralStore.Inventory
     // 좌표는 칸 단위, y는 아래쪽입니다. Unity 좌표/아틀라스 UV 변환은 Graphic이 담당합니다.
     public static class IconMeshGeometry
     {
-        public static List<IconQuad> Build(ItemFootprint shape, int rotation, bool hasSprite, float aspect)
+        public static List<IconQuad> Build(ItemFootprint shape, int rotation, bool hasSprite, float aspect,float cellAspect=1)
         {
             if (hasSprite && (float.IsNaN(aspect) || float.IsInfinity(aspect) || aspect <= 0)) throw new ArgumentException("아이콘 비율 오류");
             float bw=shape.Width(0),bh=shape.Height(0),rw=shape.Width(rotation),rh=shape.Height(rotation);
-            float imageW=bw,imageH=bh;
+            if(float.IsNaN(cellAspect)||float.IsInfinity(cellAspect)||cellAspect<=0)throw new ArgumentException("격자 비율 오류");
+            // 회전 후의 실제 픽셀 비율을 먼저 맞춥니다. 세로로 긴 칸에서도 그림이 늘어나지 않습니다.
+            float rotatedW=rw,rotatedH=rh;
             if(hasSprite)
             {
-                if(bw/bh>aspect) imageW=bh*aspect;
-                else imageH=bw/aspect;
+                float rotatedAspect=(rotation%2==0?aspect:1/aspect)/cellAspect;
+                if(rw/rh>rotatedAspect)rotatedW=rh*rotatedAspect;
+                else rotatedH=rw/rotatedAspect;
             }
+            float imageW=rotation%2==0?rotatedW:rotatedH,imageH=rotation%2==0?rotatedH:rotatedW;
             float offsetX=(bw-imageW)*.5f,offsetY=(bh-imageH)*.5f;
-            float rotatedW=rotation%2==0?imageW:imageH,rotatedH=rotation%2==0?imageH:imageW;
             float left=(rw-rotatedW)*.5f,top=(rh-rotatedH)*.5f;
             var result=new List<IconQuad>();
             foreach(GridCell cell in shape.Cells(rotation))

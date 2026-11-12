@@ -1,0 +1,53 @@
+{
+  "customers": [
+    {
+      "id": "traveler",
+      "displayName": "여행자",
+      "portraitKey": "traveler",
+      "enabled": true,
+      "preferredItemIds": [
+        "C001",
+        "sample_rope"
+      ],
+      "maxPickCount": 5,
+      "wallet": 2000,
+      "spendingFraction": 0.5,
+      "maxPriceRatio": 1.5,
+      "greeting": "진열장에서 이 물건들을 골랐어요.",
+      "situationText": "북쪽 폐광으로 떠나려는데 더 챙길 물건이 있을까요?"
+    },
+    {
+      "id": "guard",
+      "displayName": "경비병",
+      "portraitKey": "guard",
+      "enabled": true,
+      "preferredItemIds": [
+        "C001",
+        "sample_sword"
+      ],
+      "maxPickCount": 5,
+      "wallet": 1600,
+      "spendingFraction": 0.4,
+      "maxPriceRatio": 1.5,
+      "greeting": "이 물건들을 계산해 주세요.",
+      "situationText": "오늘 밤 순찰을 나가야 해요."
+    },
+    {
+      "id": "camper",
+      "displayName": "야영객",
+      "portraitKey": "camper",
+      "enabled": true,
+      "preferredItemIds": [
+        "E001",
+        "sample_bag",
+        "sample_rope"
+      ],
+      "maxPickCount": 5,
+      "wallet": 1200,
+      "spendingFraction": 0.6,
+      "maxPriceRatio": 1.5,
+      "greeting": "여행에 쓸 물건을 골라 왔어요.",
+      "situationText": "숲에서 하룻밤 묵으려는데 준비가 충분할까요?"
+    }
+  ]
+}

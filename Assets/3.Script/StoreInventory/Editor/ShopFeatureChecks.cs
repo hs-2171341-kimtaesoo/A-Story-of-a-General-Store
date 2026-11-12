@@ -79,6 +79,48 @@ namespace GeneralStore.Inventory.Verification
             Check(!model.TrySell(new[]{line,line},model.Revision,out revenue,out error)&&model.GetItem("warehouse",first)!=null,"같은 uid 중복 판매 차단");
             Check(!model.TrySell(new[]{new SaleLine{containerId="warehouse",instanceId=first,price=999}},model.Revision,out revenue,out error),"임의 가격 변조 차단");
 
+            // 예약은 물건을 옮기지 않습니다. 같은 품목이어도 UID별로 선택/미선택을 구분합니다.
+            model=Model();session=new RecommendationSession(model);
+            Check(model.TryAdd("warehouse","C001","common",8,80,out error),"예약 검사 재고 준비");
+            items=model.GetContainer("warehouse").items;
+            for(int n=0;n<6;n++) Check(model.TryListOnDisplay(Place(model,"warehouse",items[n].instanceId,(n%3)*2,(n/3)*2),100,out error),"여섯 낱개 진열");
+            Check(!session.TryEnterShopping("손님",1000,1.5,new[]{"missing"},5,out error)&&!session.CustomerPresent,"선호 품목 없으면 방문 종료");
+            Check(!session.TryEnterShopping("손님",99,1.5,new[]{"C001"},5,out error),"예산 이하 후보 없으면 방문 종료");
+            Check(session.TryEnterShopping("손님",1000,1.5,new[]{"C001","C001"},5,out error),"선호 진열 상품 선택");
+            Check(session.Purchases().Count==5&&session.Offers().Count==0,"최대 다섯 낱개 선택 및 선호 목록 중복 배제");
+            first=session.Purchases()[0].instanceId;second=items[5].instanceId;
+            Check(model.GetContainer("display_1").items.Count==6&&model.IsReserved(first)&&!model.IsReserved(second),"진열 위치 유지 및 선택한 UID만 잠금");
+            session.BeginConversation(out error);
+            Check(!session.TryRecommend("display_1",first,out error),"구매 예정 물건 재추천 차단");
+            Check(!model.TryRemove("display_1",first,out error),"예약 상품 일반 출고 차단");
+            var blocked=new MoveRequest{sourceContainer="display_1",targetContainer="warehouse",instanceId=first,x=0,y=0,expectedRevision=model.Revision};
+            Check(!model.Preview(blocked).allowed&&!model.TryMove(blocked,out error),"미리보기와 이동 모두 예약 차단");
+            Check(!model.TryListOnDisplay(Place(model,"display_1",first),120,out error),"예약 상품 재가격 설정 차단");
+            Check(!model.TrySell(new[]{new SaleLine{containerId="display_1",instanceId=first,price=100}},model.Revision,out revenue,out error),"일반 판매 API로 예약 우회 차단");
+            session.Remove(first);Check(session.Purchases().Count==5&&model.IsReserved(first),"추천 제거로 구매 예정 상품을 해제하지 않음");
+            Check(session.TryRecommend("display_1",second,out error),"같은 품목의 미선택 UID는 추천 가능");
+            Check(session.TrySubmit(out revenue,out error)&&revenue==600&&model.Gold==700,"구매 다섯 개와 추천 한 개를 함께 한 번만 결제");
+            Check(model.GetContainer("display_1").items.Count==0&&!model.IsReserved(first)&&model.GetContainer("warehouse").items.Count==2,"판매 물건만 제거 및 예약 정리");
+            Check(!session.TrySubmit(out revenue,out error)&&model.Gold==700,"예약 결제 연타 방지");
+            Check(model.TryListOnDisplay(Place(model,"warehouse",items[6].instanceId),100,out error),"다음 손님용 진열");
+            Check(session.TryEnterShopping("손님",1000,1.5,new[]{"C001"},1,out error),"한 개 선택 설정");
+            first=session.Purchases()[0].instanceId;
+            long savedGold=model.Gold;session.Leave();
+            Check(!model.IsReserved(first)&&model.GetItem("display_1",first)!=null&&model.Gold==savedGold,"거래 거절 시 위치와 돈 유지하며 잠금만 해제");
+            Check(session.TryEnterShopping("손님",1000,1.5,new[]{"C001"},1,out error)&&session.TrySubmit(out revenue,out error)&&revenue==100,"추천 없이 구매 예정 물건만 계산 가능");
+            Check(model.TryListOnDisplay(Place(model,"warehouse",items[7].instanceId),100,out error),"불러오기 검사 진열");
+            session.TryEnterShopping("손님",100,1.5,new[]{"C001"},1,out error);
+            first=session.Purchases()[0].instanceId;
+            var reservedSnapshot=model.Snapshot();
+            var isolated=Model();Check(isolated.TryRestore(reservedSnapshot,out error)&&!isolated.IsReserved(first),"예약은 저장 파일에 포함되지 않음");
+            Check(model.TryAdd("warehouse","C001","common",1,80,out error),"예산 초과 추천 준비");
+            string extra=model.GetContainer("warehouse").items[0].instanceId;
+            session.BeginConversation(out error);
+            Check(session.TryRecommend("warehouse",extra,out error)&&!session.TrySubmit(out revenue,out error),"구매 예정 포함 총예산으로 추천 거절");
+            Check(model.IsReserved(first)&&model.GetItem("display_1",first)!=null,"추천 거절 시 기존 구매 예정은 유지");
+            session.Remove(extra);
+            Check(session.TrySubmit(out revenue,out error)&&revenue==100,"거절된 추천 제거 후 기존 구매 결제");
+
             var catalog=InventoryModelChecks.Fixture();var random=new Random(81);
             foreach(string id in new[]{"C001","sample_rope","sample_lframe","sample_cframe"})
                 for(int rotation=0;rotation<4;rotation++)

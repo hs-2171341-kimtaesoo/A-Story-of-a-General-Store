@@ -16,10 +16,14 @@ namespace GeneralStore.Inventory
         public RectTransform Rect { get { return (RectTransform)transform; } }
         Sprite sprite;
         int visualRotation=-1;
-        float visualCellSize;
+        Vector2 visualCellSize;bool previousLocked;
         public void Bind(InventoryPanel panel,InventoryGridView grid,ItemRecord record)
         {
-            Panel=panel;Grid=grid;Record=record;
+            bool locked=panel.Model.IsReserved(record.instanceId);
+            if(Panel==panel&&Grid==grid&&Record!=null&&Record.instanceId==record.instanceId&&Record.itemId==record.itemId&&Record.quality==record.quality
+                &&Record.x==record.x&&Record.y==record.y&&visualRotation==record.rotation&&Record.rotation==record.rotation&&Record.purchasePrice==record.purchasePrice&&previousLocked==locked
+                &&visualCellSize.x==grid.cellWidth&&visualCellSize.y==grid.cellHeight)return;
+            Panel=panel;Grid=grid;Record=record;previousLocked=locked;
             sprite=panel.FindIcon(panel.Catalog.FindQuality(record.itemId,record.quality).iconKey);
             var hitArea=GetComponent<global::UnityEngine.UI.Image>();
             hitArea.color=new Color(1,1,1,0);hitArea.sprite=null;hitArea.raycastTarget=true;
@@ -28,31 +32,33 @@ namespace GeneralStore.Inventory
             icon.gameObject.SetActive(true);icon.raycastTarget=false;
             RectTransform iconRect=icon.rectTransform;iconRect.anchorMin=Vector2.zero;iconRect.anchorMax=Vector2.one;
             iconRect.offsetMin=iconRect.offsetMax=Vector2.zero;iconRect.localRotation=Quaternion.Euler(0,0,0);
-            visualRotation=-1;ApplyRotation(record.rotation,grid.cellSize);
-            Rect.anchoredPosition=new Vector2(record.x*grid.cellSize,-record.y*grid.cellSize);
+            visualRotation=-1;ApplyRotation(record.rotation,grid.CellSize);
+            GetComponent<CanvasGroup>().alpha=locked?.55f:1;
+            if(locked) nameLabel.text="손님 선택 · 잠금";
+            Rect.anchoredPosition=new Vector2(record.x*grid.cellWidth,-record.y*grid.cellHeight);
         }
-        public void ApplyRotation(int rotation,float cellSize)
+        public void ApplyRotation(int rotation,Vector2 cellSize)
         {
-            if(visualRotation==rotation && visualCellSize==cellSize) return;
+            if(visualRotation==rotation && visualCellSize.x==cellSize.x && visualCellSize.y==cellSize.y) return;
             visualRotation=rotation;visualCellSize=cellSize;ItemFootprint shape=Panel.Catalog.Shape(Record.itemId);
-            Rect.sizeDelta=new Vector2(shape.Width(rotation)*cellSize,shape.Height(rotation)*cellSize);
-            icon.Configure(shape,sprite,rotation);
+            Rect.sizeDelta=new Vector2(shape.Width(rotation)*cellSize.x,shape.Height(rotation)*cellSize.y);
+            icon.Configure(shape,sprite,rotation,cellSize.x/cellSize.y);
             GridCell first=shape.Cells(rotation)[0];
             nameLabel.text=sprite==null?Panel.Catalog.FindQuality(Record.itemId,Record.quality).name:"";
             var label=nameLabel.rectTransform;label.anchorMin=label.anchorMax=label.pivot=new Vector2(0,1);
-            label.anchoredPosition=new Vector2(first.x*cellSize+3,-first.y*cellSize-3);
-            label.sizeDelta=Vector2.one*(cellSize-6);nameLabel.transform.SetAsLastSibling();
+            label.anchoredPosition=new Vector2(first.x*cellSize.x+3,-first.y*cellSize.y-3);
+            label.sizeDelta=new Vector2(cellSize.x-6,cellSize.y-6);nameLabel.transform.SetAsLastSibling();
         }
         public bool IsRaycastLocationValid(Vector2 point,Camera camera)
         {
             if(Panel==null || Record==null || visualRotation<0) return false;Vector2 local;
             if(!RectTransformUtility.ScreenPointToLocalPointInRectangle(Rect,point,camera,out local)) return false;
-            return Panel.Catalog.Shape(Record.itemId).Contains(visualRotation,Mathf.FloorToInt(local.x/visualCellSize),Mathf.FloorToInt(-local.y/visualCellSize));
+            return Panel.Catalog.Shape(Record.itemId).Contains(visualRotation,Mathf.FloorToInt(local.x/visualCellSize.x),Mathf.FloorToInt(-local.y/visualCellSize.y));
         }
         public void SetDragVisual(bool dragging)
         { CanvasGroup group=GetComponent<CanvasGroup>();group.alpha=dragging?.3f:1;group.blocksRaycasts=!dragging; }
-        public void OnPointerClick(PointerEventData e) { if(e.button==PointerEventData.InputButton.Left)Panel.Select(Grid.containerId,Record.instanceId); }
-        public void OnBeginDrag(PointerEventData e) { if(e.button==PointerEventData.InputButton.Left)Panel.drag.Begin(this,e); }
+        public void OnPointerClick(PointerEventData e) { if(Panel.Model.IsReserved(Record.instanceId)){Panel.ShowMessage("손님이 고른 물건입니다. 계산/손님 보내기 후 변경할 수 있습니다.");return;} if(e.button==PointerEventData.InputButton.Left)Panel.Select(Grid.containerId,Record.instanceId); }
+        public void OnBeginDrag(PointerEventData e) { if(Panel.Model.IsReserved(Record.instanceId)){Panel.ShowMessage("손님 선택 상품은 이동할 수 없습니다.");return;} if(e.button==PointerEventData.InputButton.Left)Panel.drag.Begin(this,e); }
         public void OnDrag(PointerEventData e) { Panel.drag.MovePointer(e.position); }
         public void OnEndDrag(PointerEventData e) { Panel.drag.Cancel(false); }
     }
