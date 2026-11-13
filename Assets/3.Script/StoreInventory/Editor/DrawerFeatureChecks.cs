@@ -39,6 +39,35 @@ namespace GeneralStore.Inventory.Verification
             m.TryExpandWarehouse("warehouse",out error);m.TryExpandWarehouse("warehouse",out error);m.TryCreateWarehouse(8,out id,out error);m.TryAdd("warehouse","C001","common",1,80,out error);potion=m.GetContainer("warehouse").items[0];
             Check(!m.TryMove(Move(m,"warehouse",potion.instanceId,id,8),out error)&&m.GetItem("warehouse",potion.instanceId)!=null,"잘못 드롭해도 원래 상자 유지");
             Check(m.TryMove(Move(m,"warehouse",potion.instanceId,id,0),out error)&&m.GetItem(id,potion.instanceId)!=null,"다른 상자에 동일 UID 이동");
+            // 자유 이동 경계와 원래 하단 자리로 향하는 양축 보간을 검사합니다.
+            var topLeft=DrawerGeometry.ClampFree(-50,50,690,1920,1080,60);
+            Check(topLeft.x==0&&topLeft.y==0,"상자 위/왼쪽 경계");
+            var bottomRight=DrawerGeometry.ClampFree(3000,-3000,690,1920,1080,60);
+            Check(bottomRight.x==1230&&bottomRight.y==-1020,"오른쪽 경계와 하단 손잡이 유지");
+            var placed=DrawerGeometry.ClampFree(780,-320,690,1920,1080,60);
+            Check(placed.x==780&&placed.y==-320&&!DrawerGeometry.ShouldClose(placed.y,882,1080,.5f),"놓은 자유 위치를 변경하지 않음");
+            float x=1100,down=-700;
+            for(int frame=0;frame<120;frame++)
+            {
+                float nx=DrawerGeometry.Step(x,24,12,1f/60),ny=DrawerGeometry.Step(down,-1020,12,1f/60);
+                Check(nx<=x&&nx>=24&&ny<=down&&ny>=-1020,"하단 원래 자리까지 양축 자연 복귀");x=nx;down=ny;
+            }
+            Check(x==24&&down==-1020,"가로/세로 모두 하단 원래 자리 도착");
+            var rng=new Random(34);
+            for(int n=0;n<1000;n++)
+            {
+                var point=DrawerGeometry.ClampFree(rng.Next(-4000,4000),rng.Next(-4000,4000),690,1920,1080,60);
+                Check(point.x>=0&&point.x+690<=1920&&point.y<=0&&point.y>=-1020,"자유 이동 경계 무작위 검사");
+            }
+            foreach(float height in new[]{100f,136f,156f})
+            {
+                var box=DetailsFrameGeometry.Calculate(400,height,96,12,12);
+                Check(box.x>=0&&box.y>=0&&box.x+box.side<=400&&box.y+box.side<=height,"상세 이미지 네모가 부모 안에 들어감");
+                Check(Math.Abs(box.y+box.side*.5f-height*.5f)<.001f,"높이가 다른 상세창에서도 세로 중앙");
+                Check(box.textLeft>=box.x+box.side+12&&box.textLeft+box.textWidth<=400,"텍스트와 네모의 겹침 방지");
+            }
+            var compact=DetailsFrameGeometry.Calculate(400,100,96,12,12);
+            Check(compact.side==76&&compact.y==12,"100높이 창에96아이콘이 튀어나오던 문제 회귀");
             return count;
         }
     }

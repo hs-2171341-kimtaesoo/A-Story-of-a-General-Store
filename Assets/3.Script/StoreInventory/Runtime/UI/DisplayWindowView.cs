@@ -9,7 +9,7 @@ namespace GeneralStore.Inventory
         public Text title,status;public InventoryPanel panel;public DisplayUI owner;
         public string ContainerId{get{return grid.containerId;}}
         public void Bind(InventoryPanel p,DisplayUI manager,string id)
-        {panel=p;owner=manager;grid.containerId=id;details.containerFilter=id;details.compactDisplay=true;panel.RegisterWindowGrid(grid,details);Refresh();}
+        {panel=p;owner=manager;grid.containerId=id;details.containerFilter=id;details.compactDisplay=true;if(panel.koreanFont!=null)foreach(var text in GetComponentsInChildren<Text>(true))text.font=panel.koreanFont;panel.RegisterWindowGrid(grid,details);Refresh();}
         public void Refresh()
         {
             var s=panel.Model.SummarizeDisplay(ContainerId);if(s==null)return;title.text=s.title;status.fontSize=16;
@@ -17,6 +17,7 @@ namespace GeneralStore.Inventory
             appearance.Apply(panel.Model.Installation(ContainerId).typeId,s.columns,s.rows);
         }
         public void Open(){gameObject.SetActive(true);transform.SetAsLastSibling();grid.Refresh();Refresh();}
-        public void Close(){panel.drag.Cancel(false);panel.shop.CancelDisplayPrice();gameObject.SetActive(false);}
+        void OnDisable(){if(panel!=null)panel.ClearSelection(ContainerId);}
+        public void Close(){panel.ClearSelection(ContainerId);panel.drag.Cancel(false);panel.shop.CancelDisplayPrice();gameObject.SetActive(false);}
     }
 }

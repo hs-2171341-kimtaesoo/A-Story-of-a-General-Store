@@ -17,11 +17,11 @@ namespace GeneralStore.Inventory
         void MarkDirty(){dirty=true;}
         void Refresh()
         {
-            boundId=panel.Model.OwnedDisplayId(typeId,ownedIndex);GetComponent<global::UnityEngine.UI.Image>().raycastTarget=boundId!=null;
+            boundId=panel.Model.OwnedDisplayId(typeId,ownedIndex);GetComponent<global::UnityEngine.UI.Image>().raycastTarget=boundId!=null&&!panel.inventory.Sales.CustomerPresent;
             var t=panel.Model.Displays.Type(typeId);label.text=(t==null?typeId:t.title)+(boundId==null?" · 미구매":"");
-            label.gameObject.SetActive(boundId!=null||showUnavailable);furnitureImage.enabled=boundId!=null;highlightImage.enabled=boundId!=null&&hover;
+            label.gameObject.SetActive(boundId!=null||showUnavailable);furnitureImage.enabled=boundId!=null;highlightImage.enabled=boundId!=null&&hover&&!panel.inventory.Sales.CustomerPresent;
         }
-        public void OnPointerClick(PointerEventData e){if(e.button==PointerEventData.InputButton.Left&&boundId!=null&&!panel.drag.IsDragging)displays.Open(boundId);}
+        public void OnPointerClick(PointerEventData e){if(e.button==PointerEventData.InputButton.Left&&boundId!=null&&!panel.drag.IsDragging&&!panel.IsWindowDragging&&!panel.inventory.Sales.CustomerPresent)displays.Open(boundId);}
         public void OnPointerEnter(PointerEventData e){hover=true;if(ready)Refresh();}
         public void OnPointerExit(PointerEventData e){hover=false;if(highlightImage!=null)highlightImage.enabled=false;}
         void LateUpdate(){if(ready&&dirty){dirty=false;Refresh();}}

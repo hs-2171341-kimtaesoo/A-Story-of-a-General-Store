@@ -10,6 +10,11 @@ namespace GeneralStore.Inventory
         public InventoryRuntime inventory;
         public Canvas canvas;
         public InventoryDragHandler drag;
+        WindowDragInputShield windowInput;
+        public bool IsWindowDragging{get{return windowInput!=null&&windowInput.Active;}}
+        public bool BeginWindowDrag(Object actor,RectTransform moving,RectTransform bounds)
+        {if(windowInput==null){windowInput=GetComponent<WindowDragInputShield>();if(windowInput==null)windowInput=gameObject.AddComponent<WindowDragInputShield>();}return windowInput.Begin(actor,moving,bounds);}
+        public void EndWindowDrag(Object actor){if(windowInput!=null)windowInput.End(actor);}
         public InventoryGridView[] grids;
         public InventoryDetailsView[] detailViews;
         public ShopfrontUI shop;
@@ -19,6 +24,7 @@ namespace GeneralStore.Inventory
         public ItemCatalog Catalog { get { return inventory.Catalog; } }
         public Camera EventCamera { get { return canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera; } }
         readonly Dictionary<string, Sprite> icons = new Dictionary<string, Sprite>();
+        public readonly ItemSelectionState Selection=new ItemSelectionState();
         bool initialized, dirty;
         string selectedContainer, selectedInstance;
         public string SelectedContainerId { get { return selectedContainer; } }
@@ -62,7 +68,7 @@ namespace GeneralStore.Inventory
         public void RegisterWindowGrid(InventoryGridView grid,InventoryDetailsView detail)
         {
             var v=new List<InventoryGridView>(grids);v.Add(grid);grids=v.ToArray();var d=new List<InventoryDetailsView>(detailViews);d.Add(detail);detailViews=d.ToArray();
-            if(koreanFont!=null)foreach(Text text in grid.GetComponentInParent<DisplayWindowView>().GetComponentsInChildren<Text>(true))text.font=koreanFont;grid.Initialize(this);
+            grid.Initialize(this);
         }
         public void UnregisterWindowGrid(InventoryGridView grid,InventoryDetailsView detail)
         {var v=new List<InventoryGridView>(grids);v.Remove(grid);grids=v.ToArray();var d=new List<InventoryDetailsView>(detailViews);d.Remove(detail);detailViews=d.ToArray();}
@@ -77,7 +83,12 @@ namespace GeneralStore.Inventory
             return sprite;
         }
         public void Select(string containerId, string instanceId)
-        { selectedContainer = containerId; selectedInstance = instanceId; if (initialized) RefreshDetails(); }
+        { selectedContainer=containerId;selectedInstance=instanceId;Selection.Set(containerId,instanceId);if(initialized){RefreshDetails();RefreshSelectionMarks();} }
+        public void ClearSelection(string id)
+        {Selection.Clear(id);if(selectedContainer==id){selectedContainer=null;selectedInstance=null;}if(initialized){RefreshDetails();RefreshSelectionMarks();}}
+        public void ClearWarehouseSelection(){foreach(string id in Model.WarehouseIds())Selection.Clear(id);if(InventoryModel.IsWarehouse(selectedContainer)){selectedContainer=null;selectedInstance=null;}if(initialized){RefreshDetails();RefreshSelectionMarks();}}
+        public void RefreshSelectionMarks(){foreach(var grid in grids)if(grid.gameObject.activeInHierarchy)grid.RefreshSelection();}
+        public void UpdateDetails(){if(initialized){RefreshDetails();RefreshSelectionMarks();}}
         public void ShowMessage(string message) { if (messageLabel != null) messageLabel.text = message; }
         void RefreshDetails()
         {
@@ -110,6 +121,7 @@ namespace GeneralStore.Inventory
         public void LoadInventory()
         {
             if (!initialized) return; drag.Cancel(false); shop.CancelDisplayPrice();
+            Selection.ClearAll();selectedContainer=null;selectedInstance=null;
             string error; ShowMessage(inventory.Load(out error) ? "불러오기 완료" : "불러오기 실패: " + error);
         }
         void OnDisable() { if (drag != null) drag.Cancel(false); }

@@ -20,7 +20,7 @@ namespace GeneralStore.Inventory
         public TextAsset itemJson,customerJson,supplierJson,displayJson;
         public ShopClockSettings clockSettings=new ShopClockSettings();
         public const int WarehouseColumns = 8;
-        [Range(1, 10)] public int warehouseRows = 8;
+        [Range(1, 10)] public int warehouseRows = 5;
         public bool addDemoItems = true;
         public long initialGold = 1000;
         public ShopClock Clock { get; private set; }
@@ -29,7 +29,7 @@ namespace GeneralStore.Inventory
         public ItemCatalog Catalog { get; private set; }
         public InventoryModel Model { get; private set; }
         public RecommendationSession Sales { get; private set; }
-        public string SavePath { get { return Path.Combine(Application.persistentDataPath, "store-shop-drawer-v9.json"); } }
+        public string SavePath { get { return Path.Combine(Application.persistentDataPath, "store-shop-menu-v10.json"); } }
         void Awake() { if(GetComponent<StorePerformanceSettings>()==null)gameObject.AddComponent<StorePerformanceSettings>(); string error; if (!TryInitialize(out error)) Debug.LogError(error, this); }
         public bool TryInitialize(out string error)
         {
@@ -52,11 +52,11 @@ namespace GeneralStore.Inventory
                 if(!model.RefreshSuppliersForDay(1,out error))throw new InvalidOperationException(error);
                 if (addDemoItems)
                 {
-                    Seed(model, "C001", "common", 2, 80); Seed(model, "C001", "common", 1, 100);
-                    Seed(model, "C001", "superior", 1, 110); Seed(model, "E001", "none", 2, 0);
-                    Seed(model, "sample_rope", "common", 1, 40); Seed(model, "sample_sword", "common", 1, 90);
-                    Seed(model, "sample_bag", "common", 1, 150);
+                    // 40칸 데모에는 큰 모양부터 넣어 공간 부족 경고 없이 모든 유형을 확인합니다.
                     Seed(model, "sample_lframe", "common", 1, 50); Seed(model, "sample_cframe", "common", 1, 70);
+                    Seed(model, "sample_bag", "common", 1, 150);Seed(model, "sample_rope", "common", 1, 40);
+                    Seed(model, "sample_sword", "common", 1, 90);Seed(model, "C001", "common", 1, 80);
+                    Seed(model, "C001", "superior", 1, 110);Seed(model, "E001", "none", 1, 0);
                 }
                 var customerFile=customerJson!=null?customerJson:Resources.Load<TextAsset>("StoreInventory/customers");
                 if(customerFile==null)throw new InvalidOperationException("Resources/StoreInventory/customers.json이 없습니다.");

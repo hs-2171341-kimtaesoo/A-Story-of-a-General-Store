@@ -30,7 +30,7 @@ namespace GeneralStore.Inventory
                 cache[sprite]=b;
             }
             var fit=IconFitGeometry.Fit(sprite.rect.width,sprite.rect.height,b.x0,b.y0,b.x1,b.y1,frame.rect.width,frame.rect.height,padding);
-            var rect=image.rectTransform;rect.anchorMin=rect.anchorMax=rect.pivot=new Vector2(.5f,.5f);
+            var rect=image.rectTransform;rect.localRotation=Quaternion.Euler(0,0,0);rect.anchorMin=rect.anchorMax=rect.pivot=new Vector2(.5f,.5f);
             rect.sizeDelta=new Vector2(fit.width,fit.height);rect.anchoredPosition=new Vector2(fit.x,fit.y);
         }
     }

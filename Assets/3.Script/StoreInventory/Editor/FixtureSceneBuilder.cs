@@ -41,52 +41,7 @@ public static class FixtureSceneBuilder
         row.qualityLabel=UI.Label("Quality",image.transform,520,10,160,42,"",21);row.countLabel=UI.Label("Count",image.transform,710,10,100,42,"",21);
         image.gameObject.SetActive(false);return row;
     }
-    public static void BuildManagement(Transform parent,DisplayManagementUI management,ContainerTabView tabs)
-    {
-        var overlay=UI.Box("Display Management Window",parent,0,0,1920,1080,new Color(0,0,0,.3f));management.window=overlay.gameObject;
-        UI.Label("Title",overlay.transform,24,124,900,56,"진열장 관리 · 보유 가구를 선택하세요.",28);
-        UI.Label("Hint",overlay.transform,24,190,900,48,"가구 구매 메뉴에서 구입하면 바로 추가됩니다.",22);
-        management.locationBoard=List(overlay.transform,"Owned Furniture",24,248,920,650);
-        var info=UI.Box("Display Status Panel",overlay.transform,1000,132,896,866,new Color(.18f,.14f,.09f));
-        UI.Label("Title",info.transform,24,20,848,52,"진열장 관리",32);
-        management.displayList=List(info.transform,"Installed Displays",24,88,848,238);
-        management.selectedLabel=UI.Label("Selected",info.transform,24,344,848,48,"",27);
-        UI.Label("Columns",info.transform,24,400,848,36,"품목                                                품질               수량",21);
-        management.stockList=List(info.transform,"Stock Groups",24,444,848,230);
-        management.footerLabel=UI.Label("Total",info.transform,24,682,848,36,"",22);
-        UI.ButtonBox("창고와 함께 열기",info.transform,24,734,848,52,management.OpenTogether);
-        UI.ButtonBox("닫기",info.transform,24,798,848,44,management.Close);
-        management.buttonTemplate=tabs;management.stockTemplate=StockTemplate(parent);overlay.gameObject.SetActive(false);
-    }
-    public static void BuildUpgrades(Transform parent,UpgradeUI upgrade)
-    {
-        var overlay=UI.Box("Upgrade Window",parent,0,0,1920,1080,new Color(0,0,0,.6f));upgrade.window=overlay.gameObject;
-        var box=UI.Box("Upgrade Panel",overlay.transform,510,70,900,940,new Color(.16f,.12f,.075f));
-        UI.Label("Title",box.transform,24,18,852,48,"가구 구매 · 상자 업그레이드",31);
-        var storage=UI.Box("Storage Upgrade",box.transform,24,84,852,214,new Color(.21f,.16f,.1f));
-        UI.Label("Title",storage.transform,24,12,800,40,"상자: 공간 확장 / 추가",25);
-        upgrade.storageInfo=UI.Label("Info",storage.transform,24,60,800,44,"",22);
-        UI.Label("Sequential Hint",storage.transform,24,118,400,70,"마지막 상자를 모두 확장한 뒤\n다음 상자를 추가합니다.",20);
-        upgrade.storageActionButton=UI.ButtonBox("공간 확장",storage.transform,452,126,376,54,upgrade.UpgradeStorage);
-        upgrade.storageActionLabel=upgrade.storageActionButton.GetComponentsInChildren<Text>(true)[0];
-        var display=UI.Box("Display Upgrade",box.transform,24,324,852,470,new Color(.21f,.16f,.1f));
-        UI.Label("Title",display.transform,24,12,800,40,"진열 공간: 추가만 가능",25);
-        var catalogue=List(display.transform,"Furniture Catalogue",24,64,804,184);
-        var definitions=new DisplayCatalog(JsonUtility.FromJson<DisplayDatabase>(Resources.Load<TextAsset>("StoreInventory/display_fixtures").text));
-        int row=0;
-        foreach(string id in definitions.TypeIds())
-        {
-            var type=definitions.Type(id);
-            var button=UI.ButtonBox(type.title+"  "+type.columns+"×"+type.rows+"  "+type.purchasePrice+" G",catalogue,0,row*46,782,40,null);
-            var entry=button.gameObject.AddComponent<FurnitureCatalogButton>();entry.upgrade=upgrade;entry.typeId=id;
-            UnityEditor.Events.UnityEventTools.AddPersistentListener(button.onClick,entry.Select);row++;
-        }
-        catalogue.sizeDelta=new Vector2(782,row*46);
-        upgrade.typeLabel=UI.Label("Selected Type",display.transform,24,260,804,40,"",24);
-        upgrade.displayInfo=UI.Label("Info",display.transform,24,308,550,146,"",21);
-        upgrade.addDisplayButton=UI.ButtonBox("가구 구매",display.transform,600,376,228,60,upgrade.AddDisplay);
-        UI.Label("Test Note",box.transform,24,812,852,40,"가구 가격은 JSON purchasePrice. 상자 확장은 무료 테스트입니다.",20);
-        UI.ButtonBox("닫기",box.transform,630,874,246,44,upgrade.Close);overlay.gameObject.SetActive(false);
-    }
+    public static void BuildManagement(Transform parent,DisplayManagementUI ui,ContainerTabView unused){SideMenuSceneBuilder.BuildManagement(parent,ui);}
+    public static void BuildUpgrades(Transform parent,UpgradeUI ui){SideMenuSceneBuilder.BuildUpgrades(parent,ui);}
 }
 #endif

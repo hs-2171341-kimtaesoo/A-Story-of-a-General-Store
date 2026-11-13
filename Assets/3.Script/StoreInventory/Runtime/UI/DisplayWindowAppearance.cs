@@ -67,13 +67,14 @@ namespace GeneralStore.Inventory
             Place(status,24,h-76,w-48,32);Place(finishButton,w-194,h-42,170,34);
             if(independentWindow)
             {
-                Place(frame.rectTransform,0,0,w,p.closeBelowFrame?h-64:h);
-                Place(details,20,p.closeBelowFrame?h-214:h-166,w-40,100);Place(detailsBody.rectTransform,112,44,w-164,52);
-                Place(status,24,p.closeBelowFrame?h-104:h-56,p.closeBelowFrame?w-48:w-224,44);
-                Place(finishButton,p.closeBelowFrame?(w-170)*.5f:w-194,p.closeBelowFrame?h-44:h-54,170,40);
+                // closeBelowFrame은 이전 씬 호환 필드만 남기고 실제 배치는 우측 하단으로 통일합니다.
+                Place(frame.rectTransform,0,0,w,h);Place(details,20,h-166,w-40,100);
+                Place(detailsBody.rectTransform,112,44,w-164,52);
+                Place(status,24,h-56,w-224,44);Place(finishButton,w-194,h-54,170,40);
             }
+            var detailView=details.GetComponent<InventoryDetailsView>();if(detailView!=null)detailView.AlignIconFrame();
             // 버튼 안의 글자도 함께 배치합니다. 자식별 Update/LayoutGroup은 없습니다.
-            var label=finishButton.GetComponentsInChildren<Text>(true)[0];if(label!=null)Place(label.rectTransform,0,0,170,34);
+            var label=finishButton.GetComponentsInChildren<Text>(true)[0];if(label!=null)Place(label.rectTransform,0,0,170,independentWindow?40:34);
             scroll.horizontalNormalizedPosition=0;scroll.verticalNormalizedPosition=1;
             if(currentType==null)window.anchoredPosition=p.initialPosition;
             var pos=WindowDragGeometry.Clamp(window.anchoredPosition.x,window.anchoredPosition.y,w,h,bounds.rect.width,bounds.rect.height);

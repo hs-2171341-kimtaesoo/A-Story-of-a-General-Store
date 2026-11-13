@@ -9,7 +9,9 @@ public static class InventoryCheckMenu
     [MenuItem("Store Inventory/Run Model Checks")]
     public static void Run()
     {
-        InactiveWindowReferenceChecks.Run();
+        InactiveWindowReferenceChecks.Run();WindowShieldUnityChecks.Run();
+        Debug.Log("입력/중앙 메뉴 검사 "+InputAndMenuChecks.Run()+"개 통과");
+        Debug.Log("메뉴/선택/유료확장 검사 "+SideMenuFeatureChecks.Run()+"개 통과");
         TextAsset json = Resources.Load<TextAsset>("StoreInventory/items");
         if (json == null) throw new System.InvalidOperationException("JSON 파일이 없습니다.");
         // 실제 프로젝트 JSON도 Unity의 실제 JsonUtility로 읽어서 검사합니다.

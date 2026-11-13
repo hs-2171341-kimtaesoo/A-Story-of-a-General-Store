@@ -23,7 +23,7 @@ namespace GeneralStore.Inventory.Verification
         static InventoryModel Model()
         {
             var catalog=InventoryModelChecks.Fixture();catalog.Find("C001").type="potion";catalog.Find("sample_sword").type="weapon";
-            var save=new InventorySave{gold=1000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=8});
+            var save=new InventorySave{gold=1000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});
             var defs=Definitions();defs.AddInitialContainers(save);return new InventoryModel(catalog,save,null,defs);
         }
         static MoveRequest Move(InventoryModel m,string src,string uid,string dst,int x=0,int y=0)
@@ -67,11 +67,11 @@ namespace GeneralStore.Inventory.Verification
             Check(customer.TrySubmitPurchasesOnly(out revenue,out error)&&revenue==100&&m.SummarizeDisplay("display_rack").itemCount==0,"동적 진열 구매/돈/차감 정상");
             Check(m.StorageAction("warehouse")==StorageUpgradeAction.Expand,"64칸 버튼은 공간 확장");
             string selected;
-            Check(m.TryUpgradeStorage("warehouse",8,out selected,out error)&&selected=="warehouse"&&m.GetContainer(selected).rows==9,"첫 버튼 클릭은72칸");
-            Check(m.TryUpgradeStorage("warehouse",8,out selected,out error)&&m.StorageAction(selected)==StorageUpgradeAction.AddBox,"80칸에서 같은 버튼이 상자 추가로 전환");
-            Check(m.TryUpgradeStorage("warehouse",8,out selected,out error)&&selected=="warehouse_2"&&m.StorageAction(selected)==StorageUpgradeAction.Expand,"새 상자 선택 후 다시 공간 확장 표시");
+            Check(m.TryUpgradeStorage("warehouse",7,out selected,out error)&&selected=="warehouse"&&m.GetContainer(selected).rows==9,"첫 버튼 클릭은72칸");
+            Check(m.TryUpgradeStorage("warehouse",7,out selected,out error)&&m.StorageAction(selected)==StorageUpgradeAction.AddBox,"80칸에서 같은 버튼이 상자 추가로 전환");
+            Check(m.TryUpgradeStorage("warehouse",7,out selected,out error)&&selected=="warehouse_2"&&m.StorageAction(selected)==StorageUpgradeAction.Expand,"새 상자 선택 후 다시 공간 확장 표시");
             Check(!m.TryCreateWarehouse(8,out selected,out error),"이전80칸 상자로 연속 추가 우회 불가");
-            Check(m.TryUpgradeStorage("warehouse",8,out selected,out error)&&selected=="warehouse_2"&&m.GetContainer(selected).rows==9,"이전 상자를 열어도 두번째 상자부터 확장");
+            Check(m.TryUpgradeStorage("warehouse",7,out selected,out error)&&selected=="warehouse_2"&&m.GetContainer(selected).rows==9,"이전 상자를 열어도 두번째 상자부터 확장");
             Check(m.GetContainer("warehouse").rows==10&&m.GetContainer("warehouse_2").rows==9,"다른 상자의 공간을 수정하지 않음");
             // 드래그 수학은 CanvasScaler의 배율이 적용된 로컬 좌표로 테스트합니다.
             var inside=WindowDragGeometry.Clamp(960,-146,690,882,1920,1080);
@@ -96,15 +96,15 @@ namespace GeneralStore.Inventory.Verification
             bool invalidLayout=false;try{DisplayWindowLayout.Calculate(1,1,float.NaN,85,24,164,220,440,624,520);}catch(ArgumentException){invalidLayout=true;}
             Check(invalidLayout,"유효하지 않은 외형 수치 거절");
             var db=new DisplayDatabase{types=new[]{new DisplayTypeDefinition{id="buy",title="구매 선반",columns=6,rows=2,purchasePrice=250}},initialTypes=new[]{"buy"}};
-            var catalog=new DisplayCatalog(db);var start=new InventorySave{gold=600};start.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=8});catalog.AddInitialContainers(start);
+            var catalog=new DisplayCatalog(db);var start=new InventorySave{gold=600};start.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});catalog.AddInitialContainers(start);
             var bought=new InventoryModel(InventoryModelChecks.Fixture(),start,null,catalog);
             Check(bought.TryBuyDisplay("buy",out id,out error)&&bought.Gold==350&&bought.DisplayIds().Count==2,"구매 즉시 공간 추가와 금액 차감");
             Check(bought.TryBuyDisplay("buy",out id,out error)&&bought.Gold==100&&bought.DisplayIds().Count==3,"같은 종류 여러개 구매 가능");
             long rev=bought.Revision;Check(!bought.TryBuyDisplay("buy",out id,out error)&&bought.Revision==rev&&bought.Gold==100,"잔액 부족은 금액/공간 모두 그대로");
             var round=new InventoryModel(InventoryModelChecks.Fixture(),bought.Snapshot(),null,catalog);
             Check(round.DisplayIds().Count==3&&round.Gold==100,"위치 없는 여러 가구 저장 복원");
-            Check(m.TryUpgradeStorage("warehouse",8,out selected,out error)&&selected=="warehouse_2"&&m.GetContainer(selected).rows==10,"두번째 상자80칸 완료");
-            Check(m.TryUpgradeStorage("warehouse",8,out selected,out error)&&selected=="warehouse_3","두번째80칸 후에만 세번째 추가");
+            Check(m.TryUpgradeStorage("warehouse",7,out selected,out error)&&selected=="warehouse_2"&&m.GetContainer(selected).rows==10,"두번째 상자80칸 완료");
+            Check(m.TryUpgradeStorage("warehouse",7,out selected,out error)&&selected=="warehouse_3","두번째80칸 후에만 세번째 추가");
             return count;
         }
     }

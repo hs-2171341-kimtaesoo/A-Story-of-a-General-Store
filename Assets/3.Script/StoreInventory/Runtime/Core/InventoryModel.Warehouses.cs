@@ -12,7 +12,7 @@ namespace GeneralStore.Inventory
             error="";var c=Find(state,id);
             if(!IsWarehouse(id)||c==null){error="보관함이 없습니다.";return false;}
             if(c.rows>=10){error="80칸입니다. 추가 보관함을 만들어 주세요.";return false;}
-            var trial=state.Copy();Find(trial,id).rows++;Commit(trial);return true;
+            var trial=state.Copy();Find(trial,id).rows=Math.Min(10,c.rows+2);Commit(trial);return true;
         }
         public bool TryCreateWarehouse(int initialRows,out string id,out string error)
         {

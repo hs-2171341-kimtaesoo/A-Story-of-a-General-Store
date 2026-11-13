@@ -57,8 +57,12 @@ namespace GeneralStore.Inventory
         }
         public void SetDragVisual(bool dragging)
         { CanvasGroup group=GetComponent<CanvasGroup>();group.alpha=dragging?.3f:1;group.blocksRaycasts=!dragging; }
-        public void OnPointerClick(PointerEventData e) { if(Panel.Model.IsReserved(Record.instanceId)){Panel.ShowMessage("손님이 고른 물건입니다. 계산/손님 보내기 후 변경할 수 있습니다.");return;} if(e.button==PointerEventData.InputButton.Left)Panel.Select(Grid.containerId,Record.instanceId); }
-        public void OnBeginDrag(PointerEventData e) { if(Panel.Model.IsReserved(Record.instanceId)){Panel.ShowMessage("손님 선택 상품은 이동할 수 없습니다.");return;} if(e.button==PointerEventData.InputButton.Left)Panel.drag.Begin(this,e); }
+        public void OnPointerClick(PointerEventData e)
+        {
+            if(e.button!=PointerEventData.InputButton.Left||Panel.IsWindowDragging)return;Panel.Select(Grid.containerId,Record.instanceId);
+            if(Panel.Model.IsReserved(Record.instanceId))Panel.ShowMessage("손님 선택 상품입니다. 정보만 확인할 수 있습니다.");
+        }
+        public void OnBeginDrag(PointerEventData e) { if(Panel.IsWindowDragging)return;if(Panel.Model.IsReserved(Record.instanceId)){Panel.ShowMessage("손님 선택 상품은 이동할 수 없습니다.");return;} if(e.button==PointerEventData.InputButton.Left)Panel.drag.Begin(this,e); }
         public void OnDrag(PointerEventData e) { Panel.drag.MovePointer(e.position); }
         public void OnEndDrag(PointerEventData e) { Panel.drag.Cancel(false); }
     }

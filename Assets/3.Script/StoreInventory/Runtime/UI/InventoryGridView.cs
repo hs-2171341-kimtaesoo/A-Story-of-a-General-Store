@@ -23,6 +23,9 @@ namespace GeneralStore.Inventory
         readonly List<string> removed = new List<string>();
         float renderedWidth,renderedHeight;
         int columns, rows;
+        public Color selectionColor=new Color(1,.75f,.15f,1);
+        [Min(1)]public float selectionThickness=3;
+        ItemSelectionGraphic selectionGraphic;
         PlacementPreviewGraphic previewGraphic;
         public RectTransform Rect { get { return (RectTransform)transform; } }
         public void Initialize(InventoryPanel panel) { Panel = panel; if(gameObject.activeInHierarchy) Refresh(); }
@@ -70,7 +73,19 @@ namespace GeneralStore.Inventory
             }
             removed.Clear();foreach(var pair in itemObjects)if(!seen.Contains(pair.Key))removed.Add(pair.Key);
             foreach(var id in removed){itemObjects[id].gameObject.SetActive(false);Destroy(itemObjects[id].gameObject);itemObjects.Remove(id);}
-            HidePreview();
+            HidePreview();RefreshSelection();
+        }
+        public void RefreshSelection()
+        {
+            if(Panel==null)return;var item=Panel.Model.GetItem(containerId,Panel.Selection.Get(containerId));
+            if(item==null&&selectionGraphic==null)return;
+            if(selectionGraphic==null)
+            {
+                var go=new GameObject("Selected Item Outline",typeof(RectTransform),typeof(CanvasRenderer));go.transform.SetParent(transform,false);
+                TopLeft(go);selectionGraphic=go.AddComponent<ItemSelectionGraphic>();selectionGraphic.raycastTarget=false;
+            }
+            selectionGraphic.rectTransform.sizeDelta=Rect.sizeDelta;selectionGraphic.color=selectionColor;
+            selectionGraphic.Show(item,item==null?null:Panel.Catalog.Shape(item.itemId),CellSize,selectionThickness);selectionGraphic.transform.SetAsLastSibling();
         }
         public bool PointerCell(Vector2 screen, out int x, out int y)
         {

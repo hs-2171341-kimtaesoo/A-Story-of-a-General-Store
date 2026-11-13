@@ -2,7 +2,7 @@
   "types": [
     {
       "id": "shelf",
-      "title": "일반 선반",
+      "title": "큰 선반",
       "columns": 6,
       "rows": 5,
       "allowedItemTypes": [],

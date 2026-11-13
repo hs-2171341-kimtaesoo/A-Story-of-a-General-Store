@@ -75,8 +75,8 @@ namespace GeneralStore.Inventory.Verification
             Check(!restored.TryRestore(bad,out error),"재고 한도 초과 저장 거절");
             bad=comparison.Snapshot();bad.suppliers[0].stocks[0].unitPrice=-1;
             Check(!restored.TryRestore(bad,out error),"음수 가격 저장 거절");
-            m=Model();m.TryAdd("warehouse","C001","common",1,80,out error);string uid=m.GetContainer("warehouse").items[0].instanceId;
-            Check(m.TryExpandWarehouse("warehouse",out error)&&m.GetContainer("warehouse").rows==9&&m.GetContainer("warehouse").columns==8,"확장은 아래로8칸");
+            m=Model(rows:7);m.TryAdd("warehouse","C001","common",1,80,out error);string uid=m.GetContainer("warehouse").items[0].instanceId;
+            Check(m.TryExpandWarehouse("warehouse",out error)&&m.GetContainer("warehouse").rows==9&&m.GetContainer("warehouse").columns==8,"확장은 아래로16칸");
             string id;Check(!m.TryCreateWarehouse(8,out id,out error),"80칸 전 추가 보관함 거절");
             Check(m.TryExpandWarehouse("warehouse",out error)&&m.GetContainer("warehouse").rows*8==80,"한 보관함 최대80칸");
             Check(!m.TryExpandWarehouse("warehouse",out error)&&m.GetItem("warehouse",uid)!=null,"80칸 초과 확장 차단 및 물건 유지");

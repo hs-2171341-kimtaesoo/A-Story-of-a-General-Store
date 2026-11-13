@@ -113,7 +113,7 @@ namespace GeneralStore.Inventory
             }
             removed.Clear();foreach(var pair in offers)if(!seen.Contains(pair.Key))removed.Add(pair.Key);
             foreach(var id in removed){offers[id].gameObject.SetActive(false);Destroy(offers[id].gameObject);offers.Remove(id);}
-            totalLabel.text="총 "+amount+"개 / "+total+" G · 보유 "+panel.Model.Gold+" G";
+            totalLabel.text="주문 합계  "+total+" G ("+amount+"개)\n"+(total<=panel.Model.Gold?"주문 후 소지금  "+(panel.Model.Gold-total)+" G":"부족 금액  "+(total-panel.Model.Gold)+" G");
             buyButton.interactable=!current.blocked&&amount>0&&amount<=100&&total<=panel.Model.Gold;
         }
         void OnDestroy(){if(ready&&panel!=null&&panel.inventory.Model!=null){panel.Model.Changed-=MarkDirty;panel.inventory.Loaded-=OnLoaded;}}

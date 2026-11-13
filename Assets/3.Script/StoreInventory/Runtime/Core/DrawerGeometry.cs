@@ -6,6 +6,13 @@ namespace GeneralStore.Inventory
     {
         public static float ClosedY(float screen,float peek){return -screen+peek;}
         public static bool ShouldClose(float y,float height,float screen,float hidden){return screen+y<=height*(1-hidden);}
+        // 양옆과 위는 화면 안. 아래는 서랍을 닫기 위해 화면 밖으로 나갈 수 있습니다.
+        public static WindowPoint ClampFree(float x,float y,float width,float screenWidth,float screenHeight,float peek)
+        {
+            if(float.IsNaN(x)||float.IsNaN(y)||float.IsInfinity(x)||float.IsInfinity(y)||width<=0||screenWidth<=0||screenHeight<=0||peek<=0)
+                throw new ArgumentException("서랍 이동 범위 오류입니다.");
+            return new WindowPoint(Math.Max(0,Math.Min(Math.Max(0,screenWidth-width),x)),Math.Max(ClosedY(screenHeight,Math.Min(peek,screenHeight)),Math.Min(0,y)));
+        }
         public static float Step(float current,float target,float speed,float delta)
         {if(delta<=0)return current;float next=target+(current-target)*(float)Math.Exp(-speed*delta);return Math.Abs(next-target)<.25f?target:next;}
     }

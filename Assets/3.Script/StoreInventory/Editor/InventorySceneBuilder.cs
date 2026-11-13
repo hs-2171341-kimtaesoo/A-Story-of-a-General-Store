@@ -102,8 +102,10 @@ public static class InventorySceneBuilder
         var shop=go.AddComponent<ShopfrontUI>();shop.panel=panel;panel.shop=shop;
         var supplier=go.AddComponent<SupplierUI>();supplier.panel=panel;
         var displayUI=go.AddComponent<DisplayUI>();displayUI.panel=panel;shop.displays=displayUI;
-        var management=go.AddComponent<DisplayManagementUI>();management.panel=panel;management.display=displayUI;
-        var upgrade=go.AddComponent<UpgradeUI>();upgrade.panel=panel;upgrade.display=displayUI;
+        var art=go.AddComponent<FurnitureArtCatalog>();
+        art.entries=new[]{new FurnitureArt{typeId="shelf",description="여러 종류의 물품을 진열하는 큰 선반입니다."},new FurnitureArt{typeId="wall_shelf",description="작은 물품을 보관하는 벽 선반입니다."},new FurnitureArt{typeId="weapon_rack",description="무기만 진열할 수 있는 거치대입니다."},new FurnitureArt{typeId="table",description="다양한 물품을 올려놓는 진열 탁자입니다."}};
+        var management=go.AddComponent<DisplayManagementUI>();management.art=art;management.panel=panel;management.display=displayUI;
+        var upgrade=go.AddComponent<UpgradeUI>();upgrade.art=art;upgrade.panel=panel;upgrade.display=displayUI;
         var simulation=data.AddComponent<ShopSimulation>();simulation.inventory=runtime;simulation.shop=shop;shop.simulation=simulation;
         var background=Box("Background",go.transform,0,0,1920,1080,new Color(.075f,.06f,.045f));Stretch(background.rectTransform);background.raycastTarget=false;
         var layout=Rect("Layout 1920x1080",go.transform,0,0,1920,1080);layout.anchorMin=layout.anchorMax=layout.pivot=new Vector2(.5f,.5f);layout.anchoredPosition=Vector2.zero;
@@ -130,8 +132,6 @@ public static class InventorySceneBuilder
         ButtonBox("다음 단계 테스트",layout,216,80,190,38,simulation.AdvanceToNextPhase);
         ButtonBox("다음 새벽 배송 테스트",layout,418,80,250,38,simulation.QueueTestDelivery);
         shop.goldLabel=Label("Gold",layout,1230,24,290,42,"1,000 G",26);
-        ButtonBox("거래처 열기/닫기",layout,680,80,200,38,supplier.Toggle);
-        ButtonBox("진열장 관리",layout,900,80,180,38,management.Toggle);ButtonBox("업그레이드",layout,1096,80,180,38,upgrade.Toggle);
         panel.titleLabel=Label("Inventory Status",layout,1296,84,600,34,"보관함",18);panel.titleLabel.gameObject.SetActive(false);
         // 공용 카드: 루트(클릭), 아이콘 메시 하나, 대체 이름 하나뿐입니다.
         var card=Box("Item Template",layout,0,0,156,156,new Color(.35f,.23f,.12f));
@@ -154,7 +154,7 @@ public static class InventorySceneBuilder
         var warehouseUI=go.AddComponent<WarehouseUI>();warehouseUI.panel=panel;warehouseUI.grid=warehouseGrid;warehouseUI.scroll=warehouseGrid.GetComponentInParent<ScrollRect>();upgrade.warehouse=warehouseUI;
         warehouseUI.tabs=FixtureSceneBuilder.Tabs(warehouse.transform,tabTemplate,24,70,624);warehouseUI.tabs.warehouse=warehouseUI;
         warehouseUI.pageLabel=Label("Warehouse Status",warehouse.transform,24,122,624,34,"",21);
-        var warehouseDetails=Details(warehouse.transform,650,650);
+        var warehouseDetails=Details(warehouse.transform,650,650);warehouseDetails.containerFilter="warehouse";
 
 
         var definitionFile=Resources.Load<TextAsset>("StoreInventory/display_fixtures");
@@ -217,7 +217,7 @@ public static class InventorySceneBuilder
         appearance.detailsName=displayDetails.nameLabel;appearance.detailsBody=displayDetails.bodyLabel;
         appearance.profiles=new[]{
             new DisplayAppearanceProfile{typeId="shelf",initialPosition=new Vector2(1080,-100),frameColor=new Color(.3f,.2f,.1f),topPadding=100,bottomPadding=174},
-            new DisplayAppearanceProfile{typeId="wall_shelf",initialPosition=new Vector2(290,-300),frameColor=new Color(.2f,.27f,.18f),topPadding=96,bottomPadding=224,closeBelowFrame=true},
+            new DisplayAppearanceProfile{typeId="wall_shelf",initialPosition=new Vector2(290,-300),frameColor=new Color(.2f,.27f,.18f),topPadding=96,bottomPadding=174,closeBelowFrame=false},
             new DisplayAppearanceProfile{typeId="weapon_rack",initialPosition=new Vector2(1300,-100),frameColor=new Color(.23f,.18f,.29f),sidePadding=50,minimumWidth=440,topPadding=100,bottomPadding=174},
             new DisplayAppearanceProfile{typeId="table",initialPosition=new Vector2(740,-470),frameColor=new Color(.3f,.23f,.16f),sidePadding=46,topPadding=100,bottomPadding=174}
         };
@@ -245,6 +245,7 @@ public static class InventorySceneBuilder
 #endif
         }
         DrawerSceneBuilder.MoveDebugButtons(layout);
+        SideMenuSceneBuilder.BuildMenu(layout,panel,management,upgrade,supplier);
         Selection.activeGameObject=go;UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(go.scene);
         Debug.Log("1920×1080 통합 데모 생성 완료. 한글 폰트/배경/손님 Sprite를 Inspector에서 연결하세요.");
     }

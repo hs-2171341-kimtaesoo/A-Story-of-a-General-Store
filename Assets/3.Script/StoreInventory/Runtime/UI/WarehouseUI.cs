@@ -18,7 +18,7 @@ namespace GeneralStore.Inventory
             panel.Model.Changed+=MarkDirty;panel.inventory.Loaded+=ResetPage;ready=true;dirty=true;
         }
         void MarkDirty(){dirty=true;}
-        void ResetPage(){index=0;grid.containerId="warehouse";dirty=true;if(SelectionChanged!=null)SelectionChanged();}
+        void ResetPage(){index=0;grid.containerId="warehouse";foreach(var detail in panel.detailViews)if(InventoryModel.IsWarehouse(detail.containerFilter))detail.containerFilter="warehouse";panel.UpdateDetails();dirty=true;if(SelectionChanged!=null)SelectionChanged();}
         public void Previous(){Switch(-1);}public void Next(){Switch(1);}
         void Switch(int delta)
         {if(!ready)return;var ids=panel.Model.WarehouseIds();Select(ids[(index+delta+ids.Count)%ids.Count]);}
@@ -29,7 +29,9 @@ namespace GeneralStore.Inventory
             if(!ready)return;var ids=panel.Model.WarehouseIds();int next=ids.IndexOf(id);if(next<0)return;
             if(grid.containerId==id)return;
             if(preserveDrag)panel.drag.InvalidatePreview();else panel.drag.Cancel(false);
-            index=next;grid.containerId=id;panel.shop.CancelDisplayPrice();scroll.verticalNormalizedPosition=1;
+            index=next;grid.containerId=id;
+            foreach(var detail in panel.detailViews)if(InventoryModel.IsWarehouse(detail.containerFilter))detail.containerFilter=id;
+            panel.UpdateDetails();panel.shop.CancelDisplayPrice();scroll.verticalNormalizedPosition=1;
             if(grid.gameObject.activeInHierarchy)grid.Refresh();dirty=true;if(SelectionChanged!=null)SelectionChanged();
         }
         string Caption(string id){return id=="warehouse"?"상자 1":"상자 "+id.Substring("warehouse_".Length);}
