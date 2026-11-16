@@ -63,7 +63,7 @@ namespace GeneralStore.Inventory
         public int Height(ItemRecord item) { return Catalog.Shape(item.itemId).Height(item.rotation); }
         public GridCell[] Cells(ItemRecord item) { return Catalog.Shape(item.itemId).Cells(item.rotation); }
 
-        PlacementPreview InspectPlacement(ContainerRecord container, ItemRecord item, string ignoredId)
+        PlacementPreview InspectPlacement(InventorySave save,ContainerRecord container, ItemRecord item, string ignoredId)
         {
             var result = new PlacementPreview { allowed = true };
             var occupied = new HashSet<int>();
@@ -83,6 +83,14 @@ namespace GeneralStore.Inventory
                 if (cellState != PlacementCellState.Free) result.allowed = false;
             }
             if (!result.allowed) result.error = "점유 칸이 다른 물건과 겹치거나 격자 밖입니다.";
+            // 드래그 미리보기·확정·자동 입고·저장 복원이 같은 칸막이 검사를 사용합니다.
+            var installation=save.displays==null?null:save.displays.Find(d=>d!=null&&d.containerId==container.containerId);
+            var definition=installation==null||Displays==null?null:Displays.Type(installation.typeId);
+            if(definition!=null&&!DisplayPartitionRules.Fits(definition,Catalog.Shape(item.itemId).InternalCells(item.rotation),item.x,item.y))
+            {
+                result.allowed=false;result.error="선반의 층/칸막이를 가로질러 놓을 수 없습니다.";
+                for(int n=0;n<result.cells.Count;n++){var cell=result.cells[n];if(cell.state==PlacementCellState.Free){cell.state=PlacementCellState.Blocked;result.cells[n]=cell;}}
+            }
             return result;
         }
         void Validate(InventorySave save)
@@ -105,10 +113,10 @@ namespace GeneralStore.Inventory
                         throw new ArgumentException("물건 정보/회전 오류입니다.");
                 }
                 foreach (ItemRecord item in c.items)
-                    if (!InspectPlacement(c, item, item.instanceId).allowed) throw new ArgumentException("점유 칸이 겹치거나 범위를 벗어났습니다.");
+                    if (!InspectPlacement(save,c, item, item.instanceId).allowed) throw new ArgumentException("점유 칸이 겹치거나 범위를 벗어났습니다.");
             }
-            foreach(var c in save.containers)if(IsWarehouse(c.containerId)&&(c.columns!=8||c.rows>10))
-                throw new ArgumentException("보관함은 가로8칸, 세로 최대10칸입니다.");
+            foreach(var c in save.containers)if(IsWarehouse(c.containerId)&&(c.columns!=WarehouseColumns||c.rows!=WarehouseRows))
+                throw new ArgumentException("상자는 가로8칸, 세로5칸 고정입니다.");
             ValidateDisplays(save);
             ValidateSuppliers(save);
             ValidateLooseItems(save,ids);
@@ -143,7 +151,7 @@ namespace GeneralStore.Inventory
                 {
                     item.rotation = rotation;
                     for (int y = 0; y < target.rows && !placed; y++) for (int x = 0; x < target.columns && !placed; x++)
-                    { item.x = x; item.y = y; placed = InspectPlacement(target, item, null).allowed; }
+                    { item.x = x; item.y = y; placed = InspectPlacement(trial,target, item, null).allowed; }
                 }
                 if (!placed) { error = "모든 물건을 놓을 수 없어 이번 입고 전체를 취소했습니다."; return false; }
                 target.items.Add(item);
@@ -163,7 +171,7 @@ namespace GeneralStore.Inventory
             if (request.rotation < 0 || request.rotation > 3 || (request.rotation != 0 && !Catalog.Find(item.itemId).canRotate))
                 return new PlacementPreview { error = "허용되지 않는 회전입니다." };
             ItemRecord candidate = item.Copy(); candidate.x = request.x; candidate.y = request.y; candidate.rotation = request.rotation;
-            var preview=InspectPlacement(target,candidate,item.instanceId);string typeError;
+            var preview=InspectPlacement(save,target,candidate,item.instanceId);string typeError;
             if(!AcceptDisplay(save,target.containerId,item.itemId,out typeError)){preview.allowed=false;preview.error=typeError;}
             return preview;
         }

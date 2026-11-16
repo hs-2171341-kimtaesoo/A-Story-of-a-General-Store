@@ -28,6 +28,8 @@ namespace GeneralStore.Inventory
         bool active;
         long startedRevision;
         Vector2 pointer;
+        public event System.Action<bool> DraggingChanged;
+        void NotifyDragging(bool value){var callback=DraggingChanged;if(callback!=null)callback(value);}
         public bool IsDragging { get { return active; } }
         public string HeldFloorId {get{return active&&sourceContainer=="floor"?selectedItem.instanceId:null;}}
         public void Initialize(InventoryPanel owner) { panel = owner;UiPerformanceLayers.Ensure(dragLayer.gameObject,false); }
@@ -50,7 +52,7 @@ namespace GeneralStore.Inventory
             grabbedX = Mathf.Clamp(Mathf.FloorToInt(local.x / view.Grid.cellWidth), 0, panel.Model.Width(selectedItem) - 1);
             grabbedY = Mathf.Clamp(Mathf.FloorToInt(-local.y / view.Grid.cellHeight), 0, panel.Model.Height(selectedItem) - 1);
             if (!panel.Catalog.Shape(selectedItem.itemId).Contains(rotation, grabbedX, grabbedY)) return;
-            active = true;e.pointerDrag=gameObject; sourceView.SetDragVisual(true);
+            active = true;NotifyDragging(true);e.pointerDrag=gameObject; sourceView.SetDragVisual(true);
             PrepareGhost(view.Grid.itemTemplate);ghost.Bind(panel, view.Grid, selectedItem.Copy()); ghost.enabled = false;
             CanvasGroup group = ghost.GetComponent<CanvasGroup>(); group.alpha = .8f; group.blocksRaycasts = false;
             ghost.Rect.anchorMin = ghost.Rect.anchorMax = new Vector2(.5f, .5f);
@@ -63,7 +65,7 @@ namespace GeneralStore.Inventory
             selectedItem=panel.Model.GetItem("floor",view.Record.instanceId);if(selectedItem==null)return;
             floorSource=view;sourceContainer="floor";startedRevision=panel.Model.Revision;rotation=selectedItem.rotation;pointer=e.position;
             GridCell first=panel.Catalog.Shape(selectedItem.itemId).Cells(rotation)[0];grabbedX=first.x;grabbedY=first.y;
-            active=true;e.pointerDrag=gameObject;floorSource.SetDragVisual(true);
+            active=true;NotifyDragging(true);e.pointerDrag=gameObject;floorSource.SetDragVisual(true);
             PrepareGhost(panel.grids[0].itemTemplate);
             ghost.Bind(panel,panel.grids[0],selectedItem.Copy());ghost.enabled=false;
             var group=ghost.GetComponent<CanvasGroup>();group.alpha=.8f;group.blocksRaycasts=false;
@@ -156,7 +158,7 @@ namespace GeneralStore.Inventory
         }
         public void Cancel(bool showMessage)
         {
-            if (!active) return; active = false;hoverTimer.Reset();
+            if (!active) return; active = false;NotifyDragging(false);hoverTimer.Reset();
             if (sourceView != null) sourceView.SetDragVisual(false);
             if(floorSource!=null)floorSource.SetDragVisual(false);
             if (ghost != null)ghost.gameObject.SetActive(false);

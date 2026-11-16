@@ -35,6 +35,7 @@ namespace GeneralStore.Inventory
                 var c=Find(save,d.containerId);
                 if(c==null||!IsDisplay(c.containerId)||c.columns!=(string.IsNullOrEmpty(d.locationId)?Displays.Type(d.typeId).columns:Displays.Columns(d.typeId,d.locationId))||c.rows!=(string.IsNullOrEmpty(d.locationId)?Displays.Type(d.typeId).rows:Displays.Rows(d.typeId,d.locationId)))
                     throw new ArgumentException("설치 종류/위치의 고정 크기와 다릅니다.");
+                DisplayPartitionRules.ValidateSize(Displays.Type(d.typeId),c.columns,c.rows);
                 foreach(var i in c.items){string error;if(!AcceptDisplay(save,c.containerId,i.itemId,out error))throw new ArgumentException(error);}
             }
             if(Displays!=null)foreach(var c in save.containers)if(IsDisplay(c.containerId)&&!ids.Contains(c.containerId))throw new ArgumentException("설치 기록이 없는 진열 공간입니다.");
@@ -92,13 +93,7 @@ namespace GeneralStore.Inventory
         }
         // 현재 열어 둔 상자와 무관하게 가장 최근 상자만 확장 대상입니다.
         public string StorageUpgradeTarget(){var ids=WarehouseIds();return ids[ids.Count-1];}
-        public StorageUpgradeAction StorageAction(string ignoredId)
-        {return Find(state,StorageUpgradeTarget()).rows<10?StorageUpgradeAction.Expand:StorageUpgradeAction.AddBox;}
-        public bool TryUpgradeStorage(string ignoredId,int newRows,out string selectedId,out string error)
-        {
-            selectedId=StorageUpgradeTarget();error="";
-            if(Find(state,selectedId).rows<10)return TryExpandWarehouse(selectedId,out error);
-            return TryCreateWarehouse(newRows,out selectedId,out error);
-        }
+        public StorageUpgradeAction StorageAction(string ignoredId){return StorageUpgradeAction.AddBox;}
+        public bool TryUpgradeStorage(string ignoredId,int newRows,out string selectedId,out string error){return TryCreateWarehouse(WarehouseRows,out selectedId,out error);}
     }
 }

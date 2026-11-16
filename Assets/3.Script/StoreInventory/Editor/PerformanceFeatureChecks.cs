@@ -10,7 +10,7 @@ namespace GeneralStore.Inventory.Verification
         static void Check(bool value,string rule){count++;if(!value)throw new Exception("성능 회귀 검사 실패: "+rule);}
         static InventoryModel Model()
         {
-            var s=new InventorySave{gold=1000};s.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=8});
+            var s=new InventorySave{gold=1000};s.containers.Add(new ContainerRecord{containerId="test_storage",columns=8,rows=8});
             s.containers.Add(new ContainerRecord{containerId="display_1",columns=6,rows=4});s.containers.Add(new ContainerRecord{containerId="display_2",columns=6,rows=4});
             return new InventoryModel(InventoryModelChecks.Fixture(),s);
         }
@@ -32,8 +32,8 @@ namespace GeneralStore.Inventory.Verification
             idle.Stop();int idleGc=GC.CollectionCount(0)-gc;
             Check(model.LastFloorSteps==0&&output.Count==0&&output.Capacity==capacity&&model.Revision==revision,"정지1000개는 물리/출력/재고 갱신 없음");
             Check(model.FloorItems()[0].normalizedY==snapshot.floorItems[0].normalizedY,"수면 중 위치 유지");
-            model.TryAdd("warehouse","C001","common",1,80,out error);string uid=model.GetContainer("warehouse").items[0].instanceId;
-            model.TryDropToFloor("warehouse",uid,0,.5f,.8f,model.Revision,out error);
+            model.TryAdd("test_storage","C001","common",1,80,out error);string uid=model.GetContainer("test_storage").items[0].instanceId;
+            model.TryDropToFloor("test_storage",uid,0,.5f,.8f,model.Revision,out error);
             model.AdvanceFloorMotion(.016f,settings,null,output);
             Check(model.ActiveFloorBodies==1&&model.LastFloorSteps==1&&output.Count==1001,"새 낱개만 깨우고 구조 변경 최초 위치 동기화");
             model.AdvanceFloorMotion(.016f,settings,null,output);

@@ -7,16 +7,8 @@ public static class DrawerSceneBuilder
 {
     public static void Hotspots(Transform parent,InventoryPanel panel,DisplayUI displays)
     {
-        Add(parent,panel,displays,"shelf",330,200,720,640);Add(parent,panel,displays,"wall_shelf",1630,270,250,220);
-        Add(parent,panel,displays,"weapon_rack",80,650,280,300);Add(parent,panel,displays,"table",1610,630,280,250);
-    }
-    static void Add(Transform parent,InventoryPanel panel,DisplayUI displays,string type,float x,float y,float w,float h)
-    {
-        var root=UI.Box("Hotspot "+type,parent,x,y,w,h,new Color(0,0,0,0));root.canvasRenderer.cullTransparentMesh=false;
-        var spot=root.gameObject.AddComponent<SceneFurnitureHotspot>();spot.panel=panel;spot.displays=displays;spot.typeId=type;
-        spot.furnitureImage=UI.Box("Furniture Sprite",root.transform,0,0,w,h,new Color(.3f,.23f,.12f,.25f));spot.furnitureImage.raycastTarget=false;
-        spot.highlightImage=UI.Box("Highlight Sprite",root.transform,0,0,w,h,new Color(1,.75f,.15f,.18f));spot.highlightImage.raycastTarget=false;spot.highlightImage.enabled=false;
-        spot.label=UI.Label("Furniture Label",root.transform,w-190,h*.42f,180,64,type,21);
+        // 이전 생성기 호출도13개 데이터 기반 배치로 연결합니다.
+        Furniture13SceneBuilder.Hotspots(parent,panel,displays);
     }
     public static void MoveDebugButtons(RectTransform layout)
     {

@@ -23,7 +23,7 @@ namespace GeneralStore.Inventory.Verification
             var definitions=new DisplayCatalog(new DisplayDatabase{types=new[]{
                 new DisplayTypeDefinition{id="shelf",title="선반",columns=6,rows=5,purchasePrice=900,maximumOwned=1},
                 new DisplayTypeDefinition{id="rack",title="무기대",columns=4,rows=6,purchasePrice=600,maximumOwned=1,allowedItemTypes=new[]{"weapon"}}},initialTypes=new[]{"shelf"}});
-            var save=new InventorySave{gold=1500};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=8});definitions.AddInitialContainers(save);
+            var save=new InventorySave{gold=1500};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=5});definitions.AddInitialContainers(save);
             var catalog=InventoryModelChecks.Fixture();catalog.Find("sample_sword").type="weapon";var m=new InventoryModel(catalog,save,null,definitions);string id,error;
             Check(m.OwnedDisplayId("rack",0)==null,"미구매 가구 연결 없음");Check(!m.TryBuyDisplay("shelf",out id,out error)&&m.Gold==1500,"초기 지급도 보유 수 포함");
             Check(m.TryBuyDisplay("rack",out id,out error)&&m.Gold==900,"가구 구매/차감");Check(m.OwnedDisplayId("rack",0)==id&&m.OwnedDisplayId("rack",1)==null,"구매 후 해당 핫스팟 연결");
@@ -36,7 +36,7 @@ namespace GeneralStore.Inventory.Verification
             long revenue;Check(session.TrySubmitPurchasesOnly(out revenue,out error)&&revenue==300&&m.Gold==1200,"합계 한 번 입금");Check(m.GetContainer(shelf).items.Count==0&&m.GetContainer(rack).items.Count==0,"각 가구에서 제거");
             var duplicate=m.Snapshot();duplicate.displays.Add(new DisplayInstallation{containerId="display_extra",typeId="shelf",locationId=""});duplicate.containers.Add(new ContainerRecord{containerId="display_extra",columns=6,rows=5});
             Check(!m.TryRestore(duplicate,out error)&&m.DisplayIds().Count==2,"최대 보유 수 초과 저장 거절");
-            m.TryExpandWarehouse("warehouse",out error);m.TryExpandWarehouse("warehouse",out error);m.TryCreateWarehouse(8,out id,out error);m.TryAdd("warehouse","C001","common",1,80,out error);potion=m.GetContainer("warehouse").items[0];
+            m.TryCreateWarehouse(5,out id,out error);m.TryAdd("warehouse","C001","common",1,80,out error);potion=m.GetContainer("warehouse").items[0];
             Check(!m.TryMove(Move(m,"warehouse",potion.instanceId,id,8),out error)&&m.GetItem("warehouse",potion.instanceId)!=null,"잘못 드롭해도 원래 상자 유지");
             Check(m.TryMove(Move(m,"warehouse",potion.instanceId,id,0),out error)&&m.GetItem(id,potion.instanceId)!=null,"다른 상자에 동일 UID 이동");
             // 자유 이동 경계와 원래 하단 자리로 향하는 양축 보간을 검사합니다.

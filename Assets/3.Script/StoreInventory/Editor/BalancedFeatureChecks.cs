@@ -10,7 +10,7 @@ namespace GeneralStore.Inventory.Verification
         static void Check(bool yes,string rule){count++;if(!yes)throw new Exception("조정 검사 실패: "+rule);}
         static InventoryModel Model()
         {
-            var s=new InventorySave{gold=1000};s.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=8});
+            var s=new InventorySave{gold=1000};s.containers.Add(new ContainerRecord{containerId="test_storage",columns=8,rows=8});
             s.containers.Add(new ContainerRecord{containerId="display_1",columns=6,rows=4});
             s.containers.Add(new ContainerRecord{containerId="display_2",columns=6,rows=4});return new InventoryModel(InventoryModelChecks.Fixture(),s);
         }

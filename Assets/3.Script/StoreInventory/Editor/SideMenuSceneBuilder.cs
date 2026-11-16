@@ -58,7 +58,7 @@ public static class SideMenuSceneBuilder
         ui.displayInfo=UI.Label("Selected Info",p,24,260,512,94,"",19);
         ui.furnitureList=List(p,"Available Furniture",24,370,512,366);ui.cardTemplate=CardTemplate(parent);
         ui.addDisplayButton=UI.ButtonBox("구매하기",p,24,778,308,56,ui.AddDisplay);UI.ButtonBox("닫기",p,348,778,188,56,ui.Close);ui.window.SetActive(false);
-        var s=Panel(parent,"Storage Expansion Window","상자 크기 확장",out ui.storageWindow);
+        var s=Panel(parent,"Storage Expansion Window","보관 상자 추가",out ui.storageWindow);
         ui.storageNumbers=UI.Label("Before After",s,24,94,512,52,"",30);ui.storageNumbers.alignment=TextAnchor.MiddleCenter;
         ui.storageImage=UI.Box("Chest Illustration Sprite",s,48,164,464,280,new Color(.35f,.23f,.12f));ui.storageImage.raycastTarget=false;
         var rect=UI.Rect("Expansion Grid Preview",s,70,184,420,240);rect.gameObject.AddComponent<CanvasRenderer>();ui.storagePreview=rect.gameObject.AddComponent<StoragePreviewGraphic>();ui.storagePreview.raycastTarget=false;
@@ -75,7 +75,7 @@ public static class SideMenuSceneBuilder
         view.label=UI.Label("Label",image.transform,3,50,76,32,"",16);view.label.alignment=TextAnchor.MiddleCenter;image.gameObject.SetActive(false);menu.template=view;
         Add(menu,"displays","진열 관리",management.window,management.Toggle);
         Add(menu,"furniture","가구 구매",upgrade.window,upgrade.OpenFurniture);
-        Add(menu,"storage","상자 확장",upgrade.storageWindow,upgrade.OpenStorage);
+        Add(menu,"storage","상자 추가",upgrade.storageWindow,upgrade.OpenStorage);
         Add(menu,"suppliers","거래처",supplier.window,supplier.Toggle);
         return menu;
     }

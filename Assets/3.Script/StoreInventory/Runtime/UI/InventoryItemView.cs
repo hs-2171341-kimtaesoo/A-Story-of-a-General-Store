@@ -6,7 +6,7 @@ namespace GeneralStore.Inventory
 {
     [RequireComponent(typeof(CanvasGroup))]
     public sealed class InventoryItemView : MonoBehaviour, ICanvasRaycastFilter,
-        IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+        IPointerClickHandler, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         public InventoryIconGraphic icon;
         public Text nameLabel;
@@ -57,6 +57,9 @@ namespace GeneralStore.Inventory
         }
         public void SetDragVisual(bool dragging)
         { CanvasGroup group=GetComponent<CanvasGroup>();group.alpha=dragging?.3f:1;group.blocksRaycasts=!dragging; }
+        // 상위 창의 배경 PointerDown이 아이템 클릭을 가로채지 않게 같은 오브젝트에서 받습니다.
+        public void OnPointerDown(PointerEventData e){}
+        public void OnPointerUp(PointerEventData e){}
         public void OnPointerClick(PointerEventData e)
         {
             if(e.button!=PointerEventData.InputButton.Left||Panel.IsWindowDragging)return;Panel.Select(Grid.containerId,Record.instanceId);

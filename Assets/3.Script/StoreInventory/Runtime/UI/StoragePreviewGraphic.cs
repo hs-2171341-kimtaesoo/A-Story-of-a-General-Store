@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace GeneralStore.Inventory
 {
-    // 확장 미리보기80칸을 오브젝트80개 대신 하나의 정적 메시로 그립니다.
+    // 확장 미리보기40칸을 오브젝트80개 대신 하나의 정적 메시로 그립니다.
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class StoragePreviewGraphic:MaskableGraphic
     {
@@ -12,7 +12,7 @@ namespace GeneralStore.Inventory
         public void Configure(int oldCells,int newCells){if(before==oldCells&&after==newCells)return;before=oldCells;after=newCells;SetVerticesDirty();}
         protected override void OnPopulateMesh(VertexHelper h)
         {
-            h.Clear();var r=GetPixelAdjustedRect();float cw=r.width/8,ch=r.height/10;
+            h.Clear();var r=GetPixelAdjustedRect();float cw=r.width/8,ch=r.height/5;
             for(int i=0;i<after;i++)
             {
                 float x=r.xMin+(i%8)*cw+1,y=r.yMax-(i/8)*ch-1;int n=h.currentVertCount;var tint=i>=before?addedColor:existingColor;

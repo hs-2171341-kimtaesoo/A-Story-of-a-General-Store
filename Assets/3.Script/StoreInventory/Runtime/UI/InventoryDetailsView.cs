@@ -10,8 +10,10 @@ namespace GeneralStore.Inventory
         public string containerFilter;public bool compactDisplay;
         public global::UnityEngine.UI.Image icon;
         public Text nameLabel,bodyLabel;
+        public Text qualitySizeLabel,priceLabel; // 선택 연결: Play 중 Inspector 위치를 덮어쓰지 않습니다.
         public global::UnityEngine.UI.Image iconBackground;
         public SpriteIconFit iconFit;
+        // 명시적으로 호출할 때만 정렬합니다. Render/크기 변경 콜백은 위치를 쓰지 않습니다.
         // 모눈 아이템의 크기와 별개인 상세 정보용 네모칸입니다.
         public void AlignIconFrame()
         {
@@ -25,14 +27,13 @@ namespace GeneralStore.Inventory
         }
         void OnRectTransformDimensionsChange()
         {
-            AlignIconFrame();
             if(iconFit!=null&&icon!=null&&icon.sprite!=null)iconFit.SetSprite(icon.sprite);
         }
         public void Render(InventoryPanel panel,ItemRecord item)
         {
-            AlignIconFrame();
             if(!string.IsNullOrEmpty(containerFilter))item=panel.Model.GetItem(containerFilter,panel.Selection.Get(containerFilter));
             icon.sprite=null;icon.enabled=false;nameLabel.text="물건을 선택하세요.";bodyLabel.text="";
+            if(qualitySizeLabel!=null)qualitySizeLabel.text="";if(priceLabel!=null)priceLabel.text="";
             if(item==null)return;QualityDefinition quality=panel.Catalog.FindQuality(item.itemId,item.quality);
             var sprite=panel.FindIcon(quality.iconKey);
             if(iconFit!=null)iconFit.SetSprite(sprite);else{icon.sprite=sprite;icon.enabled=sprite!=null;icon.preserveAspect=true;}
@@ -40,7 +41,16 @@ namespace GeneralStore.Inventory
             int asking;
             string listing=InventoryModel.IsDisplay(string.IsNullOrEmpty(containerFilter)?panel.SelectedContainerId:containerFilter) && panel.Model.TryGetOfferPrice(string.IsNullOrEmpty(containerFilter)?panel.SelectedContainerId:containerFilter,item.instanceId,out asking)
                 ? " / 진열가 "+asking+" G" : "";
-            if(compactDisplay){bodyLabel.fontSize=16;bodyLabel.text="품질 "+QualityLabels.Title(item.quality)+" · "+panel.Model.Width(item)+"×"+panel.Model.Height(item)+listing+"\n"+quality.explanation;return;}
+            // 독립 라벨을 연결하면 참고 이미지처럼 항목을 분리합니다.
+            if(qualitySizeLabel!=null&&priceLabel!=null)
+            {
+                qualitySizeLabel.text=QualityLabels.Title(item.quality)+" · "+panel.Model.Width(item)+"×"+panel.Model.Height(item);
+                int price=panel.Catalog.ReferencePrice(item.itemId,item.quality);
+                string id=string.IsNullOrEmpty(containerFilter)?panel.SelectedContainerId:containerFilter;int offer;
+                if(InventoryModel.IsDisplay(id)&&panel.Model.TryGetOfferPrice(id,item.instanceId,out offer))price=offer;
+                priceLabel.text="판매가 "+price+" G";bodyLabel.text=quality.explanation;return;
+            }
+            if(compactDisplay){bodyLabel.text="품질 "+QualityLabels.Title(item.quality)+" · "+panel.Model.Width(item)+"×"+panel.Model.Height(item)+listing+"\n"+quality.explanation;return;}
             bodyLabel.text="품질 "+QualityLabels.Title(item.quality)+" / "+panel.Model.Width(item)+"×"+panel.Model.Height(item)
                 +" / 점유 "+panel.Catalog.Shape(item.itemId).CellCount+"칸\n매입가 "+item.purchasePrice
                 +" G / 기준가 "+panel.Catalog.ReferencePrice(item.itemId,item.quality)+" G"+listing+"\n"+quality.explanation;

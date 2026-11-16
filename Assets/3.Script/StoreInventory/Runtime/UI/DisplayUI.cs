@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace GeneralStore.Inventory
 {
+    [Serializable]public sealed class DisplayWindowTemplateEntry{public string typeId;public DisplayWindowView template;}
     // 첫 오픈에만 독립 창을 생성하고 캐시합니다. 다른 창을 닫지 않습니다.
     public sealed class DisplayUI:MonoBehaviour
     {
-        public InventoryPanel panel;public DisplayWindowView windowTemplate;public RectTransform windowLayer;
+        public InventoryPanel panel;public DisplayWindowView windowTemplate;public DisplayWindowTemplateEntry[] typeTemplates;public RectTransform windowLayer;
         public event Action SelectionChanged;
         readonly Dictionary<string,DisplayWindowView> windows=new Dictionary<string,DisplayWindowView>();
         readonly List<string> removed=new List<string>();string selectedId;bool ready,dirty;
@@ -30,7 +31,9 @@ namespace GeneralStore.Inventory
         public void Open(string id)
         {
             if(!ready||panel.Model.Installation(id)==null)return;Select(id);DisplayWindowView v;
-            if(!windows.TryGetValue(id,out v)){v=Instantiate(windowTemplate,windowLayer);v.gameObject.name="Display Window "+id;v.Bind(panel,this,id);windows.Add(id,v);}v.Open();
+            if(!windows.TryGetValue(id,out v)){var source=windowTemplate;string typeId=panel.Model.Installation(id).typeId;
+                if(typeTemplates!=null)foreach(var entry in typeTemplates)if(entry!=null&&entry.typeId==typeId&&entry.template!=null){source=entry.template;break;}
+                v=Instantiate(source,windowLayer);v.gameObject.name="Display Window "+id;v.Bind(panel,this,id);windows.Add(id,v);}v.Open();
         }
         public void CloseSelected(){DisplayWindowView v;if(selectedId!=null&&windows.TryGetValue(selectedId,out v))v.Close();}
         void LateUpdate()

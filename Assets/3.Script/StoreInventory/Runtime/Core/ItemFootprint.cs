@@ -67,7 +67,7 @@ namespace GeneralStore.Inventory
             return false;
         }
     }
-    public enum PlacementCellState { Free, Occupied, Outside }
+    public enum PlacementCellState { Free, Occupied, Outside, Blocked }
     public struct PlacementCell
     {
         // 안전한 범위 검사 전에 정수 덧셈이 넘치지 않도록 미리보기 좌표는 long으로 계산합니다.

@@ -8,6 +8,8 @@ namespace GeneralStore.Inventory
         public string id,title;public int columns,rows;public long purchasePrice;public int maximumOwned; // 0이면 무제한. 배경 가구 개수와 맞추세요.
         // 비어 있으면 모든 종류를 허용합니다. 예: 무기 거치대는 item.type=weapon만 허용.
         public string[] allowedItemTypes;
+        // 0부터 세는 칸 경계. 예:2는 1행과2행 사이(사람 기준2번째와3번째). 전체 폭/높이의 벽입니다.
+        public int[] horizontalDividers,verticalDividers;
     }
     [Serializable] public sealed class DisplayLocationDefinition
     {
@@ -34,6 +36,7 @@ namespace GeneralStore.Inventory
             foreach(var t in database.types)
             {
                 if(t==null||string.IsNullOrWhiteSpace(t.id)||types.ContainsKey(t.id)||t.maximumOwned<0||t.maximumOwned>30||t.purchasePrice<0||t.columns<1||t.columns>12||t.rows<1||t.rows>10)throw new ArgumentException("진열 종류 크기/ID 오류입니다.");
+                DisplayPartitionRules.Validate(t);
                 types.Add(t.id,t);typeOrder.Add(t.id);
             }
             foreach(var l in database.locations)
@@ -56,9 +59,10 @@ namespace GeneralStore.Inventory
         {var l=Location(location);return Type(type)!=null&&l!=null&&Array.IndexOf(l.allowedTypeIds,type)>=0;}
         public int Columns(string type,string location){var l=Location(location);return l.columnsOverride>0?l.columnsOverride:Type(type).columns;}
         public int Rows(string type,string location){var l=Location(location);return l.rowsOverride>0?l.rowsOverride:Type(type).rows;}
-        public void AddInitialContainers(InventorySave save)
+        public void AddInitialContainers(InventorySave save,bool allTypesForTest=false)
         {
-            if(initialTypes!=null)foreach(string type in initialTypes)
+            var initial=allTypesForTest?typeOrder.ToArray():initialTypes;
+            if(initial!=null)foreach(string type in initial)
             {
                 string key="display_owned_"+(save.displays.Count+1);var t=Type(type);
                 save.containers.Add(new ContainerRecord{containerId=key,columns=t.columns,rows=t.rows});

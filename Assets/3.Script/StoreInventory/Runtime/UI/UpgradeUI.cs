@@ -11,8 +11,7 @@ namespace GeneralStore.Inventory
         public global::UnityEngine.UI.Image furniturePreview,storageImage;
         public Text typeLabel,displayInfo,storageInfo,storageNumbers,storageActionLabel;
         public Button addDisplayButton,storageActionButton;public StoragePreviewGraphic storagePreview;
-        [Min(0)]public int expansionCost=400,newBoxCost=600;
-        [Range(1,10)]public int newWarehouseRows=5;
+        [Min(0)]public int newBoxCost=600;
         readonly Dictionary<string,FurnitureCardView> cards=new Dictionary<string,FurnitureCardView>();
         long storageQuoteRevision=-1;string selectedType;bool ready,dirty;
         void Start(){string error;if(panel==null||warehouse==null||display==null||window==null||storageWindow==null||art==null||furnitureList==null||cardTemplate==null||typeLabel==null||displayInfo==null||storageInfo==null||storageNumbers==null||storageActionLabel==null||addDisplayButton==null||storageActionButton==null||storagePreview==null||furniturePreview==null||!panel.inventory.TryInitialize(out error)){Debug.LogError("새 메뉴 버전 씬을 생성하고 UpgradeUI 참조를 확인하세요.",this);enabled=false;return;}panel.Model.Changed+=MarkDirty;ready=true;window.SetActive(false);storageWindow.SetActive(false);}
@@ -28,7 +27,7 @@ namespace GeneralStore.Inventory
             if(!ready)return;
             if(storageQuoteRevision!=panel.Model.Revision){panel.ShowMessage("변경된 비용과 공간을 확인한 뒤 다시 눌러주세요.");dirty=true;return;}
             storageActionButton.interactable=false;string id,error;
-            if(panel.Model.TryPurchaseStorageUpgrade(expansionCost,newBoxCost,out id,out error,newWarehouseRows)){warehouse.Select(id);panel.ShowMessage("상자 업그레이드 완료");}
+            if(panel.Model.TryPurchaseWarehouse(newBoxCost,out id,out error)){warehouse.Select(id);panel.ShowMessage("8×5 상자를 추가했습니다.");}
             else panel.ShowMessage(error);dirty=true;
         }
         public void AddDisplay()
@@ -55,11 +54,12 @@ namespace GeneralStore.Inventory
         }
         void RefreshStorage()
         {
-            var q=panel.Model.QuoteStorageUpgrade(expansionCost,newBoxCost,newWarehouseRows);storageQuoteRevision=panel.Model.Revision;
-            storageNumbers.text=q.addsBox?"새 상자 "+q.afterCells+"칸 추가":q.beforeCells+"칸 → "+q.afterCells+"칸  (+"+q.addedCells+"칸)";
-            storageInfo.text="대상: 상자 "+panel.Model.WarehouseIds().Count+"\n현재 남은 공간 "+q.freeBefore+"칸\n"+(q.addsBox?"새 상자 공간 ":"확장 후 남은 공간 ")+q.freeAfter+"칸\n비용 "+q.cost+" G\n"+(q.goldAfter>=0?"구매 후 소지금 "+q.goldAfter+" G":"소지금 부족")+"\n"+(q.allowed?"즉시 적용 · 물건 위치 유지":q.error);
-            storageActionLabel.text=q.cost+" G로 "+(q.addsBox?"상자 추가":"확장");storageActionButton.interactable=q.allowed;
-            storagePreview.Configure(q.addsBox?0:q.beforeCells,q.afterCells);
+            var q=panel.Model.QuoteWarehousePurchase(newBoxCost);storageQuoteRevision=panel.Model.Revision;
+            storageNumbers.text="8×5 · 40칸 상자 추가";
+            storageInfo.text="현재 상자 "+panel.Model.WarehouseIds().Count+"개\n새 상자 공간 40칸\n구매 비용 "+q.cost+" G\n"+(q.goldAfter>=0?"구매 후 소지금 "+q.goldAfter+" G":"소지금 부족")+"\n"+(q.allowed?"즉시 추가 · 기존 물건 유지":q.error);
+            storageActionLabel.text=q.cost+" G로 상자 추가";storageActionButton.interactable=q.allowed;
+            storagePreview.Configure(0,40);
+
         }
         void LateUpdate(){if(!ready||!dirty||(!window.activeSelf&&!storageWindow.activeSelf))return;dirty=false;if(window.activeSelf)RefreshFurniture();if(storageWindow.activeSelf)RefreshStorage();}
         void OnDestroy(){if(ready&&panel!=null&&panel.inventory.Model!=null)panel.Model.Changed-=MarkDirty;}

@@ -11,7 +11,7 @@ using UnityEngine.InputSystem.UI;
 // 1920x1080 기준 UI를 실제 씬에 생성합니다. 기존 데모는 비활성화하고 새 씬에서 실행하세요.
 public static class InventorySceneBuilder
 {
-    const float CellWidth=78,CellHeight=85.8f; // 이전 52의 정확히 1.5배. 데이터의 칸 수는 변하지 않습니다.
+    const float CellWidth=78,CellHeight=78; // 이전 52의 정확히 1.5배. 데이터의 칸 수는 변하지 않습니다.
     static Font font;
     public static RectTransform Rect(string name,Transform parent,float x,float y,float width,float height)
     {
@@ -58,6 +58,12 @@ public static class InventorySceneBuilder
         var vertical=ScrollBar(root,false,viewH);vertical.GetComponent<RectTransform>().anchoredPosition=new Vector2(viewW+4,0);
         scroll.verticalScrollbar=vertical;return grid;
     }
+    static InventoryGridView FixedWarehouse(Transform parent,InventoryItemView template)
+    {
+        var image=Box("Warehouse Fixed Grid",parent,137,190,626,392,new Color(.3f,.24f,.15f));
+        var grid=image.gameObject.AddComponent<InventoryGridView>();grid.containerId="warehouse";grid.cellWidth=CellWidth;grid.cellHeight=CellHeight;grid.itemTemplate=template;
+        grid.itemLayer=Rect("Items",grid.transform,1,1,624,390);return grid;
+    }
     static InventoryDetailsView Details(Transform parent,float y,float width)
     {
         var background=Box("Details",parent,20,y,width,156,new Color(.16f,.12f,.08f));
@@ -67,7 +73,11 @@ public static class InventorySceneBuilder
         details.icon=Box("Icon",details.iconBackground.transform,6,6,84,84,Color.white);details.icon.enabled=false;details.icon.raycastTarget=false;
         details.iconFit=details.iconBackground.gameObject.AddComponent<SpriteIconFit>();details.iconFit.image=details.icon;details.iconFit.frame=details.iconBackground.rectTransform;
         details.nameLabel=Label("Name",background.transform,112,8,width-124,32,"물건을 선택하세요.",23);
-        details.bodyLabel=Label("Body",background.transform,112,44,width-124,106,"",18);return details;
+        details.bodyLabel=Label("Body",background.transform,112,44,width-124,80,"",18);
+        details.qualitySizeLabel=Label("Quality Size",background.transform,width-230,12,214,32,"",20);details.qualitySizeLabel.alignment=TextAnchor.MiddleRight;
+        details.priceLabel=Label("Sale Price",background.transform,width-245,110,229,32,"",20);details.priceLabel.alignment=TextAnchor.MiddleRight;
+        details.nameLabel.rectTransform.sizeDelta=new Vector2(width-360,32);
+        Box("Gold Separator",background.transform,0,0,width,2,new Color(.8f,.6f,.15f)).raycastTarget=false;return details;
     }
     static OfferRowView OfferTemplate(Transform parent)
     {
@@ -90,11 +100,16 @@ public static class InventorySceneBuilder
         return content;
     }
     [MenuItem("Store Inventory/Create Canvas Demo")]
-    public static void Create()
+    public static void Create(){CreateInternal(false);}
+    [MenuItem("Store Inventory/Create Canvas Demo - All 12 Furniture Test")]
+    public static void CreateAllFurnitureTest(){CreateInternal(true);}
+    static void CreateInternal(bool allFurniture)
     {
+        if(Application.isPlaying){Debug.LogError("Play를 중지한 뒤 새 씬에서 데모를 생성하세요.");return;}
         font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        Furniture13SceneBuilder.PrepareSprites();
         PlayerSettings.defaultScreenWidth=1920;PlayerSettings.defaultScreenHeight=1080;
-        var data=new GameObject("Store Inventory Data");Undo.RegisterCreatedObjectUndo(data,"Create Store Data");var runtime=data.AddComponent<InventoryRuntime>();data.AddComponent<StorePerformanceSettings>();
+        var data=new GameObject("Store Inventory Data");Undo.RegisterCreatedObjectUndo(data,"Create Store Data");var runtime=data.AddComponent<InventoryRuntime>();runtime.startAllFurnitureOwnedForTest=allFurniture;data.AddComponent<StorePerformanceSettings>();
         var go=new GameObject("Store Inventory Canvas",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));
         Undo.RegisterCreatedObjectUndo(go,"Create Store Canvas");var canvas=go.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;
         var scaler=go.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1920,1080);scaler.matchWidthOrHeight=.5f;
@@ -103,7 +118,7 @@ public static class InventorySceneBuilder
         var supplier=go.AddComponent<SupplierUI>();supplier.panel=panel;
         var displayUI=go.AddComponent<DisplayUI>();displayUI.panel=panel;shop.displays=displayUI;
         var art=go.AddComponent<FurnitureArtCatalog>();
-        art.entries=new[]{new FurnitureArt{typeId="shelf",description="여러 종류의 물품을 진열하는 큰 선반입니다."},new FurnitureArt{typeId="wall_shelf",description="작은 물품을 보관하는 벽 선반입니다."},new FurnitureArt{typeId="weapon_rack",description="무기만 진열할 수 있는 거치대입니다."},new FurnitureArt{typeId="table",description="다양한 물품을 올려놓는 진열 탁자입니다."}};
+
         var management=go.AddComponent<DisplayManagementUI>();management.art=art;management.panel=panel;management.display=displayUI;
         var upgrade=go.AddComponent<UpgradeUI>();upgrade.art=art;upgrade.panel=panel;upgrade.display=displayUI;
         var simulation=data.AddComponent<ShopSimulation>();simulation.inventory=runtime;simulation.shop=shop;shop.simulation=simulation;
@@ -148,13 +163,13 @@ public static class InventorySceneBuilder
         shop.dialogueLabel=Label("Dialogue",dialogue.transform,18,54,530,120,"",23);
 
         var tabTemplate=FixtureSceneBuilder.TabTemplate(layout);
-        var warehouse=Box("Warehouse Window",layout,24,146,690,882,new Color(.15f,.115f,.075f));shop.warehouseWindow=warehouse.gameObject;
+        var warehouse=Box("Warehouse Window",layout,24,146,900,900,new Color(.15f,.115f,.075f));shop.warehouseWindow=warehouse.gameObject;
 
-        var warehouseGrid=GridScroll(warehouse.transform,"warehouse",24,164,624,450,InventoryRuntime.WarehouseColumns,runtime.warehouseRows,template);
-        var warehouseUI=go.AddComponent<WarehouseUI>();warehouseUI.panel=panel;warehouseUI.grid=warehouseGrid;warehouseUI.scroll=warehouseGrid.GetComponentInParent<ScrollRect>();upgrade.warehouse=warehouseUI;
-        warehouseUI.tabs=FixtureSceneBuilder.Tabs(warehouse.transform,tabTemplate,24,70,624);warehouseUI.tabs.warehouse=warehouseUI;
-        warehouseUI.pageLabel=Label("Warehouse Status",warehouse.transform,24,122,624,34,"",21);
-        var warehouseDetails=Details(warehouse.transform,650,650);warehouseDetails.containerFilter="warehouse";
+        var warehouseGrid=FixedWarehouse(warehouse.transform,template);
+        var warehouseUI=go.AddComponent<WarehouseUI>();warehouseUI.panel=panel;warehouseUI.grid=warehouseGrid;upgrade.warehouse=warehouseUI;
+        warehouseUI.tabs=FixtureSceneBuilder.Tabs(warehouse.transform,tabTemplate,90,100,720);warehouseUI.tabs.warehouse=warehouseUI;
+        warehouseUI.pageLabel=Label("Warehouse Status",warehouse.transform,137,148,626,34,"",21);
+        var warehouseDetails=Details(warehouse.transform,670,720);warehouseDetails.containerFilter="warehouse";((RectTransform)warehouseDetails.transform).anchoredPosition=new Vector2(90,-670);
 
 
         var definitionFile=Resources.Load<TextAsset>("StoreInventory/display_fixtures");
@@ -167,9 +182,9 @@ public static class InventorySceneBuilder
         var displayGrid=GridScroll(display.transform,firstFixture.containerId,24,164,624,450,firstFixture.columns,firstFixture.rows,template);
         var displayView=display.gameObject.AddComponent<DisplayWindowView>();displayView.grid=displayGrid;displayUI.windowTemplate=displayView;
         displayView.title=Label("Display Selected Title",display.transform,24,122,624,34,"",20);
-        displayView.status=Label("Display Status",display.transform,24,826,350,40,"",18);
+        displayView.status=Label("Display Status",display.transform,24,826,350,40,"",16);
         var finishDisplay=ButtonBox("닫기",display.transform,400,826,246,40,displayView.Close);
-        var displayDetails=Details(display.transform,650,650);
+        var displayDetails=Details(display.transform,600,650);
         displayView.details=displayDetails;panel.grids=new[]{warehouseGrid};panel.detailViews=new[]{warehouseDetails};display.gameObject.SetActive(false);
 
         var customerWindow=Box("Customer Window",layout,1360,126,536,824,new Color(.19f,.15f,.1f));shop.customerWindow=customerWindow.gameObject;
@@ -198,30 +213,30 @@ public static class InventorySceneBuilder
         var floating=Rect("Floating Windows",layout,0,0,1920,1080);
         warehouse.transform.SetParent(floating,false);display.transform.SetParent(floating,false);
         // 서랍 본문과 손잡이를 분리합니다. 닫혀도 루트/손잡이는 유지됩니다.
-        var body=Rect("Drawer Body",warehouse.transform,0,0,690,882);
-        warehouseGrid.GetComponentInParent<ScrollRect>().transform.SetParent(body,false);
+        var body=Rect("Drawer Body",warehouse.transform,0,0,900,900);
+        warehouseGrid.transform.SetParent(body,false);
         warehouseUI.tabs.transform.SetParent(body,false);warehouseUI.pageLabel.transform.SetParent(body,false);warehouseDetails.transform.SetParent(body,false);
-        var handle=Box("Drawer Handle",warehouse.transform,246,0,198,60,new Color(.5f,.32f,.12f));
-        Label("Handle Hint",handle.transform,0,0,198,60,"상자 ⇅",24).alignment=TextAnchor.MiddleCenter;
-        var drawer=handle.gameObject.AddComponent<WarehouseDrawer>();shop.drawer=drawer;
-        drawer.panel=panel;drawer.window=warehouse.rectTransform;drawer.bounds=floating;drawer.body=body;drawer.openedPosition=new Vector2(24,-146);
+        var drawer=warehouse.gameObject.AddComponent<WarehouseDrawer>();shop.drawer=drawer;
+        drawer.homeRaiseRatio=0;drawer.panel=panel;drawer.window=warehouse.rectTransform;drawer.bounds=floating;drawer.body=body;drawer.openedPosition=new Vector2(24,-146);
+        // 본문 밖의 루트 자식: 내려간 상태에서도 토글 버튼은 계속 보이고 입력을 받습니다.
+        var toggle=ButtonBox("Warehouse Toggle",warehouse.transform,0,4,140,48,null);
+        var toggleRect=(RectTransform)toggle.transform;toggleRect.anchorMin=toggleRect.anchorMax=toggleRect.pivot=new Vector2(.5f,1);toggleRect.anchoredPosition=new Vector2(0,-4);
+        var toggleView=toggle.gameObject.AddComponent<WarehouseToggleButton>();toggleView.drawer=drawer;toggleView.button=toggle;
+        toggleView.image=toggle.GetComponent<global::UnityEngine.UI.Image>();toggleView.label=toggle.GetComponentsInChildren<Text>(true)[0];
         FixtureSceneBuilder.Header(display.transform,floating,panel,690,"진열장");displayUI.windowLayer=floating;
         var appearance=display.gameObject.AddComponent<DisplayWindowAppearance>();displayView.appearance=appearance;appearance.independentWindow=true;
         appearance.window=display.rectTransform;appearance.bounds=floating;
         var frame=Box("Furniture Frame Sprite",display.transform,0,0,690,882,new Color(.2f,.15f,.1f));frame.raycastTarget=false;frame.transform.SetAsFirstSibling();
         display.color=new Color(0,0,0,0);display.canvasRenderer.cullTransparentMesh=false;appearance.frame=frame;
         appearance.grid=displayGrid;appearance.scroll=DisplayWindowAppearance.FindScrollInParents(displayGrid.transform);
-        appearance.header=display.GetComponentsInChildren<DraggableWindow>(true)[0].GetComponent<RectTransform>();
+        var displayDrag=display.GetComponentsInChildren<DraggableWindow>(true)[0];
+        appearance.header=displayDrag.GetComponent<RectTransform>();display.gameObject.AddComponent<WindowBackgroundDrag>().displayDrag=displayDrag;
         displayView.title.transform.SetParent(appearance.header,false);appearance.title=displayView.title.rectTransform;appearance.status=displayView.status.rectTransform;
         appearance.finishButton=(RectTransform)finishDisplay.transform;appearance.details=(RectTransform)displayDetails.transform;
         appearance.detailsName=displayDetails.nameLabel;appearance.detailsBody=displayDetails.bodyLabel;
-        appearance.profiles=new[]{
-            new DisplayAppearanceProfile{typeId="shelf",initialPosition=new Vector2(1080,-100),frameColor=new Color(.3f,.2f,.1f),topPadding=100,bottomPadding=174},
-            new DisplayAppearanceProfile{typeId="wall_shelf",initialPosition=new Vector2(290,-300),frameColor=new Color(.2f,.27f,.18f),topPadding=96,bottomPadding=174,closeBelowFrame=false},
-            new DisplayAppearanceProfile{typeId="weapon_rack",initialPosition=new Vector2(1300,-100),frameColor=new Color(.23f,.18f,.29f),sidePadding=50,minimumWidth=440,topPadding=100,bottomPadding=174},
-            new DisplayAppearanceProfile{typeId="table",initialPosition=new Vector2(740,-470),frameColor=new Color(.3f,.23f,.16f),sidePadding=46,topPadding=100,bottomPadding=174}
-        };
-        DrawerSceneBuilder.Hotspots(furnitureLayer,panel,displayUI);
+        Furniture13SceneBuilder.Configure(appearance,art,fixtures);
+        Fixed35SceneBuilder.Templates(displayUI,displayView,floating,fixtures);
+        Furniture13SceneBuilder.Hotspots(furnitureLayer,panel,displayUI);
         FixtureSceneBuilder.BuildManagement(layout,management,tabTemplate);
         FixtureSceneBuilder.BuildUpgrades(layout,upgrade);
         SupplierSceneBuilder.Build(layout,supplier);

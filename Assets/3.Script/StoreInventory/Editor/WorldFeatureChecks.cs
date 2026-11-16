@@ -9,7 +9,7 @@ namespace GeneralStore.Inventory.Verification
         static InventoryModel Model(long gold=1000)
         {
             var save=new InventorySave{gold=gold};
-            save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=8});
+            save.containers.Add(new ContainerRecord{containerId="test_storage",columns=8,rows=8});
             save.containers.Add(new ContainerRecord{containerId="display_1",columns=6,rows=4});
             save.containers.Add(new ContainerRecord{containerId="display_2",columns=6,rows=4});
             return new InventoryModel(InventoryModelChecks.Fixture(),save);
@@ -26,13 +26,13 @@ namespace GeneralStore.Inventory.Verification
         public static int Run()
         {
             count=0;string error;long revenue;
-            var model=Model();model.TryAdd("warehouse","C001","common",1,80,out error);
-            var item=model.GetContainer("warehouse").items[0];string uid=item.instanceId;
+            var model=Model();model.TryAdd("test_storage","C001","common",1,80,out error);
+            var item=model.GetContainer("test_storage").items[0];string uid=item.instanceId;
             long revision=model.Revision;
-            Check(!model.TryDropToFloor("warehouse",uid,0,.5f,.5f,revision-1,out error),"오래된 바닥 드롭 거절");
-            Check(!model.TryDropToFloor("warehouse",uid,0,float.NaN,.5f,revision,out error),"비정상 좌표 거절");
-            Check(!model.TryDropToFloor("warehouse",uid,0,1.1f,.5f,revision,out error),"바닥 범위 초과 거절");
-            Check(model.TryListOnDisplay(Move(model,"warehouse",uid,"display_1"),100,out error),"진열 준비");
+            Check(!model.TryDropToFloor("test_storage",uid,0,.5f,.5f,revision-1,out error),"오래된 바닥 드롭 거절");
+            Check(!model.TryDropToFloor("test_storage",uid,0,float.NaN,.5f,revision,out error),"비정상 좌표 거절");
+            Check(!model.TryDropToFloor("test_storage",uid,0,1.1f,.5f,revision,out error),"바닥 범위 초과 거절");
+            Check(model.TryListOnDisplay(Move(model,"test_storage",uid,"display_1"),100,out error),"진열 준비");
             Check(model.TryDropToFloor("display_1",uid,1,.2f,.3f,model.Revision,out error),"진열에서 바닥으로 이동");
             Check(model.Snapshot().listings.Count==0&&model.GetContainer("display_1").items.Count==0,"바닥 이동 시 진열/가격 해제");
             Check(model.FloorItems().Count==1&&model.GetItem("floor",uid).purchasePrice==80,"바닥에서 동일 uid/매입가 보존");
@@ -45,48 +45,48 @@ namespace GeneralStore.Inventory.Verification
             Check(!restored.TryRestore(bad,out error),"바닥 uid 중복 저장 거절");
             bad=save.Copy();bad.floorItems[0].normalizedY=float.PositiveInfinity;
             Check(!restored.TryRestore(bad,out error),"비정상 바닥 저장 거절");
-            Check(model.TryMove(Move(model,"floor",uid,"warehouse"),out error)&&model.FloorItems().Count==0,"바닥에서 창고 회수");
+            Check(model.TryMove(Move(model,"floor",uid,"test_storage"),out error)&&model.FloorItems().Count==0,"바닥에서 창고 회수");
             // 수백 번 바닥/격자 사이를 왕복하며 UID/품질/매입가와 총 개수를 확인합니다.
             var random=new Random(482);
             for(int n=0;n<400;n++)
             {
                 int rotation=n%4;
-                Check(model.TryDropToFloor("warehouse",uid,rotation,(float)random.NextDouble(),(float)random.NextDouble(),model.Revision,out error),"왕복 내려놓기");
-                Check(model.GetContainer("warehouse").items.Count==0&&model.FloorItems().Count==1,"바닥/창고 한쪽에만 존재");
-                Check(model.TryMove(Move(model,"floor",uid,"warehouse",0,0,rotation),out error),"왕복 회수");
-                var actual=model.GetItem("warehouse",uid);
+                Check(model.TryDropToFloor("test_storage",uid,rotation,(float)random.NextDouble(),(float)random.NextDouble(),model.Revision,out error),"왕복 내려놓기");
+                Check(model.GetContainer("test_storage").items.Count==0&&model.FloorItems().Count==1,"바닥/창고 한쪽에만 존재");
+                Check(model.TryMove(Move(model,"floor",uid,"test_storage",0,0,rotation),out error),"왕복 회수");
+                var actual=model.GetItem("test_storage",uid);
                 Check(actual!=null&&actual.itemId==item.itemId&&actual.quality==item.quality&&actual.purchasePrice==80&&actual.rotation==rotation,"왕복 낱개 정보 보존");
             }
-            model.TryDropToFloor("warehouse",uid,0,.5f,.5f,model.Revision,out error);
+            model.TryDropToFloor("test_storage",uid,0,.5f,.5f,model.Revision,out error);
             Check(model.TryRemove("floor",uid,out error)&&model.GetItem("floor",uid)==null,"도난은 정확한 바닥 물건만 제거");
 
-            model=Model();model.TryAdd("warehouse","C001","common",16,80,out error);
-            uid=model.GetContainer("warehouse").items[0].instanceId;
-            model.TryDropToFloor("warehouse",uid,0,.1f,.1f,model.Revision,out error);
-            model.TryAdd("warehouse","C001","common",1,80,out error);
-            Check(!model.TryMove(Move(model,"floor",uid,"warehouse"),out error),"창고가 가득 차면 바닥 회수 실패");
-            Check(model.GetItem("floor",uid)!=null&&model.GetContainer("warehouse").items.Count==16,"회수 실패 시 양쪽 원본 유지");
+            model=Model();model.TryAdd("test_storage","C001","common",16,80,out error);
+            uid=model.GetContainer("test_storage").items[0].instanceId;
+            model.TryDropToFloor("test_storage",uid,0,.1f,.1f,model.Revision,out error);
+            model.TryAdd("test_storage","C001","common",1,80,out error);
+            Check(!model.TryMove(Move(model,"floor",uid,"test_storage"),out error),"창고가 가득 차면 바닥 회수 실패");
+            Check(model.GetItem("floor",uid)!=null&&model.GetContainer("test_storage").items.Count==16,"회수 실패 시 양쪽 원본 유지");
             Check(!model.TryListOnDisplay(Move(model,"floor",uid,"display_1"),-1,out error)&&model.GetItem("floor",uid)!=null,"바닥 출발 진열가 실패 시 원본 유지");
             Check(model.TryListOnDisplay(Move(model,"floor",uid,"display_1"),125,out error)&&model.FloorItems().Count==0,"바닥에서 가격 등록하며 진열");
             int groundQuote;Check(model.TryGetOfferPrice("display_1",uid,out groundQuote)&&groundQuote==125,"바닥 출발 새 진열 가격 적용");
 
-            model=Model();model.TryAdd("warehouse","C001","common",3,80,out error);
-            var items=model.GetContainer("warehouse").items;
-            model.TryListOnDisplay(Move(model,"warehouse",items[0].instanceId,"display_1"),100,out error);
+            model=Model();model.TryAdd("test_storage","C001","common",3,80,out error);
+            var items=model.GetContainer("test_storage").items;
+            model.TryListOnDisplay(Move(model,"test_storage",items[0].instanceId,"display_1"),100,out error);
             var session=new RecommendationSession(model);var profile=Customer();
             Check(new DefaultCustomerPurchasePolicy().SpendingBudget(profile)==200,"소지금의 50퍼센트만 예산");
             Check(session.TryEnterShopping(profile,out error)&&!session.ConversationStarted,"처음 방문은 가져온 물건 화면");
             uid=session.Purchases()[0].instanceId;
             Check(!model.TryDropToFloor("display_1",uid,0,.5f,.5f,model.Revision,out error),"예약한 진열 물건 바닥 이동 차단");
-            Check(!session.TryRecommend("warehouse",items[1].instanceId,out error),"이야기 전 추천 직접 API 차단");
+            Check(!session.TryRecommend("test_storage",items[1].instanceId,out error),"이야기 전 추천 직접 API 차단");
             Check(session.BeginConversation(out error)&&session.ConversationStarted,"이야기하기 단계 전환");
-            Check(session.TryRecommend("warehouse",items[1].instanceId,out error),"이야기 후 추가 추천");
-            Check(session.TryRecommend("warehouse",items[2].instanceId,out error),"추가 추천 두 개");
+            Check(session.TryRecommend("test_storage",items[1].instanceId,out error),"이야기 후 추가 추천");
+            Check(session.TryRecommend("test_storage",items[2].instanceId,out error),"추가 추천 두 개");
             Check(!session.TrySubmit(out revenue,out error)&&model.Gold==1000,"소지금 전체가 아닌 사용 비율 예산 적용");
             Check(session.TrySubmitPurchasesOnly(out revenue,out error)&&revenue==100&&model.Gold==1100,"가져온 물건만 판매 경로");
-            Check(model.GetContainer("warehouse").items.Count==2&&!session.CustomerPresent&&!session.ConversationStarted,"추천 제외 결제 후 상태 정리");
+            Check(model.GetContainer("test_storage").items.Count==2&&!session.CustomerPresent&&!session.ConversationStarted,"추천 제외 결제 후 상태 정리");
             Check(!session.TrySubmitPurchasesOnly(out revenue,out error)&&model.Gold==1100,"기본 판매 연타 중복 지급 차단");
-            model.TryListOnDisplay(Move(model,"warehouse",items[1].instanceId,"display_1"),120,out error);
+            model.TryListOnDisplay(Move(model,"test_storage",items[1].instanceId,"display_1"),120,out error);
             session.SetPurchasePolicy(new HalfBudgetPolicy());
             Check(!session.TryEnterShopping(Customer(),out error),"교체한 판단 정책으로 고가 선택 거절");
             model.TryListOnDisplay(Move(model,"display_1",items[1].instanceId,"display_1"),100,out error);

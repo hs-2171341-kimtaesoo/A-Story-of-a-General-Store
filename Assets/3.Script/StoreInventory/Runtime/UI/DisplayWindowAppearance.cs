@@ -46,7 +46,8 @@ namespace GeneralStore.Inventory
             DisplayAppearanceProfile p=null;
             if(profiles!=null)foreach(var candidate in profiles)if(candidate!=null&&candidate.typeId==typeId){p=candidate;break;}
             if(p==null)p=new DisplayAppearanceProfile(); // 새 가구에 프로필이 없으면 기본 외형으로 엽니다.
-            var layout=DisplayWindowLayout.Calculate(columns,rows,grid.cellWidth,grid.cellHeight,p.sidePadding,p.topPadding,p.bottomPadding,p.minimumWidth,p.maximumGridWidth,p.maximumGridHeight);
+            grid.cellHeight=grid.cellWidth;
+            var layout=DisplayWindowLayout.Calculate(columns,rows,grid.cellWidth,grid.cellHeight,p.sidePadding,p.topPadding,p.bottomPadding,p.minimumWidth,p.maximumGridWidth,p.maximumGridHeight,grid.cellGap);
             window.sizeDelta=new Vector2(layout.width,layout.height);
             frame.sprite=p.frameSprite;frame.color=p.frameSprite==null?p.frameColor:Color.white;
             frame.preserveAspect=false; // 프레임만 창 크기에 맞춥니다. 아이템 이미지 비율은 유지합니다.
@@ -59,20 +60,16 @@ namespace GeneralStore.Inventory
             Place(scroll.viewport,0,0,layout.gridWidth,layout.gridHeight);
             if(scroll.horizontalScrollbar!=null)Place((RectTransform)scroll.horizontalScrollbar.transform,0,layout.gridHeight+4,layout.gridWidth,18);
             if(scroll.verticalScrollbar!=null)Place((RectTransform)scroll.verticalScrollbar.transform,layout.gridWidth+4,0,18,layout.gridHeight);
-            scroll.horizontal=columns*grid.cellWidth>layout.gridWidth;
-            scroll.vertical=rows*grid.cellHeight>layout.gridHeight;
+            scroll.horizontal=columns*grid.cellWidth+grid.cellGap>layout.gridWidth;
+            scroll.vertical=rows*grid.cellHeight+grid.cellGap>layout.gridHeight;
             scroll.viewport.GetComponent<global::UnityEngine.UI.Image>().color=p.insetColor;
-            Place(details,20,h-214,w-40,136);
-            Place(detailsName.rectTransform,112,8,w-164,32);Place(detailsBody.rectTransform,112,44,w-164,86);
             Place(status,24,h-76,w-48,32);Place(finishButton,w-194,h-42,170,34);
             if(independentWindow)
             {
                 // closeBelowFrame은 이전 씬 호환 필드만 남기고 실제 배치는 우측 하단으로 통일합니다.
-                Place(frame.rectTransform,0,0,w,h);Place(details,20,h-166,w-40,100);
-                Place(detailsBody.rectTransform,112,44,w-164,52);
+                Place(frame.rectTransform,0,0,w,h);
                 Place(status,24,h-56,w-224,44);Place(finishButton,w-194,h-54,170,40);
             }
-            var detailView=details.GetComponent<InventoryDetailsView>();if(detailView!=null)detailView.AlignIconFrame();
             // 버튼 안의 글자도 함께 배치합니다. 자식별 Update/LayoutGroup은 없습니다.
             var label=finishButton.GetComponentsInChildren<Text>(true)[0];if(label!=null)Place(label.rectTransform,0,0,170,independentWindow?40:34);
             scroll.horizontalNormalizedPosition=0;scroll.verticalNormalizedPosition=1;
