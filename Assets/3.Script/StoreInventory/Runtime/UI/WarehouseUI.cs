@@ -13,8 +13,9 @@ namespace GeneralStore.Inventory
         bool ready,dirty;int index;
         void Start()
         {
-            string error;if(panel==null||grid==null||pageLabel==null||tabs==null||!panel.inventory.TryInitialize(out error))
+            string error;if(panel==null||grid==null||tabs==null||!panel.inventory.TryInitialize(out error))
             {Debug.LogError("WarehouseUI 참조를 확인하세요.",this);enabled=false;return;}
+            if(pageLabel!=null)pageLabel.text=""; // 이전 씬의 선택 사항. Text 오브젝트는 삭제해도 됩니다.
             panel.Model.Changed+=MarkDirty;panel.inventory.Loaded+=ResetPage;ready=true;dirty=true;
         }
         void MarkDirty(){dirty=true;}
@@ -38,7 +39,6 @@ namespace GeneralStore.Inventory
         void LateUpdate()
         {
             if(!ready||!dirty)return;dirty=false;var ids=panel.Model.WarehouseIds();if(index>=ids.Count)index=0;grid.containerId=ids[index];
-            var c=panel.Model.GetContainer(grid.containerId);pageLabel.text=Caption(grid.containerId)+" · "+(c.columns*c.rows)+"칸 · 크기 고정";
             tabs.Sync(ids,grid.containerId,Caption,Select);
         }
         void OnDestroy(){if(ready&&panel!=null&&panel.inventory.Model!=null){panel.Model.Changed-=MarkDirty;panel.inventory.Loaded-=ResetPage;}}

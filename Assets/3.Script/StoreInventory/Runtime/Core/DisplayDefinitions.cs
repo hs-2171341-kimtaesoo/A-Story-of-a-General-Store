@@ -59,12 +59,12 @@ namespace GeneralStore.Inventory
         {var l=Location(location);return Type(type)!=null&&l!=null&&Array.IndexOf(l.allowedTypeIds,type)>=0;}
         public int Columns(string type,string location){var l=Location(location);return l.columnsOverride>0?l.columnsOverride:Type(type).columns;}
         public int Rows(string type,string location){var l=Location(location);return l.rowsOverride>0?l.rowsOverride:Type(type).rows;}
-        public void AddInitialContainers(InventorySave save,bool allTypesForTest=false)
+        public void AddInitialContainers(InventorySave save,bool allTypesForTest=false,string[] initialTypeOverride=null)
         {
-            var initial=allTypesForTest?typeOrder.ToArray():initialTypes;
+            var initial=initialTypeOverride??(allTypesForTest?typeOrder.ToArray():initialTypes);
             if(initial!=null)foreach(string type in initial)
             {
-                string key="display_owned_"+(save.displays.Count+1);var t=Type(type);
+                string key="display_owned_"+(save.displays.Count+1);var t=Type(type);if(t==null)throw new ArgumentException("초기 진열 종류가 없습니다: "+type);
                 save.containers.Add(new ContainerRecord{containerId=key,columns=t.columns,rows=t.rows});
                 save.displays.Add(new DisplayInstallation{containerId=key,typeId=type,locationId=""});
             }

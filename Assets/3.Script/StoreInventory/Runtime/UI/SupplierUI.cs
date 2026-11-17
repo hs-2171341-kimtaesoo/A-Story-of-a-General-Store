@@ -30,7 +30,7 @@ namespace GeneralStore.Inventory
                 ||offerTemplate.priceLabel==null||offerTemplate.stockLabel==null||offerTemplate.quantityLabel==null||offerTemplate.minusButton==null||offerTemplate.plusButton==null
                 ||!panel.inventory.TryInitialize(out error))
             {Debug.LogError("SupplierUI 참조를 확인하세요. 새 데모를 생성하세요.",this);enabled=false;return;}
-            panel.Model.Changed+=MarkDirty;panel.inventory.Loaded+=OnLoaded;ready=true;window.SetActive(false);ShowList();
+            SidePanelInput.AllowOutside(window);panel.Model.Changed+=MarkDirty;panel.inventory.Loaded+=OnLoaded;ready=true;window.SetActive(false);ShowList();
         }
         void MarkDirty(){dirty=true;}
         void OnLoaded(){selected=null;quoteSupplier=null;viewCycle=-1;quantities.Clear();prices.Clear();ShowList();}

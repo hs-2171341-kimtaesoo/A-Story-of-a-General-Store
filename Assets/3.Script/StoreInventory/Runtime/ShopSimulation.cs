@@ -104,7 +104,9 @@ namespace GeneralStore.Inventory
         }
         public void TryVisit(bool showFailure)
         {
-            if(!ready)return;if(inventory.Sales.CustomerPresent){if(showFailure)shop.panel.ShowMessage("이미 손님을 응대 중입니다.");return;}
+            if(!ready)return;
+            if(shop.panel.IsWindowDragging||shop.panel.drag.IsDragging||shop.HasPendingPlacement)return;
+            if(inventory.Sales.CustomerPresent){if(showFailure)shop.panel.ShowMessage("이미 손님을 응대 중입니다.");return;}
             if(inventory.Model.DisplayListingCount==0){if(showFailure)shop.panel.ShowMessage("먼저 물건을 진열하세요.");return;}
             var profiles=inventory.Customers.All();var clock=inventory.Clock.Snapshot();
             profiles.RemoveAll(c=>!VisitPolicy.CanVisit(c,clock));
@@ -117,6 +119,14 @@ namespace GeneralStore.Inventory
         public void ToggleTime(){if(ready)FlushClock();timeRunning=!timeRunning;}
         public void AdvanceToNextPhase()
         {if(ready){FlushClock();AdvanceMinutes(inventory.Clock.Settings.Duration(inventory.Clock.Phase)-inventory.Clock.ElapsedMinutes);ShowClock();}}
+        [Min(1)]public int debugGoldAmount=10000;
+        public void AddDebugGold()
+        {
+            if(!ready)return;
+            if(shop.panel.drag.IsDragging||shop.panel.IsWindowDragging||shop.HasPendingPlacement){shop.panel.ShowMessage("물건 이동과 가격 설정을 마친 뒤 돈을 추가하세요.");return;}
+            string error;bool ok=inventory.Model.TryAddDebugGold(debugGoldAmount,out error);
+            shop.panel.ShowMessage(ok?"테스트 소지금 +"+debugGoldAmount+" G":error);
+        }
         public void QueueTestDelivery()
         {
             if(!ready)return;string error;

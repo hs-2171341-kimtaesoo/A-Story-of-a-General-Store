@@ -11,9 +11,11 @@ namespace GeneralStore.Inventory
         public Canvas canvas;
         public InventoryDragHandler drag;
         WindowDragInputShield windowInput;
+        public event System.Action<bool> WindowDragStateChanged;
+        void OnWindowDragChanged(bool value){var callback=WindowDragStateChanged;if(callback!=null)callback(value);}
         public bool IsWindowDragging{get{return windowInput!=null&&windowInput.Active;}}
         public bool BeginWindowDrag(Object actor,RectTransform moving,RectTransform bounds)
-        {if(windowInput==null){windowInput=GetComponent<WindowDragInputShield>();if(windowInput==null)windowInput=gameObject.AddComponent<WindowDragInputShield>();}return windowInput.Begin(actor,moving,bounds);}
+        {if(windowInput==null){windowInput=GetComponent<WindowDragInputShield>();if(windowInput==null)windowInput=gameObject.AddComponent<WindowDragInputShield>();windowInput.Changed+=OnWindowDragChanged;}return windowInput.Begin(actor,moving,bounds);}
         public void EndWindowDrag(Object actor){if(windowInput!=null)windowInput.End(actor);}
         public InventoryGridView[] grids;
         public InventoryDetailsView[] detailViews;
@@ -67,11 +69,11 @@ namespace GeneralStore.Inventory
         // 처음 창을 만들 때만 등록하고 배열을 교체합니다. 매 프레임 할당하지 않습니다.
         public void RegisterWindowGrid(InventoryGridView grid,InventoryDetailsView detail)
         {
-            var v=new List<InventoryGridView>(grids);v.Add(grid);grids=v.ToArray();var d=new List<InventoryDetailsView>(detailViews);d.Add(detail);detailViews=d.ToArray();
+            var v=new List<InventoryGridView>(grids);v.Add(grid);grids=v.ToArray();if(detail!=null){var d=new List<InventoryDetailsView>(detailViews);if(!d.Contains(detail))d.Add(detail);detailViews=d.ToArray();}
             grid.Initialize(this);
         }
         public void UnregisterWindowGrid(InventoryGridView grid,InventoryDetailsView detail)
-        {var v=new List<InventoryGridView>(grids);v.Remove(grid);grids=v.ToArray();var d=new List<InventoryDetailsView>(detailViews);d.Remove(detail);detailViews=d.ToArray();}
+        {var v=new List<InventoryGridView>(grids);v.Remove(grid);grids=v.ToArray();if(detail!=null){var d=new List<InventoryDetailsView>(detailViews);d.Remove(detail);detailViews=d.ToArray();}}
         public Sprite FindIcon(string iconKey)
         {
             Sprite sprite;
@@ -125,6 +127,6 @@ namespace GeneralStore.Inventory
             string error; ShowMessage(inventory.Load(out error) ? "불러오기 완료" : "불러오기 실패: " + error);
         }
         void OnDisable() { if (drag != null) drag.Cancel(false); }
-        void OnDestroy() { if (initialized && inventory != null && inventory.Model != null) inventory.Model.Changed -= MarkDirty; }
+        void OnDestroy() { if(windowInput!=null)windowInput.Changed-=OnWindowDragChanged; if (initialized && inventory != null && inventory.Model != null) inventory.Model.Changed -= MarkDirty; }
     }
 }

@@ -12,6 +12,9 @@ namespace GeneralStore.Inventory
         [Min(16)] public float cellWidth = 78;
         [Min(16)] public float cellHeight = 78;
         [Range(0,8)]public float cellGap=2;
+        public bool squareCells=true,renderCells=true,renderPartitions=true;
+        [Min(0)]public int startColumn,startRow,viewColumns,viewRows; // 0 크기는 전체 컨테이너. 좌표는 재고의 전역 좌표입니다.
+        readonly PlacementPreview localPreview=new PlacementPreview();
         public float ContentOrigin{get{return cellGap*.5f;}}
         public Vector2 LogicalSize{get{return new Vector2(columns*cellWidth,rows*cellHeight);}}
         public Vector2 CellSize { get { return new Vector2(cellWidth,cellHeight); } }
@@ -24,7 +27,7 @@ namespace GeneralStore.Inventory
         readonly Dictionary<string,InventoryItemView> itemObjects = new Dictionary<string,InventoryItemView>();
         readonly HashSet<string> seen = new HashSet<string>();
         readonly List<string> removed = new List<string>();
-        float renderedWidth,renderedHeight,renderedGap=-1;
+        float renderedWidth,renderedHeight,renderedGap=-1;bool previousRenderCells;
         int columns, rows;
         public Color selectionColor=new Color(1,.75f,.15f,1);
         [Min(1)]public float selectionThickness=3;
@@ -46,15 +49,17 @@ namespace GeneralStore.Inventory
             ContainerRecord container = Panel.Model.GetContainer(containerId);
             if (container == null) { Debug.LogError("없는 컨테이너: " + containerId, this); return; }
                         // 1:1 고정 칸. 바깥 테두리도 타일 사이와 같은 간격입니다.
-            cellHeight=cellWidth;
-            Rect.sizeDelta=new Vector2(container.columns*cellWidth+cellGap,container.rows*cellHeight+cellGap);
+            if(squareCells)cellHeight=cellWidth;
+            int visibleColumns=viewColumns>0?viewColumns:container.columns,visibleRows=viewRows>0?viewRows:container.rows;
+            if(startColumn<0||startRow<0||visibleColumns<1||visibleRows<1||startColumn+visibleColumns>container.columns||startRow+visibleRows>container.rows){Debug.LogError("진열 부분 격자 범위가 재고 범위를 벗어났습니다.",this);return;}
+            Rect.sizeDelta=new Vector2(visibleColumns*cellWidth+cellGap,visibleRows*cellHeight+cellGap);
             itemLayer.anchorMin=itemLayer.anchorMax=itemLayer.pivot=new Vector2(0,1);
             itemLayer.anchoredPosition=new Vector2(ContentOrigin,-ContentOrigin);
-            itemLayer.sizeDelta=new Vector2(container.columns*cellWidth,container.rows*cellHeight);
-            if (columns != container.columns || rows != container.rows || renderedWidth!=cellWidth || renderedHeight!=cellHeight||renderedGap!=cellGap)
+            itemLayer.sizeDelta=new Vector2(visibleColumns*cellWidth,visibleRows*cellHeight);
+            if (columns != visibleColumns || rows != visibleRows || renderedWidth!=cellWidth || renderedHeight!=cellHeight||renderedGap!=cellGap||previousRenderCells!=renderCells)
             {
-                columns = container.columns; rows = container.rows;renderedWidth=cellWidth;renderedHeight=cellHeight;renderedGap=cellGap;
-                int needed=columns*rows;
+                columns = visibleColumns; rows = visibleRows;renderedWidth=cellWidth;renderedHeight=cellHeight;renderedGap=cellGap;previousRenderCells=renderCells;
+                int needed=renderCells?columns*rows:0;
                 // 가구 전환 시 칸을 파괴하지 않습니다. 지금까지 필요한 최대 수만 보관하고 재사용합니다.
                 while(cellObjects.Count<needed)
                 {
@@ -74,6 +79,7 @@ namespace GeneralStore.Inventory
             seen.Clear();
             foreach (ItemRecord record in container.items)
             {
+                if(!IsVisible(record))continue;
                 seen.Add(record.instanceId);InventoryItemView view;
                 if(!itemObjects.TryGetValue(record.instanceId,out view))
                 {
@@ -86,11 +92,12 @@ namespace GeneralStore.Inventory
             foreach(var id in removed){itemObjects[id].gameObject.SetActive(false);Destroy(itemObjects[id].gameObject);itemObjects.Remove(id);}
             RefreshPartitions();HidePreview();RefreshSelection();
         }
+        public bool IsVisible(ItemRecord item){return item!=null&&item.x>=startColumn&&item.y>=startRow&&item.x+Panel.Model.Width(item)<=startColumn+columns&&item.y+Panel.Model.Height(item)<=startRow+rows;}
         void RefreshPartitions()
         {
             var installation=Panel.Model.Installation(containerId);
             var definition=installation==null||Panel.Model.Displays==null?null:Panel.Model.Displays.Type(installation.typeId);
-            bool any=definition!=null&&((definition.horizontalDividers!=null&&definition.horizontalDividers.Length>0)||(definition.verticalDividers!=null&&definition.verticalDividers.Length>0));
+            bool any=renderPartitions&&startColumn==0&&startRow==0&&viewColumns==0&&viewRows==0&&definition!=null&&((definition.horizontalDividers!=null&&definition.horizontalDividers.Length>0)||(definition.verticalDividers!=null&&definition.verticalDividers.Length>0));
             if(!any){if(partitionGraphic!=null)partitionGraphic.gameObject.SetActive(false);return;}
             if(partitionGraphic==null)
             {
@@ -104,6 +111,7 @@ namespace GeneralStore.Inventory
         public void RefreshSelection()
         {
             if(Panel==null)return;var item=Panel.Model.GetItem(containerId,Panel.Selection.Get(containerId));
+            if(item!=null&&!IsVisible(item))item=null;
             if(item==null&&selectionGraphic==null)return;
             if(selectionGraphic==null)
             {
@@ -111,15 +119,16 @@ namespace GeneralStore.Inventory
                 TopLeft(go);selectionGraphic=go.AddComponent<ItemSelectionGraphic>();selectionGraphic.raycastTarget=false;
             }
             selectionGraphic.rectTransform.sizeDelta=LogicalSize;selectionGraphic.rectTransform.anchoredPosition=new Vector2(ContentOrigin,-ContentOrigin);selectionGraphic.color=selectionColor;
-            selectionGraphic.Show(item,item==null?null:Panel.Catalog.Shape(item.itemId),CellSize,selectionThickness);selectionGraphic.transform.SetAsLastSibling();
+            var selected=item;if(selected!=null&&(startColumn!=0||startRow!=0)){selected=selected.Copy();selected.x-=startColumn;selected.y-=startRow;}
+            selectionGraphic.Show(selected,item==null?null:Panel.Catalog.Shape(item.itemId),CellSize,selectionThickness);selectionGraphic.transform.SetAsLastSibling();
         }
         public bool PointerCell(Vector2 screen, out int x, out int y)
         {
             Vector2 local;
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(Rect, screen, Panel.EventCamera, out local))
             { x = y = 0; return false; }
-            x = Mathf.FloorToInt((local.x-ContentOrigin) / cellWidth); y = Mathf.FloorToInt((-local.y-ContentOrigin) / cellHeight);
-            return x >= 0 && x < columns && y >= 0 && y < rows;
+            int cx=Mathf.FloorToInt((local.x-ContentOrigin)/cellWidth),cy=Mathf.FloorToInt((-local.y-ContentOrigin)/cellHeight);
+            x=cx+startColumn;y=cy+startRow;return cx>=0&&cx<columns&&cy>=0&&cy<rows;
         }
         public void ShowPreview(PlacementPreview preview)
         {
@@ -130,7 +139,13 @@ namespace GeneralStore.Inventory
                 previewGraphic=go.AddComponent<PlacementPreviewGraphic>();previewGraphic.raycastTarget=false;
             }
             previewGraphic.rectTransform.sizeDelta=LogicalSize;previewGraphic.rectTransform.anchoredPosition=new Vector2(ContentOrigin,-ContentOrigin);previewGraphic.transform.SetAsLastSibling();
-            previewGraphic.Show(preview,CellSize,cellGap);
+            if(startColumn!=0||startRow!=0||viewColumns>0||viewRows>0)
+            {
+                localPreview.allowed=preview.allowed;localPreview.error=preview.error;localPreview.cells.Clear();
+                foreach(var original in preview.cells){var cell=original;cell.x-=startColumn;cell.y-=startRow;if(cell.x>=0&&cell.x<columns&&cell.y>=0&&cell.y<rows)localPreview.cells.Add(cell);}
+                previewGraphic.Show(localPreview,CellSize,cellGap);
+            }
+            else previewGraphic.Show(preview,CellSize,cellGap);
         }
         public void HidePreview() { if(previewGraphic!=null)previewGraphic.ClearPreview(); }
         public void OnDrop(PointerEventData e) { if (Panel != null) Panel.drag.Drop(this, e.position); }

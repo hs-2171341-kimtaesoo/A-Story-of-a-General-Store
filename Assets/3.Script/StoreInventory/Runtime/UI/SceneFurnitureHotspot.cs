@@ -1,32 +1,44 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 namespace GeneralStore.Inventory
 {
-    // 배경 가구 클릭 영역. 구매할 때 위치를 고르는 시스템과는 별개인 씬 배치입니다.
-    public sealed class SceneFurnitureHotspot:MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler
+    public sealed class SceneFurnitureHotspot:MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler,ICanvasRaycastFilter
     {
         public InventoryPanel panel;public DisplayUI displays;public string typeId;[Min(0)]public int ownedIndex;
-        public global::UnityEngine.UI.Image furnitureImage,highlightImage;public Text label;public bool showUnavailable;
-        string boundId;bool ready,dirty,hover;
+        public global::UnityEngine.UI.Image furnitureImage;public Sprite hoverSprite;
+        public float[] furnitureAlphaBounds,outlineAlphaBounds;
+        public RectTransform outlineFrame;
+        [Range(0,8)]public float outlineThickness; // 0은 PNG 원래 두께, 양수는 추가 두께(UI 단위).
+        public FurnitureHoverPresenter hoverPresenter;public SceneCounterOcclusion counter;
+        global::UnityEngine.UI.Image hitImage;string boundId;bool ready,hover;
+        bool InputBlocked{get{return panel.IsWindowDragging||(panel.drag!=null&&panel.drag.IsDragging);}}
         void Start()
         {
-            string error;if(panel==null||displays==null||furnitureImage==null||highlightImage==null||label==null||!panel.inventory.TryInitialize(out error)){enabled=false;return;}
-            panel.Model.Changed+=MarkDirty;panel.inventory.Loaded+=MarkDirty;if(panel.drag!=null)panel.drag.DraggingChanged+=OnDraggingChanged;ready=true;dirty=true;
+            string error;hitImage=furnitureImage;
+            if(panel==null||displays==null||furnitureImage==null||hitImage==null||!panel.inventory.TryInitialize(out error)){enabled=false;return;}
+            panel.Model.Changed+=Refresh;panel.inventory.Loaded+=Refresh;panel.inventory.Sales.Changed+=Refresh;
+            if(panel.drag!=null)panel.drag.DraggingChanged+=OnDraggingChanged;panel.WindowDragStateChanged+=OnDraggingChanged;
+            ready=true;Refresh();
         }
-        void MarkDirty(){dirty=true;}
-        bool InputBlocked{get{return (panel.drag!=null&&panel.drag.IsDragging)||panel.inventory.Sales.CustomerPresent;}}
-        void OnDraggingChanged(bool held){hover=false;if(ready)Refresh();}
+        void OnDraggingChanged(bool held){hover=false;Refresh();}
         void Refresh()
         {
-            boundId=panel.Model.OwnedDisplayId(typeId,ownedIndex);GetComponent<global::UnityEngine.UI.Image>().raycastTarget=boundId!=null&&!InputBlocked;
-            var t=panel.Model.Displays.Type(typeId);label.text=(t==null?typeId:t.title)+(boundId==null?" · 미구매":"");
-            label.gameObject.SetActive(boundId!=null||showUnavailable);furnitureImage.enabled=boundId!=null;highlightImage.enabled=boundId!=null&&hover&&!InputBlocked;
+            if(!ready)return;boundId=panel.Model.OwnedDisplayId(typeId,ownedIndex);
+            hitImage.raycastTarget=boundId!=null&&!InputBlocked;furnitureImage.enabled=boundId!=null;
+            if(hoverPresenter!=null){if(boundId!=null&&hover&&!InputBlocked)hoverPresenter.Show(this);else hoverPresenter.Hide(this);}
         }
-        public void OnPointerClick(PointerEventData e){if(e.button==PointerEventData.InputButton.Left&&boundId!=null&&!panel.drag.IsDragging&&!panel.IsWindowDragging&&!panel.inventory.Sales.CustomerPresent)displays.Open(boundId);}
-        public void OnPointerEnter(PointerEventData e){hover=!InputBlocked;if(ready)Refresh();}
-        public void OnPointerExit(PointerEventData e){hover=false;if(highlightImage!=null)highlightImage.enabled=false;}
-        void LateUpdate(){if(ready&&dirty){dirty=false;Refresh();}}
-        void OnDestroy(){if(panel!=null&&panel.drag!=null)panel.drag.DraggingChanged-=OnDraggingChanged;if(ready&&panel!=null&&panel.inventory.Model!=null){panel.Model.Changed-=MarkDirty;panel.inventory.Loaded-=MarkDirty;}}
+        public bool IsRaycastLocationValid(Vector2 point,Camera camera){return counter==null||!counter.Blocks(point,camera);}
+        public void OnPointerClick(PointerEventData e){if(ready&&e.button==PointerEventData.InputButton.Left&&boundId!=null&&!InputBlocked)displays.Toggle(boundId);}
+        public void OnPointerEnter(PointerEventData e){if(!ready)return;hover=!InputBlocked;Refresh();}
+        public void OnPointerExit(PointerEventData e){hover=false;if(hoverPresenter!=null)hoverPresenter.Hide(this);}
+        [ContextMenu("Preview Outline")]public void PreviewOutline(){if(hoverPresenter!=null)hoverPresenter.Show(this);}
+        [ContextMenu("Hide Outline")]public void HideOutline(){if(hoverPresenter!=null)hoverPresenter.Hide(this);}
+        void OnDisable(){hover=false;if(hoverPresenter!=null)hoverPresenter.Hide(this);}
+        void OnDestroy()
+        {
+            if(!ready||panel==null)return;
+            if(panel.drag!=null)panel.drag.DraggingChanged-=OnDraggingChanged;panel.WindowDragStateChanged-=OnDraggingChanged;
+            if(panel.inventory!=null&&panel.inventory.Model!=null){panel.Model.Changed-=Refresh;panel.inventory.Loaded-=Refresh;panel.inventory.Sales.Changed-=Refresh;}
+        }
     }
 }

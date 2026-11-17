@@ -19,6 +19,7 @@ namespace GeneralStore.Inventory
     public sealed class DisplayWindowAppearance : MonoBehaviour
     {
         public bool independentWindow;
+        public bool useAuthoredLayout; // Sprite 전용 창: 에디터에서 맞춘 RectTransform을 Play에서 유지합니다.
         public RectTransform window,bounds,header,closeButton,tabStrip,title,status,finishButton,details;
         public Text detailsName,detailsBody;
         public ScrollRect scroll;
@@ -38,6 +39,7 @@ namespace GeneralStore.Inventory
         // DisplayUI의 dirty 갱신에서 호출합니다. 매 프레임 레이아웃을 계산하지 않습니다.
         public void Apply(string typeId,int columns,int rows)
         {
+            if(useAuthoredLayout)return;
             // 이미 생성/저장된 씬의 누락된 참조도 복구합니다. 첫 연결 이후에는 검색하지 않습니다.
             if(scroll==null&&grid!=null)scroll=FindScrollInParents(grid.transform);
             if(scroll==null||scroll.viewport==null)
@@ -63,12 +65,12 @@ namespace GeneralStore.Inventory
             scroll.horizontal=columns*grid.cellWidth+grid.cellGap>layout.gridWidth;
             scroll.vertical=rows*grid.cellHeight+grid.cellGap>layout.gridHeight;
             scroll.viewport.GetComponent<global::UnityEngine.UI.Image>().color=p.insetColor;
-            Place(status,24,h-76,w-48,32);Place(finishButton,w-194,h-42,170,34);
+            Place(finishButton,w-194,h-42,170,34);
             if(independentWindow)
             {
                 // closeBelowFrame은 이전 씬 호환 필드만 남기고 실제 배치는 우측 하단으로 통일합니다.
                 Place(frame.rectTransform,0,0,w,h);
-                Place(status,24,h-56,w-224,44);Place(finishButton,w-194,h-54,170,40);
+                Place(finishButton,w-194,h-54,170,40);
             }
             // 버튼 안의 글자도 함께 배치합니다. 자식별 Update/LayoutGroup은 없습니다.
             var label=finishButton.GetComponentsInChildren<Text>(true)[0];if(label!=null)Place(label.rectTransform,0,0,170,independentWindow?40:34);

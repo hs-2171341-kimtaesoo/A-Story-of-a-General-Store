@@ -21,7 +21,7 @@ public static class Fixed35SceneBuilder
             view.details.qualitySizeLabel.rectTransform.anchoredPosition=new Vector2(width-250,-8);view.details.qualitySizeLabel.rectTransform.sizeDelta=new Vector2(190,28);
             view.details.priceLabel.rectTransform.anchoredPosition=new Vector2(width-270,-66);view.details.priceLabel.rectTransform.sizeDelta=new Vector2(210,28);
             view.details.iconBackground.rectTransform.anchoredPosition=new Vector2(10,-6);view.details.iconBackground.rectTransform.sizeDelta=new Vector2(88,88);
-            view.details.bodyLabel.fontSize=16;view.gameObject.SetActive(false);ui.typeTemplates[n]=new DisplayWindowTemplateEntry{typeId=id,template=view};
+            view.details.bodyLabel.fontSize=16;view.details.bodyLabel.gameObject.SetActive(false);view.details.priceLabel.gameObject.SetActive(false);view.gameObject.SetActive(false);ui.typeTemplates[n]=new DisplayWindowTemplateEntry{typeId=id,template=view};
         }
     }
 }

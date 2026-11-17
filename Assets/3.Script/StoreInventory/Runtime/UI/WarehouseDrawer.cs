@@ -14,7 +14,7 @@ namespace GeneralStore.Inventory
         [Min(1)]public float returnSpeed=12;
         public bool startClosed=true;
         bool dragging,animating,opened;
-        Vector2 startPointer,startPosition,targetPosition,lastOpenedPosition;
+        Vector2 startPointer,startPosition,targetPosition;
         public bool IsOpen{get{return opened;}}
         public event System.Action<bool> StateChanged;
         void NotifyState(){var callback=StateChanged;if(callback!=null)callback(opened);}
@@ -29,7 +29,7 @@ namespace GeneralStore.Inventory
         {
             if(panel==null||window==null||bounds==null||body==null){Debug.LogError("서랍 참조를 확인하세요.",this);enabled=false;return;}
             UiPerformanceLayers.Ensure(window.gameObject,true);opened=!startClosed;
-            lastOpenedPosition=ClampPosition(openedPosition);targetPosition=opened?lastOpenedPosition:ClosedPosition;
+            targetPosition=opened?ClampPosition(openedPosition):ClosedPosition;
             window.anchoredPosition=targetPosition;body.gameObject.SetActive(opened);NotifyState();
         }
         public void Open(){SetTarget(true);}public void Close(){SetTarget(false);}public void Toggle(){SetTarget(!opened);}
@@ -39,7 +39,7 @@ namespace GeneralStore.Inventory
             if(panel.drag!=null)panel.drag.Cancel(false);
             panel.EndWindowDrag(this);
             if(!value)panel.ClearWarehouseSelection();
-            dragging=false;opened=value;targetPosition=value?ClampPosition(lastOpenedPosition):ClosedPosition;
+            dragging=false;opened=value;targetPosition=value?ClampPosition(openedPosition):ClosedPosition;
             animating=true;body.gameObject.SetActive(true);window.SetAsLastSibling();NotifyState();
         }
         // 손잡이를 누른 순간부터 막아 드래그 시작 임계값 전에도 뒤 창이 반응하지 않습니다.
@@ -83,7 +83,7 @@ namespace GeneralStore.Inventory
         {
             dragging=false;panel.EndWindowDrag(this);
             if(DrawerGeometry.ShouldClose(window.anchoredPosition.y,window.rect.height,bounds.rect.height,closeHiddenFraction))SetTarget(false);
-            else{opened=true;lastOpenedPosition=ClampPosition(window.anchoredPosition);targetPosition=lastOpenedPosition;animating=true;NotifyState();}
+            else{opened=true;targetPosition=ClampPosition(window.anchoredPosition);animating=true;NotifyState();}
         }
         public void ReleaseHandle(){if(dragging&&panel!=null)FinishDrag();else if(panel!=null)panel.EndWindowDrag(this);}
         void OnApplicationFocus(bool focused)

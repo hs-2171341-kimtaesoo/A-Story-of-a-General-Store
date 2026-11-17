@@ -17,6 +17,7 @@ namespace GeneralStore.Inventory
         InventoryItemView ghostTemplate;
         readonly List<RaycastResult> rayResults=new List<RaycastResult>(32);
         readonly HoverSwitchTimer hoverTimer=new HoverSwitchTimer();
+        readonly HoverSwitchTimer displayHoverTimer=new HoverSwitchTimer();
         PointerEventData rayPointer;EventSystem raySystem;
         InventoryGridView previewGrid;
         bool previewValid;
@@ -107,6 +108,10 @@ namespace GeneralStore.Inventory
             var tab=rayResults.Count==0?null:rayResults[0].gameObject.GetComponentInParent<WarehouseTabTarget>();
             string id=tab!=null&&tab.warehouse.SelectedId!=tab.containerId?tab.containerId:null;
             if(hoverTimer.Tick(id,Time.unscaledDeltaTime,tab==null?2:tab.warehouse.hoverSwitchSeconds))tab.warehouse.SelectWhileDragging(id);
+            var displayButton=rayResults.Count==0?null:rayResults[0].gameObject.GetComponentInParent<LeftDisplayButtonView>();
+            string displayId=displayButton==null?null:displayButton.containerId;
+            if(displayHoverTimer.Tick(displayId,Time.unscaledDeltaTime,displayButton==null?2:displayButton.menu.hoverOpenSeconds))
+                displayButton.menu.OpenFromHover(displayId);
             return rayResults.Count == 0 ? null : rayResults[0].gameObject.GetComponentInParent<InventoryGridView>();
         }
         MoveRequest CreateRequest(InventoryGridView target, Vector2 position)
@@ -122,11 +127,19 @@ namespace GeneralStore.Inventory
         public void MovePointer(Vector2 position){if(active)pointer=position;}
         void HideCachedPreview()
         {if(previewGrid!=null)previewGrid.HidePreview();previewGrid=null;previewValid=false;}
+        // 작업창이 축소되어도 최상위 Drag Layer의 물건 그림은 화면상 칸 크기와 일치합니다.
+        Vector2 CellSizeInDragLayer(InventoryGridView grid)
+        {
+            Vector3 sourceScale=grid.transform.lossyScale,layerScale=dragLayer.lossyScale;
+            return new Vector2(grid.cellWidth*Mathf.Abs(sourceScale.x)/Mathf.Max(.0001f,Mathf.Abs(layerScale.x)),
+                grid.cellHeight*Mathf.Abs(sourceScale.y)/Mathf.Max(.0001f,Mathf.Abs(layerScale.y)));
+        }
         void RefreshPointer()
         {
             if(panel.Model.Revision!=startedRevision){Cancel(false);return;}
             InventoryGridView target=HoverGrid();if(target!=null&&target.Panel!=panel)target=null;
-            Vector2 cell=target==null?(sourceView!=null?sourceView.Grid.CellSize:panel.grids[0].CellSize):target.CellSize;
+            InventoryGridView visualGrid=target!=null?target:(sourceView!=null?sourceView.Grid:panel.grids[0]);
+            Vector2 cell=CellSizeInDragLayer(visualGrid);
             ghost.ApplyRotation(rotation,cell);Vector2 local;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(dragLayer,pointer,panel.EventCamera,out local);
             Vector2 pos=local+new Vector2(-(grabbedX+.5f)*cell.x,(grabbedY+.5f)*cell.y);
@@ -158,7 +171,7 @@ namespace GeneralStore.Inventory
         }
         public void Cancel(bool showMessage)
         {
-            if (!active) return; active = false;NotifyDragging(false);hoverTimer.Reset();
+            if (!active) return; active = false;NotifyDragging(false);hoverTimer.Reset();displayHoverTimer.Reset();
             if (sourceView != null) sourceView.SetDragVisual(false);
             if(floorSource!=null)floorSource.SetDragVisual(false);
             if (ghost != null)ghost.gameObject.SetActive(false);
@@ -176,6 +189,14 @@ namespace GeneralStore.Inventory
     }
     internal static class InventoryKeys
     {
+        public static bool TryPointerPosition(out Vector2 position)
+        {
+#if ENABLE_INPUT_SYSTEM
+            if(Mouse.current==null){position=Vector2.zero;return false;}position=Mouse.current.position.ReadValue();return true;
+#else
+            var p=Input.mousePosition;position=new Vector2(p.x,p.y);return true;
+#endif
+        }
         public static bool RotatePressed()
         {
 #if ENABLE_INPUT_SYSTEM

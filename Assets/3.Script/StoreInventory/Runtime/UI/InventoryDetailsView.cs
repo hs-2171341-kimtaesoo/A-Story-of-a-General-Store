@@ -38,22 +38,22 @@ namespace GeneralStore.Inventory
             var sprite=panel.FindIcon(quality.iconKey);
             if(iconFit!=null)iconFit.SetSprite(sprite);else{icon.sprite=sprite;icon.enabled=sprite!=null;icon.preserveAspect=true;}
             nameLabel.text=quality.name;
-            int asking;
-            string listing=InventoryModel.IsDisplay(string.IsNullOrEmpty(containerFilter)?panel.SelectedContainerId:containerFilter) && panel.Model.TryGetOfferPrice(string.IsNullOrEmpty(containerFilter)?panel.SelectedContainerId:containerFilter,item.instanceId,out asking)
-                ? " / 진열가 "+asking+" G" : "";
-            // 독립 라벨을 연결하면 참고 이미지처럼 항목을 분리합니다.
+            string qualityText=QualityLabels.Title(item.quality);
+            bool display=compactDisplay||InventoryModel.IsDisplay(string.IsNullOrEmpty(containerFilter)?panel.SelectedContainerId:containerFilter);
+            // 진열장은 아이콘/이름/품질만 표시합니다. 기존 씬의 불필요한 라벨도 비웁니다.
+            if(display)
+            {
+                if(qualitySizeLabel!=null)qualitySizeLabel.text=qualityText;else bodyLabel.text=qualityText;
+                return;
+            }
+            // 상자는 기존 설명/가격을 유지하고 가로세로 크기만 제거합니다.
             if(qualitySizeLabel!=null&&priceLabel!=null)
             {
-                qualitySizeLabel.text=QualityLabels.Title(item.quality)+" · "+panel.Model.Width(item)+"×"+panel.Model.Height(item);
-                int price=panel.Catalog.ReferencePrice(item.itemId,item.quality);
-                string id=string.IsNullOrEmpty(containerFilter)?panel.SelectedContainerId:containerFilter;int offer;
-                if(InventoryModel.IsDisplay(id)&&panel.Model.TryGetOfferPrice(id,item.instanceId,out offer))price=offer;
-                priceLabel.text="판매가 "+price+" G";bodyLabel.text=quality.explanation;return;
+                qualitySizeLabel.text=qualityText;priceLabel.text="판매가 "+panel.Catalog.ReferencePrice(item.itemId,item.quality)+" G";
+                bodyLabel.text=quality.explanation;return;
             }
-            if(compactDisplay){bodyLabel.text="품질 "+QualityLabels.Title(item.quality)+" · "+panel.Model.Width(item)+"×"+panel.Model.Height(item)+listing+"\n"+quality.explanation;return;}
-            bodyLabel.text="품질 "+QualityLabels.Title(item.quality)+" / "+panel.Model.Width(item)+"×"+panel.Model.Height(item)
-                +" / 점유 "+panel.Catalog.Shape(item.itemId).CellCount+"칸\n매입가 "+item.purchasePrice
-                +" G / 기준가 "+panel.Catalog.ReferencePrice(item.itemId,item.quality)+" G"+listing+"\n"+quality.explanation;
+            bodyLabel.text="품질 "+qualityText+" / 점유 "+panel.Catalog.Shape(item.itemId).CellCount+"칸\n매입가 "+item.purchasePrice
+                +" G / 기준가 "+panel.Catalog.ReferencePrice(item.itemId,item.quality)+" G\n"+quality.explanation;
         }
     }
 }

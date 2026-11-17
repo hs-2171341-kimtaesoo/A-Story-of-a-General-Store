@@ -80,6 +80,14 @@ namespace GeneralStore.Inventory.Verification
         public static int Run()
         {
             checks = 0; ItemCatalog catalog = Fixture();
+            // 돈 추가 버튼은 품목/배치를 바꾸지 않고, 잘못된 금액과 오버플로를 거절합니다.
+            var money=NewModel(catalog);string moneyError;long goldBefore=money.Gold;string inventoryBefore=Fingerprint(money);
+            Check(money.TryAddDebugGold(10000,out moneyError)&&money.Gold==goldBefore+10000,"테스트 소지금 추가");
+            Check(Fingerprint(money)==inventoryBefore,"돈 추가는 재고 배치 보존");
+            long moneyRevision=money.Revision;
+            Check(!money.TryAddDebugGold(0,out moneyError)&&!money.TryAddDebugGold(-1,out moneyError)&&money.Revision==moneyRevision,"0/음수 돈 추가 거절");
+            Check(money.TryAddDebugGold(long.MaxValue-money.Gold,out moneyError),"소지금 경계값 도달");moneyRevision=money.Revision;
+            Check(!money.TryAddDebugGold(1,out moneyError)&&money.Gold==long.MaxValue&&money.Revision==moneyRevision,"돈 오버플로 원자적 거절");
             InventoryModel model = NewModel(catalog); string error;
             Check(model.TryAdd("test_storage", "C001", "common", 1, 80, out error), "첫 입고");
             Check(model.TryAdd("test_storage", "C001", "common", 1, 100, out error), "동일 종류/품질 재입고");

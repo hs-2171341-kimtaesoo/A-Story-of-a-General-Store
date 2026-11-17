@@ -74,8 +74,8 @@
     {
       "id": "mannequin",
       "title": "마네킹 진열대",
-      "columns": 4,
-      "rows": 6,
+      "columns": 5,
+      "rows": 5,
       "purchasePrice": 500,
       "maximumOwned": 1,
       "allowedItemTypes": [],
@@ -86,16 +86,14 @@
       "id": "table",
       "title": "문 달린 진열장",
       "columns": 6,
-      "rows": 4,
+      "rows": 6,
       "purchasePrice": 400,
       "maximumOwned": 1,
       "allowedItemTypes": [],
       "horizontalDividers": [
         2
       ],
-      "verticalDividers": [
-        3
-      ]
+      "verticalDividers": []
     },
     {
       "id": "single_stand",
@@ -135,8 +133,8 @@
     {
       "id": "weapon_rack",
       "title": "무기 거치대",
-      "columns": 6,
-      "rows": 6,
+      "columns": 7,
+      "rows": 8,
       "purchasePrice": 600,
       "maximumOwned": 1,
       "allowedItemTypes": [
@@ -145,7 +143,7 @@
       "horizontalDividers": [],
       "verticalDividers": [
         2,
-        4
+        5
       ]
     },
     {

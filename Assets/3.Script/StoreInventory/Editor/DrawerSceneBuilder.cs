@@ -5,11 +5,6 @@ using GeneralStore.Inventory;
 using UI=InventorySceneBuilder;
 public static class DrawerSceneBuilder
 {
-    public static void Hotspots(Transform parent,InventoryPanel panel,DisplayUI displays)
-    {
-        // 이전 생성기 호출도13개 데이터 기반 배치로 연결합니다.
-        Furniture13SceneBuilder.Hotspots(parent,panel,displays);
-    }
     public static void MoveDebugButtons(RectTransform layout)
     {
         // 개발용 버튼은 기본 배경을 가리지 않도록 하나의 접이식 메뉴로 모읍니다.
@@ -27,7 +22,6 @@ public static class DrawerSceneBuilder
             bool furniture=button.gameObject.name=="업그레이드";var r=(RectTransform)button.transform;r.anchoredPosition=new Vector2(furniture?1480:1690,-1020);r.sizeDelta=new Vector2(200,42);
             var text=button.GetComponentsInChildren<Text>(true)[0];text.text=furniture?"가구 구매":"거래처";text.rectTransform.sizeDelta=new Vector2(200,42);
         }
-        foreach(var text in layout.GetComponentsInChildren<Text>(true))if(text.gameObject.name=="Floor Hint")text.gameObject.SetActive(false);
         UI.ButtonBox("테스트",layout,1810,970,86,36,toggle.Toggle);root.gameObject.SetActive(false);
     }
 }

@@ -6,7 +6,7 @@ namespace GeneralStore.Inventory
     // 화면의 단계만 담당합니다. 선호/예산/물건 선택은 JSON+정책, 재고/돈은 모델이 담당합니다.
     public sealed class ShopfrontUI : MonoBehaviour
     {
-        public InventoryPanel panel;
+        public InventoryPanel panel;public StagedCustomerInteraction customerInteraction;
         public ShopSimulation simulation;
         public WarehouseDrawer drawer;public DisplayUI displays;
         public GameObject warehouseWindow,displayWindow,priceDialog;
@@ -36,13 +36,13 @@ namespace GeneralStore.Inventory
                 ||purchaseList==null||offerTemplate==null||submitButton==null||customerWindow==null||checkoutPage==null
                 ||recommendationPage==null||dialogueWindow==null||offerTemplate.icon==null||offerTemplate.removeButton==null
                 ||offerTemplate.nameLabel==null||offerTemplate.priceLabel==null)
-            {Debug.LogError("ShopfrontUI 참조 오류입니다. 새 Create Canvas Demo로 생성하세요.",this);enabled=false;return;}
+            {Debug.LogError("ShopfrontUI 참조 오류입니다. Create Latest Demo로 생성하세요.",this);enabled=false;return;}
             string error;if(!panel.inventory.TryInitialize(out error)){Debug.LogError(error,this);enabled=false;return;}
             panel.Model.Changed+=MarkDirty;Session.Changed+=SessionChanged;ready=true;
             priceDialog.SetActive(false);offerTemplate.gameObject.SetActive(false);Refresh();
         }
         void MarkDirty(){dirty=true;}
-        void SessionChanged(){MarkDirty();panel.drag.Cancel(false);CancelDisplayPrice();}
+        void SessionChanged(){MarkDirty();if(!panel.drag.IsDragging)CancelDisplayPrice();}
         void LateUpdate(){if(ready&&dirty){dirty=false;Refresh();}}
         void PrepareWindowChange(){panel.drag.Cancel(false);CancelDisplayPrice();}
         public void ToggleWarehouse(){PrepareWindowChange();drawer.Toggle();}
@@ -78,6 +78,7 @@ namespace GeneralStore.Inventory
         {
             if(!ready)return false;string error;
             if(!Session.TryEnterShopping(customer,out error)){if(showFailure)panel.ShowMessage(error);return false;}
+            if(customerInteraction!=null)customerInteraction.BeginVisit();
             activeCustomer=customer.Copy();activePortrait=string.IsNullOrEmpty(customer.portraitKey)?null:Resources.Load<Sprite>("CustomerPortraits/"+customer.portraitKey);panel.ShowMessage(customer.displayName+" 방문: 가져온 물건을 확인하세요.");return true;
         }
         public void BeginTalk()
@@ -123,9 +124,10 @@ namespace GeneralStore.Inventory
             if(shownGold!=panel.Model.Gold||shownDebt!=panel.Model.UnpaidCosts)
             {shownGold=panel.Model.Gold;shownDebt=panel.Model.UnpaidCosts;goldLabel.text=shownGold.ToString("N0")+" G"+(shownDebt>0?" / 미납 "+shownDebt:"");}
             bool present=Session.CustomerPresent;bool talking=present&&Session.ConversationStarted;
-            Visible(customerWindow,present);Visible(dialogueWindow,present);
+            bool engaged=present&&(customerInteraction==null||customerInteraction.Engaged);
+            Visible(customerWindow,engaged);Visible(dialogueWindow,engaged);
             Visible(checkoutPage,present&&!talking);Visible(recommendationPage,talking);seenRows.Clear();
-            customerPortrait.sprite=activePortrait!=null?activePortrait:portraitSprite;customerPortrait.enabled=present&&customerPortrait.sprite!=null;
+            customerPortrait.sprite=activePortrait!=null?activePortrait:portraitSprite;customerPortrait.enabled=engaged&&customerPortrait.sprite!=null;
             if(!present){RemoveUnusedRows();return;}
             customerNameLabel.text=Session.CustomerName;
             dialogueLabel.text=activeCustomer==null?"물건을 확인해 주세요.":DialoguePolicy.Text(activeCustomer,talking,panel.inventory.Clock.Snapshot());

@@ -7,8 +7,7 @@ namespace GeneralStore.Inventory
     public sealed class WarehouseToggleButton:MonoBehaviour,IPointerDownHandler,IPointerUpHandler,IBeginDragHandler,IDragHandler,IEndDragHandler
     {
         public WarehouseDrawer drawer;public Button button;public global::UnityEngine.UI.Image image;public Text label;
-        public Sprite openedSprite,closedSprite;public bool showLabel=true;
-        public string openedText="내리기",closedText="올리기";
+        public Sprite openedSprite,closedSprite;
         bool forwarding,pressed,spriteCaptured;Sprite originalSprite;
         void OnEnable()
         {
@@ -22,7 +21,7 @@ namespace GeneralStore.Inventory
         void Render(bool opened)
         {
             if(image!=null)image.sprite=(opened?openedSprite:closedSprite)??originalSprite;
-            if(label!=null){label.gameObject.SetActive(showLabel);label.text=opened?openedText:closedText;}
+            if(label!=null)label.text=""; // 이전 씬 호환. 라벨 자체를 삭제해도 됩니다.
         }
         public void OnPointerDown(PointerEventData e){if(drawer!=null&&e.button==PointerEventData.InputButton.Left){pressed=true;drawer.PressHandle(e);}}
         public void OnPointerUp(PointerEventData e){if(drawer!=null&&pressed)drawer.OnPointerUp(e);pressed=false;}

@@ -11,7 +11,8 @@ public static class Furniture13SceneBuilder
     // 최초 데모 생성 때만 설정합니다. 플레이 중이나 Update에서는 재임포트하지 않습니다.
     public static void PrepareSprites()
     {
-        for(int n=1;n<=12;n++)Import(Folder+"furniture_"+n.ToString("00")+".png",1024);
+        for(int n=1;n<=12;n++){Import(Folder+"furniture_"+n.ToString("00")+".png",1024);Import("Assets/Resources/StoreInventory/Scene/outline_"+n.ToString("00")+".png",512);}
+        Import("Assets/Resources/StoreInventory/Scene/counter.png",2048);
     }
     static void Import(string path,int maximum)
     {
@@ -50,24 +51,28 @@ public static class Furniture13SceneBuilder
                 minimumWidth=480,topPadding=100,bottomPadding=174,maximumGridWidth=624,maximumGridHeight=520,frameColor=new Color(.28f,.17f,.08f)};
         }
     }
-    public static void Hotspots(Transform parent,InventoryPanel panel,DisplayUI displays)
+    public static void Hotspots(Transform parent,InventoryPanel panel,DisplayUI displays,SceneCounterOcclusion counter)
     {
         var entries=Layout().entries;
+        var presenter=parent.gameObject.AddComponent<FurnitureHoverPresenter>();
+        presenter.image=UI.Box("Shared Furniture Outline",parent,0,0,1,1,Color.white);presenter.image.raycastTarget=false;presenter.image.enabled=false;
+        presenter.thicknessEffect=presenter.image.gameObject.AddComponent<global::UnityEngine.UI.Outline>();presenter.thicknessEffect.enabled=false;
         // 뒤쪽 가구부터 만들고 앞쪽 가구가 그 위에 그려지도록 합니다.
         Array.Sort(entries,(a,b)=>a.drawOrder.CompareTo(b.drawOrder));
         foreach(var e in entries)
         {
             int number=e.number;
-            var root=UI.Box("Furniture "+number.ToString("00")+" "+e.typeId,parent,e.x,e.y,e.width,e.height,new Color(0,0,0,0));root.canvasRenderer.cullTransparentMesh=false;
+            var root=UI.Rect("Furniture "+number.ToString("00")+" "+e.typeId,parent,e.x,e.y,e.width,e.height);
             var hotspot=root.gameObject.AddComponent<SceneFurnitureHotspot>();hotspot.panel=panel;hotspot.displays=displays;hotspot.typeId=e.typeId;
             var sprite=Resources.Load<Sprite>(e.spriteKey);
             hotspot.furnitureImage=UI.Box("Furniture Sprite",root.transform,0,0,e.width,e.height,Color.white);
             hotspot.furnitureImage.sprite=sprite;hotspot.furnitureImage.preserveAspect=true;hotspot.furnitureImage.raycastTarget=false;
-            hotspot.highlightImage=UI.Box("Highlight Sprite",root.transform,0,0,e.width,e.height,new Color(1,.8f,.15f,.3f));
-            hotspot.highlightImage.sprite=sprite;hotspot.highlightImage.preserveAspect=true;hotspot.highlightImage.raycastTarget=false;hotspot.highlightImage.enabled=false;
-            hotspot.label=UI.Label("Furniture Label",root.transform,0,0,e.width,32,"",18);
-            // 위치는 루트 RectTransform에서 수정합니다. 이름은 관리 화면에 표시하고 배경에는 그림만 둡니다.
-            hotspot.label.enabled=false;
+            hotspot.hoverPresenter=presenter;hotspot.counter=counter;
+            hotspot.hoverSprite=Resources.Load<Sprite>(e.hoverSpriteKey);hotspot.furnitureAlphaBounds=e.furnitureAlphaBounds;hotspot.outlineAlphaBounds=e.outlineAlphaBounds;
+            // 이 배치는 데모 생성 시 한 번만 합니다. Play/호버 시 Frame 값은 덮어쓰지 않습니다.
+            var sp=hotspot.furnitureImage.sprite;var fit=FurnitureOutlineGeometry.Align(sp.rect.width,sp.rect.height,e.width,e.height,e.furnitureAlphaBounds,e.outlineAlphaBounds,presenter.padding);
+            hotspot.outlineFrame=UI.Rect("Outline Frame",hotspot.furnitureImage.transform,fit.x,fit.y,fit.width,fit.height);
+
         }
     }
 }

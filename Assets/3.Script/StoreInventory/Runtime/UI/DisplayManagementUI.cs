@@ -11,7 +11,7 @@ namespace GeneralStore.Inventory
         readonly Dictionary<string,FurnitureCardView> cards=new Dictionary<string,FurnitureCardView>();
         readonly List<DisplayStockRowView> stocks=new List<DisplayStockRowView>();
         readonly HashSet<string> seen=new HashSet<string>();readonly List<string> remove=new List<string>();bool ready,dirty;
-        void Start(){string error;if(panel==null||display==null||window==null||art==null||displayList==null||stockList==null||cardTemplate==null||stockTemplate==null||selectedLabel==null||footerLabel==null||openButton==null||!panel.inventory.TryInitialize(out error)){Debug.LogError("새 메뉴 버전 씬을 생성하고 DisplayManagementUI 참조를 확인하세요.",this);enabled=false;return;}panel.Model.Changed+=MarkDirty;display.SelectionChanged+=MarkDirty;ready=true;window.SetActive(false);}
+        void Start(){string error;if(panel==null||display==null||window==null||art==null||displayList==null||stockList==null||cardTemplate==null||stockTemplate==null||selectedLabel==null||footerLabel==null||openButton==null||!panel.inventory.TryInitialize(out error)){Debug.LogError("새 메뉴 버전 씬을 생성하고 DisplayManagementUI 참조를 확인하세요.",this);enabled=false;return;}SidePanelInput.AllowOutside(window);panel.Model.Changed+=MarkDirty;display.SelectionChanged+=MarkDirty;ready=true;window.SetActive(false);}
         void MarkDirty(){dirty=true;}
         public void Toggle(){if(!ready)return;panel.drag.Cancel(false);panel.shop.CancelDisplayPrice();window.SetActive(!window.activeSelf);dirty=true;}
         public void Close(){window.SetActive(false);}

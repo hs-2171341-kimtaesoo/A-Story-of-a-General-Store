@@ -22,6 +22,7 @@ namespace GeneralStore.Inventory
         public const int WarehouseColumns = 8;
         public const int WarehouseRows = 5;
         public bool addDemoItems = true;
+        public string[] initialFurnitureForDemo;
         public bool startAllFurnitureOwnedForTest; // 배치 확인용. 일반 게임에서는 끕니다.
         public long initialGold = 1000;
         public ShopClock Clock { get; private set; }
@@ -30,7 +31,7 @@ namespace GeneralStore.Inventory
         public ItemCatalog Catalog { get; private set; }
         public InventoryModel Model { get; private set; }
         public RecommendationSession Sales { get; private set; }
-        public string SavePath { get { return Path.Combine(Application.persistentDataPath, (startAllFurnitureOwnedForTest?"store-shop-fixtures12-preview-v14.json":"store-shop-fixtures12-v14.json")); } }
+        public string SavePath { get { return Path.Combine(Application.persistentDataPath, (initialFurnitureForDemo!=null&&initialFurnitureForDemo.Length>0?"store-shop-sliding-demo-v16.json":startAllFurnitureOwnedForTest?"store-shop-fixtures12-art-preview-v15.json":"store-shop-fixtures12-art-v15.json")); } }
         void Awake() { if(GetComponent<StorePerformanceSettings>()==null)gameObject.AddComponent<StorePerformanceSettings>(); string error; if (!TryInitialize(out error)) Debug.LogError(error, this); }
         public bool TryInitialize(out string error)
         {
@@ -45,7 +46,7 @@ namespace GeneralStore.Inventory
                 // 종류/설치 위치가 정한 고정 크기만 생성합니다. 화면의 탭 수와 독립적입니다.
                 var displayFile=displayJson!=null?displayJson:Resources.Load<TextAsset>("StoreInventory/display_fixtures");
                 if(displayFile==null)throw new InvalidOperationException("display_fixtures.json이 없습니다.");
-                var displays=new DisplayCatalog(JsonUtility.FromJson<DisplayDatabase>(displayFile.text));displays.AddInitialContainers(save,startAllFurnitureOwnedForTest);
+                var displays=new DisplayCatalog(JsonUtility.FromJson<DisplayDatabase>(displayFile.text));displays.AddInitialContainers(save,startAllFurnitureOwnedForTest,initialFurnitureForDemo);
                 var supplierFile=supplierJson!=null?supplierJson:Resources.Load<TextAsset>("StoreInventory/suppliers");
                 if(supplierFile==null)throw new InvalidOperationException("suppliers.json이 없습니다.");
                 var supplierCatalog=new SupplierCatalog(JsonUtility.FromJson<SupplierDatabase>(supplierFile.text),catalog);

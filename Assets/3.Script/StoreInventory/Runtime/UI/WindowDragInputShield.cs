@@ -8,6 +8,8 @@ namespace GeneralStore.Inventory
         readonly DragInputLease lease=new DragInputLease();
         readonly List<CanvasGroup> groups=new List<CanvasGroup>();readonly List<bool> original=new List<bool>();
         RectTransform shield;
+        public event System.Action<bool> Changed;
+        void Notify(bool value){var callback=Changed;if(callback!=null)callback(value);}
         public bool Active{get{return lease.Active;}}
         public bool Begin(Object actor,RectTransform moving,RectTransform bounds)
         {
@@ -25,7 +27,7 @@ namespace GeneralStore.Inventory
                 if(view.gameObject.activeInHierarchy&&view.transform!=moving)Block(view.gameObject);
             foreach(var drawer in bounds.GetComponentsInChildren<WarehouseDrawer>(true))
                 if(drawer.window!=moving&&drawer.window.gameObject.activeInHierarchy)Block(drawer.window.gameObject);
-            return true;
+            Notify(true);return true;
         }
         void Block(GameObject target)
         {
@@ -36,7 +38,7 @@ namespace GeneralStore.Inventory
         void Restore()
         {
             for(int n=0;n<groups.Count;n++)if(groups[n]!=null)groups[n].blocksRaycasts=original[n];
-            groups.Clear();original.Clear();if(shield!=null)shield.gameObject.SetActive(false);
+            groups.Clear();original.Clear();if(shield!=null)shield.gameObject.SetActive(false);Notify(false);
         }
         void OnApplicationFocus(bool focused){if(!focused){lease.Reset();Restore();}}
         void OnDisable(){lease.Reset();Restore();}

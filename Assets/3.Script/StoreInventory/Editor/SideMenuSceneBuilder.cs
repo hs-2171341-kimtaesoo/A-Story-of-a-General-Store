@@ -8,7 +8,7 @@ public static class SideMenuSceneBuilder
     // 공통 우측 패널입니다. 배경/카드/아이콘은 Sprite를 연결해 교체할 수 있습니다.
     public static RectTransform Panel(Transform parent,string name,string title,out GameObject window)
     {
-        var overlay=UI.Box(name,parent,0,0,1920,1080,new Color(0,0,0,.12f));window=overlay.gameObject;
+        var overlay=UI.Box(name,parent,0,0,1920,1080,new Color(0,0,0,.12f));window=overlay.gameObject;overlay.raycastTarget=false;
         var panel=UI.Box("Panel Frame",overlay.transform,1260,112,560,860,new Color(.2f,.15f,.09f));
         // 시계 글자 변경이 정적인 목록 전체를 다시 배칭하지 않게 패널 단위로 분리합니다.
         UiPerformanceLayers.Ensure(panel.gameObject,true);

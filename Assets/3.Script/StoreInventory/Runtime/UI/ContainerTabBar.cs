@@ -31,12 +31,12 @@ namespace GeneralStore.Inventory
                     tab.button.onClick.AddListener(()=>select(id));
                 }
                 if(warehouse!=null){var t=tab.GetComponent<WarehouseTabTarget>();if(t==null)t=tab.gameObject.AddComponent<WarehouseTabTarget>();t.warehouse=warehouse;t.containerId=id;}
-                tab.label.text=title(id);bool active=id==selected;
+                if(tab.label!=null)tab.label.text=title(id);bool active=id==selected;
                 // Pressed는 누르는 순간일 뿐, 선택 유지 상태는 이 코드가 직접 바꿉니다.
                 var normal=normalSprite;var chosen=selectedSprite;bool hideLabel=false;
                 if(skins!=null)foreach(var skin in skins)if(skin!=null&&skin.containerId==id)
                 {if(skin.normalSprite!=null)normal=skin.normalSprite;if(skin.selectedSprite!=null)chosen=skin.selectedSprite;hideLabel=skin.hideLabel;break;}
-                var sprite=active?(chosen!=null?chosen:normal):normal;tab.label.gameObject.SetActive(showLabels&&!hideLabel);
+                var sprite=active?(chosen!=null?chosen:normal):normal;if(tab.label!=null)tab.label.gameObject.SetActive(showLabels&&!hideLabel);
                 tab.background.sprite=sprite;tab.background.color=sprite!=null&&useWhiteWhenSprite?Color.white:active?selectedColor:normalColor;
                 var rect=(RectTransform)tab.transform;rect.anchorMin=rect.anchorMax=rect.pivot=new Vector2(0,1);
                 rect.anchoredPosition=new Vector2(n*(tabWidth+gap),0);rect.sizeDelta=new Vector2(tabWidth,tabHeight);

@@ -22,7 +22,7 @@ namespace GeneralStore.Inventory
             bool locked=panel.Model.IsReserved(record.instanceId);
             if(Panel==panel&&Grid==grid&&Record!=null&&Record.instanceId==record.instanceId&&Record.itemId==record.itemId&&Record.quality==record.quality
                 &&Record.x==record.x&&Record.y==record.y&&visualRotation==record.rotation&&Record.rotation==record.rotation&&Record.purchasePrice==record.purchasePrice&&previousLocked==locked
-                &&visualCellSize.x==grid.cellWidth&&visualCellSize.y==grid.cellHeight)return;
+                &&visualCellSize.x==grid.cellWidth&&visualCellSize.y==grid.cellHeight){Rect.anchoredPosition=new Vector2((record.x-grid.startColumn)*grid.cellWidth,-(record.y-grid.startRow)*grid.cellHeight);return;}
             Panel=panel;Grid=grid;Record=record;previousLocked=locked;
             sprite=panel.FindIcon(panel.Catalog.FindQuality(record.itemId,record.quality).iconKey);
             var hitArea=GetComponent<global::UnityEngine.UI.Image>();
@@ -35,7 +35,7 @@ namespace GeneralStore.Inventory
             visualRotation=-1;ApplyRotation(record.rotation,grid.CellSize);
             GetComponent<CanvasGroup>().alpha=locked?.55f:1;
             if(locked) nameLabel.text="손님 선택 · 잠금";
-            Rect.anchoredPosition=new Vector2(record.x*grid.cellWidth,-record.y*grid.cellHeight);
+            Rect.anchoredPosition=new Vector2((record.x-grid.startColumn)*grid.cellWidth,-(record.y-grid.startRow)*grid.cellHeight);
         }
         public void ApplyRotation(int rotation,Vector2 cellSize)
         {

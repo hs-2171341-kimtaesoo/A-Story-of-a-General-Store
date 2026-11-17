@@ -8,7 +8,9 @@ namespace GeneralStore.Inventory
         // 정렬 순서를 강제로 덮어쓰지 않아 기존 Hierarchy 순서를 유지합니다.
         public static void Ensure(GameObject go,bool interactive)
         {
-            if(go.GetComponent<Canvas>()==null)go.AddComponent<Canvas>();
+            var canvas=go.GetComponent<Canvas>();if(canvas==null)canvas=go.AddComponent<Canvas>();
+            // 중첩 Canvas의 렌더는 부모 순서를 따르고, Raycaster 우선순위도 최상위 UI와 맞춥니다.
+            if(canvas.rootCanvas!=null&&canvas.rootCanvas!=canvas){canvas.overrideSorting=false;canvas.sortingOrder=canvas.rootCanvas.sortingOrder;}
             if(interactive&&go.GetComponent<GraphicRaycaster>()==null)go.AddComponent<GraphicRaycaster>();
         }
     }

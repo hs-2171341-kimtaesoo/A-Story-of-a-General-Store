@@ -25,7 +25,8 @@ namespace GeneralStore.Inventory
         readonly HashSet<string> seen=new HashSet<string>();
         readonly List<string> removed=new List<string>();
         readonly FloorPhysicsSettings physics=new FloorPhysicsSettings();
-        bool ready,dirty;
+        bool ready,dirty;global::UnityEngine.UI.Image dropImage;
+        void SetDropRaycast(bool held){if(dropImage!=null)dropImage.raycastTarget=held;}
         float lastParcelX=-1,lastSurface=-1,lastParcelSize=-1,lastWidth=-1,lastHeight=-1;
         RectTransform Rect {get{return (RectTransform)transform;}}
         void Start()
@@ -34,7 +35,8 @@ namespace GeneralStore.Inventory
             if(panel==null||itemTemplate==null||parcelTemplate==null||!panel.inventory.TryInitialize(out error))
             {Debug.LogError("바닥/택배 UI 참조를 확인하세요. 새 데모 씬을 생성하세요.",this);enabled=false;return;}
             UiPerformanceLayers.Ensure(gameObject,true);
-            panel.Model.Changed+=MarkDirty;ready=true;dirty=true;
+            panel.Model.Changed+=MarkDirty;dropImage=GetComponent<global::UnityEngine.UI.Image>();
+            panel.drag.DraggingChanged+=SetDropRaycast;SetDropRaycast(panel.drag.IsDragging);ready=true;dirty=true;
             if(surfaceLine!=null)
             {surfaceLine.anchorMin=new Vector2(0,0);surfaceLine.anchorMax=new Vector2(1,0);surfaceLine.pivot=new Vector2(.5f,.5f);surfaceLine.sizeDelta=new Vector2(0,2);}
         }
@@ -115,6 +117,6 @@ namespace GeneralStore.Inventory
             float y=Mathf.Clamp((local.y-Rect.rect.yMin)/Rect.rect.height,physics.radiusY,1-physics.radiusY);
             panel.drag.DropToFloor(x,y);
         }
-        void OnDestroy(){if(ready&&panel!=null&&panel.inventory.Model!=null)panel.Model.Changed-=MarkDirty;}
+        void OnDestroy(){if(ready&&panel!=null){if(panel.drag!=null)panel.drag.DraggingChanged-=SetDropRaycast;if(panel.inventory.Model!=null)panel.Model.Changed-=MarkDirty;}}
     }
 }
