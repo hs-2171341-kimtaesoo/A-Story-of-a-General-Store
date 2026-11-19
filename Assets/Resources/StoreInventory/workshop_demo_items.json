@@ -1,0 +1,375 @@
+{
+  "items": [
+    {
+      "id": "demo_oak_log",
+      "type": "material",
+      "basePrice": 12,
+      "width": 1,
+      "height": 2,
+      "canRotate": true,
+      "tags": [
+        "material"
+      ],
+      "qualities": [
+        {
+          "quality": "poor",
+          "name": "참나무 원목",
+          "priceMultiplier": 0.7,
+          "iconKey": "demo_oak_log",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "common",
+          "name": "참나무 원목",
+          "priceMultiplier": 1,
+          "iconKey": "demo_oak_log",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "superior",
+          "name": "참나무 원목",
+          "priceMultiplier": 1.2,
+          "iconKey": "demo_oak_log",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "perfect",
+          "name": "참나무 원목",
+          "priceMultiplier": 1.5,
+          "iconKey": "demo_oak_log",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "masterpiece",
+          "name": "참나무 원목",
+          "priceMultiplier": 2,
+          "iconKey": "demo_oak_log",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "legendary",
+          "name": "참나무 원목",
+          "priceMultiplier": 2.5,
+          "iconKey": "demo_oak_log",
+          "explanation": "공방 제작 시험용 재료"
+        }
+      ]
+    },
+    {
+      "id": "demo_oak_plank",
+      "type": "material",
+      "basePrice": 30,
+      "width": 1,
+      "height": 2,
+      "canRotate": true,
+      "tags": [
+        "material"
+      ],
+      "qualities": [
+        {
+          "quality": "poor",
+          "name": "참나무 판재",
+          "priceMultiplier": 0.7,
+          "iconKey": "demo_oak_plank",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "common",
+          "name": "참나무 판재",
+          "priceMultiplier": 1,
+          "iconKey": "demo_oak_plank",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "superior",
+          "name": "참나무 판재",
+          "priceMultiplier": 1.2,
+          "iconKey": "demo_oak_plank",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "perfect",
+          "name": "참나무 판재",
+          "priceMultiplier": 1.5,
+          "iconKey": "demo_oak_plank",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "masterpiece",
+          "name": "참나무 판재",
+          "priceMultiplier": 2,
+          "iconKey": "demo_oak_plank",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "legendary",
+          "name": "참나무 판재",
+          "priceMultiplier": 2.5,
+          "iconKey": "demo_oak_plank",
+          "explanation": "공방 제작 시험용 재료"
+        }
+      ]
+    },
+    {
+      "id": "demo_herb",
+      "type": "material",
+      "basePrice": 15,
+      "width": 1,
+      "height": 1,
+      "canRotate": true,
+      "tags": [
+        "material"
+      ],
+      "qualities": [
+        {
+          "quality": "poor",
+          "name": "약초",
+          "priceMultiplier": 0.7,
+          "iconKey": "demo_herb",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "common",
+          "name": "약초",
+          "priceMultiplier": 1,
+          "iconKey": "demo_herb",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "superior",
+          "name": "약초",
+          "priceMultiplier": 1.2,
+          "iconKey": "demo_herb",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "perfect",
+          "name": "약초",
+          "priceMultiplier": 1.5,
+          "iconKey": "demo_herb",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "masterpiece",
+          "name": "약초",
+          "priceMultiplier": 2,
+          "iconKey": "demo_herb",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "legendary",
+          "name": "약초",
+          "priceMultiplier": 2.5,
+          "iconKey": "demo_herb",
+          "explanation": "공방 제작 시험용 재료"
+        }
+      ]
+    },
+    {
+      "id": "demo_iron_ore",
+      "type": "material",
+      "basePrice": 18,
+      "width": 1,
+      "height": 1,
+      "canRotate": true,
+      "tags": [
+        "material"
+      ],
+      "qualities": [
+        {
+          "quality": "poor",
+          "name": "철광석",
+          "priceMultiplier": 0.7,
+          "iconKey": "demo_iron_ore",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "common",
+          "name": "철광석",
+          "priceMultiplier": 1,
+          "iconKey": "demo_iron_ore",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "superior",
+          "name": "철광석",
+          "priceMultiplier": 1.2,
+          "iconKey": "demo_iron_ore",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "perfect",
+          "name": "철광석",
+          "priceMultiplier": 1.5,
+          "iconKey": "demo_iron_ore",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "masterpiece",
+          "name": "철광석",
+          "priceMultiplier": 2,
+          "iconKey": "demo_iron_ore",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "legendary",
+          "name": "철광석",
+          "priceMultiplier": 2.5,
+          "iconKey": "demo_iron_ore",
+          "explanation": "공방 제작 시험용 재료"
+        }
+      ]
+    },
+    {
+      "id": "demo_iron_bar",
+      "type": "material",
+      "basePrice": 45,
+      "width": 1,
+      "height": 2,
+      "canRotate": true,
+      "tags": [
+        "material"
+      ],
+      "qualities": [
+        {
+          "quality": "poor",
+          "name": "철 주괴",
+          "priceMultiplier": 0.7,
+          "iconKey": "demo_iron_bar",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "common",
+          "name": "철 주괴",
+          "priceMultiplier": 1,
+          "iconKey": "demo_iron_bar",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "superior",
+          "name": "철 주괴",
+          "priceMultiplier": 1.2,
+          "iconKey": "demo_iron_bar",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "perfect",
+          "name": "철 주괴",
+          "priceMultiplier": 1.5,
+          "iconKey": "demo_iron_bar",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "masterpiece",
+          "name": "철 주괴",
+          "priceMultiplier": 2,
+          "iconKey": "demo_iron_bar",
+          "explanation": "공방 제작 시험용 재료"
+        },
+        {
+          "quality": "legendary",
+          "name": "철 주괴",
+          "priceMultiplier": 2.5,
+          "iconKey": "demo_iron_bar",
+          "explanation": "공방 제작 시험용 재료"
+        }
+      ]
+    }
+  ],
+  "qualityOverrides": [
+    {
+      "id": "sample_sword",
+      "qualities": [
+        {
+          "quality": "poor",
+          "name": "검 (예제)",
+          "priceMultiplier": 0.7,
+          "iconKey": "sample_sword",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "common",
+          "name": "검 (예제)",
+          "priceMultiplier": 1,
+          "iconKey": "sample_sword",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "superior",
+          "name": "검 (예제)",
+          "priceMultiplier": 1.2,
+          "iconKey": "sample_sword",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "perfect",
+          "name": "검 (예제)",
+          "priceMultiplier": 1.5,
+          "iconKey": "sample_sword",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "masterpiece",
+          "name": "검 (예제)",
+          "priceMultiplier": 2,
+          "iconKey": "sample_sword",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "legendary",
+          "name": "검 (예제)",
+          "priceMultiplier": 2.5,
+          "iconKey": "sample_sword",
+          "explanation": "공방 제작 품질 시험용 확장"
+        }
+      ]
+    },
+    {
+      "id": "sample_lframe",
+      "qualities": [
+        {
+          "quality": "poor",
+          "name": "ㄱ자 프레임",
+          "priceMultiplier": 0.7,
+          "iconKey": "sample_lframe",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "common",
+          "name": "ㄱ자 프레임",
+          "priceMultiplier": 1,
+          "iconKey": "sample_lframe",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "superior",
+          "name": "ㄱ자 프레임",
+          "priceMultiplier": 1.2,
+          "iconKey": "sample_lframe",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "perfect",
+          "name": "ㄱ자 프레임",
+          "priceMultiplier": 1.5,
+          "iconKey": "sample_lframe",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "masterpiece",
+          "name": "ㄱ자 프레임",
+          "priceMultiplier": 2,
+          "iconKey": "sample_lframe",
+          "explanation": "공방 제작 품질 시험용 확장"
+        },
+        {
+          "quality": "legendary",
+          "name": "ㄱ자 프레임",
+          "priceMultiplier": 2.5,
+          "iconKey": "sample_lframe",
+          "explanation": "공방 제작 품질 시험용 확장"
+        }
+      ]
+    }
+  ]
+}

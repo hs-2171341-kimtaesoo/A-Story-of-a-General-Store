@@ -1,0 +1,121 @@
+{
+  "seed": 3721,
+  "suppliers": [
+    {
+      "id": "karon",
+      "name": "카르멘 상회",
+      "description": "다양한 잡화와 회복 물품을 취급합니다.",
+      "greeting": "항상 좋은 물건을 준비해 두지. 필요한 것을 골라 봐.",
+      "portraitKey": "karon",
+      "initiallyUnlocked": true,
+      "initiallyBlocked": false,
+      "refreshDays": 2,
+      "offers": [
+        {
+          "offerId": "potion",
+          "itemId": "C001",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 80,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "potion_plus",
+          "itemId": "C001",
+          "quality": "superior",
+          "minStock": 1,
+          "maxStock": 3,
+          "priceBase": 110,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "rope",
+          "itemId": "sample_rope",
+          "quality": "common",
+          "minStock": 2,
+          "maxStock": 6,
+          "priceBase": 40,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        }
+      ]
+    },
+    {
+      "id": "barko",
+      "name": "바르코 무역상",
+      "description": "여행 장비와 무기를 공급합니다.",
+      "greeting": "험한 길을 가려면 장비가 중요하지.",
+      "portraitKey": "barko",
+      "initiallyUnlocked": true,
+      "initiallyBlocked": false,
+      "refreshDays": 2,
+      "offers": [
+        {
+          "offerId": "sword",
+          "itemId": "sample_sword",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 3,
+          "priceBase": 100,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "bag",
+          "itemId": "sample_bag",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 2,
+          "priceBase": 150,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "rope",
+          "itemId": "sample_rope",
+          "quality": "common",
+          "minStock": 2,
+          "maxStock": 5,
+          "priceBase": 45,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        }
+      ]
+    },
+    {
+      "id": "erin",
+      "name": "에린 약제점",
+      "description": "진행에 따라 새로 등록되는 거래처입니다.",
+      "greeting": "도움이 될 만한 물품을 준비했어요.",
+      "portraitKey": "erin",
+      "initiallyUnlocked": false,
+      "initiallyBlocked": false,
+      "refreshDays": 2,
+      "offers": [
+        {
+          "offerId": "potion",
+          "itemId": "C001",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 85,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "bread",
+          "itemId": "E001",
+          "quality": "none",
+          "minStock": 2,
+          "maxStock": 8,
+          "priceBase": 35,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        }
+      ]
+    }
+  ]
+}

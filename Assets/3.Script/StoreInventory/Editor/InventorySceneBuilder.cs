@@ -1,0 +1,220 @@
+#if UNITY_EDITOR
+using GeneralStore.Inventory;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem.UI;
+#endif
+
+// 1920x1080 기준 UI를 실제 씬에 생성합니다. 기존 데모가 없는 빈 새 씬을 단독으로 열고 실행하세요.
+public static class InventorySceneBuilder
+{
+    const float CellWidth=78,CellHeight=78; // 이전 52의 정확히 1.5배. 데이터의 칸 수는 변하지 않습니다.
+    static Font font;
+    public static RectTransform Rect(string name,Transform parent,float x,float y,float width,float height)
+    {
+        var go=new GameObject(name,typeof(RectTransform));go.transform.SetParent(parent,false);
+        var rt=(RectTransform)go.transform;rt.anchorMin=rt.anchorMax=rt.pivot=new Vector2(0,1);
+        rt.anchoredPosition=new Vector2(x,-y);rt.sizeDelta=new Vector2(width,height);return rt;
+    }
+    static void Stretch(RectTransform rect)
+    {rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.pivot=new Vector2(.5f,.5f);rect.offsetMin=rect.offsetMax=Vector2.zero;}
+    public static global::UnityEngine.UI.Image Box(string name,Transform parent,float x,float y,float w,float h,Color color)
+    {var image=Rect(name,parent,x,y,w,h).gameObject.AddComponent<global::UnityEngine.UI.Image>();image.color=color;return image;}
+    public static Text Label(string name,Transform parent,float x,float y,float w,float h,string content,int size=22)
+    {
+        var text=Rect(name,parent,x,y,w,h).gameObject.AddComponent<Text>();text.font=font;text.fontSize=size;
+        text.color=new Color(.97f,.9f,.75f);text.text=content;text.raycastTarget=false;text.supportRichText=false;return text;
+    }
+    public static Button ButtonBox(string label,Transform parent,float x,float y,float w,float h,UnityEngine.Events.UnityAction action)
+    {
+        var image=Box(label,parent,x,y,w,h,new Color(.4f,.25f,.1f));var button=image.gameObject.AddComponent<Button>();button.targetGraphic=image;
+        Label("Text",image.transform,0,0,w,h,label,20).alignment=TextAnchor.MiddleCenter;
+        if(action!=null)UnityEditor.Events.UnityEventTools.AddPersistentListener(button.onClick,action);return button;
+    }
+    static Scrollbar ScrollBar(Transform parent,bool horizontal,float length)
+    {
+        var image=Box(horizontal?"Horizontal Scrollbar":"Vertical Scrollbar",parent,horizontal?0:length+4,horizontal?length+4:0,
+            horizontal?length:18,horizontal?18:length,new Color(.14f,.12f,.09f));
+        var bar=image.gameObject.AddComponent<Scrollbar>();bar.direction=horizontal?Scrollbar.Direction.LeftToRight:Scrollbar.Direction.BottomToTop;
+        RectTransform area=Rect("Sliding Area",image.transform,0,0,0,0);Stretch(area);
+        var handle=Box("Handle",area,0,0,0,0,new Color(.55f,.4f,.2f));Stretch(handle.rectTransform);
+        bar.handleRect=handle.rectTransform;bar.targetGraphic=handle;return bar;
+    }
+    static InventoryGridView GridScroll(Transform parent,string id,float x,float y,float viewW,float viewH,int columns,int rows,InventoryItemView template)
+    {
+        RectTransform root=Rect(id+" Scroll",parent,x,y,viewW+22,viewH+22);
+        var scroll=root.gameObject.AddComponent<ScrollRect>();scroll.horizontal=!InventoryModel.IsWarehouse(id);scroll.vertical=true;scroll.movementType=ScrollRect.MovementType.Clamped;
+        var viewport=Box("Viewport",root,0,0,viewW,viewH,new Color(.1f,.09f,.07f));viewport.gameObject.AddComponent<RectMask2D>();
+        var image=Box(id,viewport.transform,0,0,columns*CellWidth,rows*CellHeight,new Color(.3f,.24f,.15f));
+        var grid=image.gameObject.AddComponent<InventoryGridView>();grid.containerId=id;grid.cellWidth=CellWidth;grid.cellHeight=CellHeight;grid.itemTemplate=template;
+        grid.itemLayer=Rect("Items",grid.transform,0,0,columns*CellWidth,rows*CellHeight);Stretch(grid.itemLayer);
+        scroll.viewport=viewport.rectTransform;scroll.content=grid.Rect;
+        // 가로/세로 길이가 달라도 스크롤바를 정확히 배치합니다.
+        if(!InventoryModel.IsWarehouse(id))
+        {var horizontal=ScrollBar(root,true,viewW);horizontal.GetComponent<RectTransform>().anchoredPosition=new Vector2(0,-viewH-4);scroll.horizontalScrollbar=horizontal;}
+        var vertical=ScrollBar(root,false,viewH);vertical.GetComponent<RectTransform>().anchoredPosition=new Vector2(viewW+4,0);
+        scroll.verticalScrollbar=vertical;return grid;
+    }
+    static InventoryGridView FixedWarehouse(Transform parent,InventoryItemView template)
+    {
+        var image=Box("Warehouse Fixed Grid",parent,137,190,626,392,new Color(.3f,.24f,.15f));
+        var grid=image.gameObject.AddComponent<InventoryGridView>();grid.containerId="warehouse";grid.cellWidth=CellWidth;grid.cellHeight=CellHeight;grid.itemTemplate=template;
+        grid.itemLayer=Rect("Items",grid.transform,1,1,624,390);return grid;
+    }
+    public static InventoryDetailsView Details(Transform parent,float y,float width)
+    {
+        var background=Box("Details",parent,20,y,width,156,new Color(.16f,.12f,.08f));
+        var details=background.gameObject.AddComponent<InventoryDetailsView>();
+        details.iconBackground=Box("Icon Background",background.transform,10,20,96,96,new Color(0,0,0,1));details.iconBackground.raycastTarget=false;
+        details.iconBackground.gameObject.AddComponent<RectMask2D>();
+        details.icon=Box("Icon",details.iconBackground.transform,6,6,84,84,Color.white);details.icon.enabled=false;details.icon.raycastTarget=false;
+        details.iconFit=details.iconBackground.gameObject.AddComponent<SpriteIconFit>();details.iconFit.image=details.icon;details.iconFit.frame=details.iconBackground.rectTransform;
+        details.nameLabel=Label("Name",background.transform,112,8,width-124,32,"물건을 선택하세요.",23);
+        details.bodyLabel=Label("Body",background.transform,112,44,width-124,80,"",18);
+        details.qualitySizeLabel=Label("Quality Size",background.transform,width-230,12,214,32,"",20);details.qualitySizeLabel.alignment=TextAnchor.MiddleRight;
+        details.priceLabel=Label("Sale Price",background.transform,width-245,110,229,32,"",20);details.priceLabel.alignment=TextAnchor.MiddleRight;
+        details.nameLabel.rectTransform.sizeDelta=new Vector2(width-360,32);
+        Box("Gold Separator",background.transform,0,0,width,2,new Color(.8f,.6f,.15f)).raycastTarget=false;return details;
+    }
+    [MenuItem("Store Inventory/Create Latest Demo")]
+    public static void CreateLatestDemo(){CreateInternal();}
+    // 기존 코드에서 호출해도 같은 최신 데모를 생성합니다. 생성 메뉴는 하나만 노출합니다.
+    public static void Create(){CreateLatestDemo();}
+    public static void CreateAllFurnitureTest(){CreateLatestDemo();}
+    static void CreateInternal()
+    {
+        if(!LatestDemoSetup.CanCreate())return;
+        font=LatestDemoSetup.FindKoreanFont();bool hasKoreanFont=font!=null;
+        if(font==null)font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        Furniture13SceneBuilder.PrepareSprites();CustomDisplayArtBuilder.PrepareSprites();SlidingDemoSceneBuilder.PrepareCustomerSprite();CounterDemoSceneBuilder.PrepareSprites();
+        PlayerSettings.defaultScreenWidth=1920;PlayerSettings.defaultScreenHeight=1080;
+        var data=new GameObject("Store Inventory Data");Undo.RegisterCreatedObjectUndo(data,"Create Store Data");var runtime=data.AddComponent<InventoryRuntime>();runtime.startAllFurnitureOwnedForTest=false;runtime.initialFurnitureForDemo=new[]{"mannequin","table","weapon_rack"};runtime.initialGold=10000;runtime.initialWarehouseCount=2;runtime.includeWorkshopDemoItems=true;runtime.workshopJson=Resources.Load<TextAsset>("StoreInventory/workshops");InventoryAssetTools.Connect(runtime);data.AddComponent<StorePerformanceSettings>();
+        var sceneRoot=new GameObject("Store Scene");data.transform.SetParent(sceneRoot.transform,false);Undo.RegisterCreatedObjectUndo(sceneRoot,"Create Store Layers");
+        var backgroundCanvas=SceneLayerBuilder.CreateCanvas("Store Background Canvas",sceneRoot.transform,SceneLayerOrder.Background,false);
+        var furnitureCanvas=SceneLayerBuilder.CreateCanvas("Store Furniture Canvas",sceneRoot.transform,SceneLayerOrder.Furniture,true);
+        var counterCanvas=SceneLayerBuilder.CreateCanvas("Store Counter Canvas",sceneRoot.transform,SceneLayerOrder.Counter,false);
+        var go=SceneLayerBuilder.CreateCanvas("Store UI Canvas",sceneRoot.transform,SceneLayerOrder.UI,true);var canvas=go.GetComponent<Canvas>();
+        var backgroundLayout=SceneLayerBuilder.Layout(backgroundCanvas.transform,"Background Layout");
+        var furnitureLayout=SceneLayerBuilder.Layout(furnitureCanvas.transform,"Furniture Layout");
+        var counterLayout=SceneLayerBuilder.Layout(counterCanvas.transform,"Counter Layout");
+        var counter=SceneLayerBuilder.Counter(counterLayout);
+        var panel=go.AddComponent<InventoryPanel>();panel.inventory=runtime;panel.canvas=canvas;panel.koreanFont=font;
+        var shop=go.AddComponent<ShopfrontUI>();shop.panel=panel;panel.shop=shop;
+        var supplier=go.AddComponent<SupplierUI>();supplier.panel=panel;
+        var displayUI=go.AddComponent<DisplayUI>();displayUI.panel=panel;shop.displays=displayUI;
+        var art=go.AddComponent<FurnitureArtCatalog>();
+
+        var management=go.AddComponent<DisplayManagementUI>();management.art=art;management.panel=panel;management.display=displayUI;
+        var upgrade=go.AddComponent<UpgradeUI>();upgrade.art=art;upgrade.panel=panel;upgrade.display=displayUI;
+        var simulation=data.AddComponent<ShopSimulation>();simulation.inventory=runtime;simulation.shop=shop;shop.simulation=simulation;
+        var background=Box("Background",backgroundLayout,0,0,1920,1080,new Color(.075f,.06f,.045f));Stretch(background.rectTransform);background.raycastTarget=false;
+        var layout=Rect("Layout 1920x1080",go.transform,0,0,1920,1080);layout.anchorMin=layout.anchorMax=layout.pivot=new Vector2(.5f,.5f);layout.anchoredPosition=Vector2.zero;
+        var furnitureLayer=Rect("Scene Furniture Hotspots",furnitureLayout,0,0,1920,1080);
+        ButtonBox("손님 맞이",layout,456,24,160,52,shop.EnterCustomer);
+        ButtonBox("저장",layout,632,24,100,52,panel.SaveInventory);ButtonBox("불러오기",layout,744,24,110,52,panel.LoadInventory);
+        simulation.clockLabel=Label("Clock",layout,1530,24,360,42,"",22);simulation.showRemainingTime=false;
+        ButtonBox("시간 정지/재개",layout,24,80,180,38,simulation.ToggleTime);
+        ButtonBox("다음 단계 테스트",layout,216,80,190,38,simulation.AdvanceToNextPhase);
+        ButtonBox("다음 새벽 배송 테스트",layout,418,80,250,38,simulation.QueueTestDelivery);
+        shop.goldLabel=Label("Gold",layout,1230,24,290,42,"1,000 G",26);
+        // 공용 카드: 루트(클릭), 아이콘 메시 하나, 대체 이름 하나뿐입니다.
+        var card=Box("Item Template",layout,0,0,156,156,new Color(.35f,.23f,.12f));
+        var template=card.gameObject.AddComponent<InventoryItemView>();
+        var iconRect=Rect("Icon Mesh",card.transform,0,0,156,156);Stretch(iconRect);
+        iconRect.gameObject.AddComponent<CanvasRenderer>();
+        template.icon=iconRect.gameObject.AddComponent<InventoryIconGraphic>();template.icon.raycastTarget=false;
+        template.nameLabel=Label("Fallback Name",card.transform,3,3,72,72,"",15);card.gameObject.SetActive(false);
+
+        var tabTemplate=FixtureSceneBuilder.TabTemplate(layout);
+        var warehouse=Box("Warehouse Window",layout,24,146,900,900,new Color(.15f,.115f,.075f));shop.warehouseWindow=warehouse.gameObject;
+
+        var warehouseGrid=FixedWarehouse(warehouse.transform,template);
+        var warehouseUI=go.AddComponent<WarehouseUI>();warehouseUI.panel=panel;warehouseUI.grid=warehouseGrid;upgrade.warehouse=warehouseUI;
+        warehouseUI.tabs=FixtureSceneBuilder.Tabs(warehouse.transform,tabTemplate,90,100,720);warehouseUI.tabs.warehouse=warehouseUI;
+        var warehouseDetails=Details(warehouse.transform,670,720);warehouseDetails.containerFilter="warehouse";((RectTransform)warehouseDetails.transform).anchoredPosition=new Vector2(90,-670);
+
+
+        var definitionFile=Resources.Load<TextAsset>("StoreInventory/display_fixtures");
+        if(definitionFile==null)throw new System.InvalidOperationException("display_fixtures.json을 추가하세요.");
+        var fixtures=new DisplayCatalog(JsonUtility.FromJson<DisplayDatabase>(definitionFile.text));
+        var initialDisplaySave=new InventorySave();fixtures.AddInitialContainers(initialDisplaySave);
+        var firstFixture=initialDisplaySave.containers[0];
+        var display=Box("Display Window",layout,960,146,690,882,new Color(.16f,.12f,.08f));shop.displayWindow=display.gameObject;
+
+        var displayGrid=GridScroll(display.transform,firstFixture.containerId,24,164,624,450,firstFixture.columns,firstFixture.rows,template);
+        var displayView=display.gameObject.AddComponent<DisplayWindowView>();displayView.grid=displayGrid;displayUI.windowTemplate=displayView;
+        displayView.title=Label("Display Selected Title",display.transform,24,122,624,34,"",20);
+        var finishDisplay=ButtonBox("닫기",display.transform,400,826,246,40,displayView.Close);
+        var displayDetails=Details(display.transform,600,650);
+        displayView.details=displayDetails;panel.grids=new[]{warehouseGrid};panel.detailViews=new[]{warehouseDetails};display.gameObject.SetActive(false);
+
+        warehouse.gameObject.SetActive(true);
+        panel.messageLabel=Label("Message",layout,744,968,1152,88,"",21);
+
+        // 창 내부 아이템 드래그와 창 이동을 분리하며 모달보다 아래에서만 앞뒤 순서를 바꿉니다.
+        var floating=Rect("Floating Windows",layout,0,0,1920,1080);
+        warehouse.transform.SetParent(floating,false);display.transform.SetParent(floating,false);
+        // 서랍 본문과 손잡이를 분리합니다. 닫혀도 루트/손잡이는 유지됩니다.
+        var body=Rect("Drawer Body",warehouse.transform,0,0,900,900);
+        warehouseGrid.transform.SetParent(body,false);
+        warehouseUI.tabs.transform.SetParent(body,false);warehouseDetails.transform.SetParent(body,false);
+        var drawer=warehouse.gameObject.AddComponent<WarehouseDrawer>();shop.drawer=drawer;
+        drawer.homeRaiseRatio=0;drawer.panel=panel;drawer.window=warehouse.rectTransform;drawer.bounds=floating;drawer.body=body;drawer.openedPosition=new Vector2(24,-146);
+        // 본문 밖의 루트 자식: 내려간 상태에서도 토글 버튼은 계속 보이고 입력을 받습니다.
+        var toggleImage=Box("Warehouse Toggle",warehouse.transform,0,4,140,48,new Color(.4f,.25f,.1f));
+        var toggle=toggleImage.gameObject.AddComponent<Button>();toggle.targetGraphic=toggleImage;
+        var toggleRect=(RectTransform)toggle.transform;toggleRect.anchorMin=toggleRect.anchorMax=toggleRect.pivot=new Vector2(.5f,1);toggleRect.anchoredPosition=new Vector2(0,-4);
+        var toggleView=toggle.gameObject.AddComponent<WarehouseToggleButton>();toggleView.drawer=drawer;toggleView.button=toggle;
+        toggleView.image=toggle.GetComponent<global::UnityEngine.UI.Image>();
+        var displayHeader=FixtureSceneBuilder.Header(display.transform,floating,panel,690,"진열장");displayUI.windowLayer=floating;
+        var appearance=display.gameObject.AddComponent<DisplayWindowAppearance>();displayView.appearance=appearance;appearance.independentWindow=true;
+        appearance.window=display.rectTransform;appearance.bounds=floating;
+        var frame=Box("Furniture Frame Sprite",display.transform,0,0,690,882,new Color(.2f,.15f,.1f));frame.raycastTarget=false;frame.transform.SetAsFirstSibling();
+        display.color=new Color(0,0,0,0);display.canvasRenderer.cullTransparentMesh=false;appearance.frame=frame;
+        appearance.grid=displayGrid;appearance.scroll=DisplayWindowAppearance.FindScrollInParents(displayGrid.transform);
+        appearance.header=displayHeader;
+        displayView.title.transform.SetParent(appearance.header,false);appearance.title=displayView.title.rectTransform;
+        appearance.finishButton=(RectTransform)finishDisplay.transform;appearance.details=(RectTransform)displayDetails.transform;
+        appearance.detailsName=displayDetails.nameLabel;appearance.detailsBody=displayDetails.bodyLabel;
+        Furniture13SceneBuilder.Configure(appearance,art,fixtures);
+        Fixed35SceneBuilder.Templates(displayUI,displayView,floating,fixtures);
+        CustomDisplayArtBuilder.ApplyTemplates(displayUI,fixtures);
+        Furniture13SceneBuilder.Hotspots(furnitureLayer,panel,displayUI,counter);
+        FixtureSceneBuilder.BuildManagement(layout,management,tabTemplate);
+        FixtureSceneBuilder.BuildUpgrades(layout,upgrade);
+        SupplierSceneBuilder.Build(layout,supplier);
+
+        var modal=Box("Display Price Modal",layout,0,0,1920,1080,new Color(0,0,0,.65f));shop.priceDialog=modal.gameObject;
+        var priceBox=Box("Price Dialog",modal.transform,710,390,500,280,new Color(.23f,.17f,.1f));
+        Label("Title",priceBox.transform,24,20,452,56,"진열 판매가 설정",28);
+        var inputImage=Box("Price Input",priceBox.transform,24,90,452,60,new Color(.1f,.085f,.06f));
+        var input=inputImage.gameObject.AddComponent<InputField>();input.contentType=InputField.ContentType.IntegerNumber;input.targetGraphic=inputImage;
+        input.textComponent=Label("Text",inputImage.transform,12,8,428,44,"100",26);shop.displayPriceInput=input;
+        ButtonBox("진열 확정",priceBox.transform,24,196,214,52,shop.ConfirmDisplayPrice);ButtonBox("취소",priceBox.transform,262,196,214,52,shop.CancelDisplayPrice);
+        modal.gameObject.SetActive(false);
+        var layer=Rect("Drag Layer",go.transform,0,0,1920,1080);Stretch(layer);panel.drag=go.AddComponent<InventoryDragHandler>();panel.drag.dragLayer=layer;
+        if(UnityEngine.Object.FindFirstObjectByType<EventSystem>()==null)
+        {
+            var es=new GameObject("EventSystem",typeof(EventSystem));Undo.RegisterCreatedObjectUndo(es,"Create EventSystem");
+#if ENABLE_INPUT_SYSTEM
+            es.AddComponent<InputSystemUIInputModule>().AssignDefaultActions();
+#else
+            es.AddComponent<StandaloneInputModule>();
+#endif
+        }
+        DrawerSceneBuilder.MoveDebugButtons(layout);
+        SideMenuSceneBuilder.BuildMenu(layout,panel,management,upgrade,supplier);
+        SlidingDemoSceneBuilder.Build(layout,furnitureLayout,panel,art,counter);
+        CounterDemoSceneBuilder.Build(layout,panel,warehouseUI,warehouseDetails,counter);
+        CompactDemoSceneBuilder.BuildDelivery(layout,furnitureLayout,panel,template);
+        WorkshopSceneBuilder.Build(layout,panel);
+        CompactDemoSceneBuilder.Build(layout,panel);
+        Selection.activeGameObject=sceneRoot;UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(go.scene);
+        Debug.Log("최신 통합 데모 생성 완료: 왼쪽 하단 소형 상자2개 / 같은 칸 크기 진열창 / 문 앞 택배8열 / 새벽 보관료 / 가구3개. 씬을 저장하고 Play하세요. 공방3곳/5슬롯 제작 포함. 왼쪽 제작 의뢰 또는 테스트 전체 해금 버튼으로 확인하세요. 추가 적용 메뉴는 필요 없습니다.");
+        if(!hasKoreanFont)Debug.LogWarning("프로젝트에서 알려진 한국어 Font를 찾지 못해 기본 폰트를 사용했습니다. 글자가 네모로 보이면 Store UI Canvas의 InventoryPanel > Korean Font에 한국어 Font를 연결하세요.");
+    }
+}
+#endif

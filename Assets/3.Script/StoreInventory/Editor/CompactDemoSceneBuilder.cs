@@ -1,0 +1,81 @@
+#if UNITY_EDITOR
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEditor;
+using GeneralStore.Inventory;
+using UI=InventorySceneBuilder;
+public static class CompactDemoSceneBuilder
+{
+    public static void Build(RectTransform layout,InventoryPanel panel)
+    {
+        var edge=UI.Rect("Screen Edge UI",layout,0,0,1920,1080);
+        var settings=layout.gameObject.AddComponent<ShopViewportLayout>();settings.panel=panel;settings.stage=panel.shop.displays.windowLayer;settings.edgeLayer=edge;
+        settings.drawer=panel.shop.drawer;settings.drawer.startClosed=true;settings.displays=panel.shop.displays;settings.displays.slideFromRight=true;
+        var management=layout.GetComponentInChildren<RightSideMenu>(true);
+        settings.managementMenu=(RectTransform)management.transform;settings.managementMenu.name="Left Management Menu";settings.managementMenu.SetParent(edge,false);
+        settings.displayMenu=layout.GetComponentInChildren<LeftDisplayMenu>(true);settings.displayMenu.dockRight=true;
+        settings.displayMenuLayer=(RectTransform)settings.displayMenu.transform;settings.displayMenuLayer.name="Right Display Menu Layer";settings.displayMenuLayer.SetParent(edge,false);
+        var roots=new List<RectTransform>();var frames=new List<RectTransform>();
+        foreach(var entry in management.entries)if(entry.window!=null)
+        {
+            var root=(RectTransform)entry.window.transform;root.SetParent(edge,false);root.anchoredPosition=Vector2.zero;
+            var frame=root.Find("Panel Frame") as RectTransform;if(frame!=null){roots.Add(root);frames.Add(frame);}
+        }
+        settings.managementWindows=roots.ToArray();settings.managementFrames=frames.ToArray();
+        // 실제 프레임 그림이 입력을 받고 중복된 투명 창 면은 그리지 않습니다.
+        var warehouseImage=settings.drawer.window.GetComponent<global::UnityEngine.UI.Image>();warehouseImage.raycastTarget=false;warehouseImage.canvasRenderer.cullTransparentMesh=true;
+        var frameImage=settings.drawer.window.Find("Authored Warehouse Frame").GetComponent<global::UnityEngine.UI.Image>();frameImage.raycastTarget=true;
+        var warehouse=panel.GetComponent<WarehouseUI>();settings.drawer.dragExcludedGrid=warehouse.grid.Rect;settings.displays.cellReference=warehouse.grid;settings.delivery=layout.GetComponent<DeliveryUI>();
+        foreach(var view in layout.GetComponentsInChildren<DisplayWindowView>(true))
+        {
+            var image=view.GetComponent<global::UnityEngine.UI.Image>();if(image!=null&&image.color.a<=.001f){image.raycastTarget=false;image.canvasRenderer.cullTransparentMesh=true;}
+            if(view.appearance!=null&&view.appearance.frame!=null)view.appearance.frame.raycastTarget=true;
+        }
+        foreach(var grid in layout.GetComponentsInChildren<InventoryGridView>(true))
+        {
+            var image=grid.GetComponent<global::UnityEngine.UI.Image>();
+            if(image==null||grid.renderCells||image.color.a>.001f)continue;
+            var surface=grid.gameObject.AddComponent<DragOnlyRaycastSurface>();surface.panel=panel;surface.image=image;
+            image.raycastTarget=false;image.canvasRenderer.cullTransparentMesh=true;
+        }
+        var hud=UI.Rect("HUD Text Layer",layout,0,0,1920,1080);UiPerformanceLayers.Ensure(hud.gameObject,false);
+        panel.shop.goldLabel.transform.SetParent(hud,false);panel.shop.simulation.clockLabel.transform.SetParent(hud,false);panel.messageLabel.transform.SetParent(hud,false);
+        var message=panel.messageLabel.rectTransform;message.anchoredPosition=new Vector2(400,-74);message.sizeDelta=new Vector2(1120,42);panel.messageLabel.fontSize=18;panel.messageLabel.alignment=TextAnchor.MiddleCenter;
+        settings.Apply();panel.shop.priceDialog.transform.SetAsLastSibling();ConfigureUiOnlyCamera(panel.gameObject.scene.handle);
+    }
+    public static void BuildDelivery(RectTransform layout,RectTransform furnitureLayout,InventoryPanel panel,InventoryItemView itemTemplate)
+    {
+        var delivery=layout.gameObject.AddComponent<DeliveryUI>();delivery.panel=panel;delivery.cellReference=panel.GetComponent<WarehouseUI>().grid;
+        // The authored door position is only set during generation. Replace the sprite/RectTransform in Inspector.
+        var icon=UI.Box("Delivery At Door",furnitureLayout,550,478,104,104,Color.white);
+        icon.sprite=Resources.Load<Sprite>("StoreInventory/CounterDemo/warehouse_frame");icon.preserveAspect=true;
+        delivery.doorButton=icon.gameObject.AddComponent<Button>();delivery.doorButton.targetGraphic=icon;
+        UnityEditor.Events.UnityEventTools.AddPersistentListener(delivery.doorButton.onClick,delivery.Toggle);
+        delivery.badge=UI.Label("Delivery Badge",icon.transform,-12,100,128,32,"택배",21);delivery.badge.alignment=TextAnchor.MiddleCenter;
+        var root=UI.Box("Delivery Window",layout,730,180,674,744,new Color(.18f,.12f,.065f,.98f));delivery.window=root.rectTransform;
+        UI.Label("Title",root.transform,22,14,490,46,"택배 보관함",29);
+        UI.ButtonBox("닫기",root.transform,550,14,100,46,delivery.Close);
+        var viewport=UI.Box("Delivery Viewport",root.transform,24,76,626,470,new Color(.08f,.06f,.04f));viewport.gameObject.AddComponent<RectMask2D>();
+        delivery.scroll=viewport.gameObject.AddComponent<ScrollRect>();delivery.scroll.viewport=viewport.rectTransform;delivery.scroll.horizontal=false;delivery.scroll.vertical=true;
+        delivery.scroll.movementType=ScrollRect.MovementType.Clamped;delivery.scroll.inertia=false;delivery.scroll.scrollSensitivity=78;
+        delivery.content=UI.Rect("Virtual Delivery Content",viewport.transform,0,0,626,470);delivery.scroll.content=delivery.content;
+        var gridImage=UI.Box("Delivery Visible Rows",delivery.content,0,0,626,470,new Color(1,1,1,0));gridImage.raycastTarget=false;gridImage.canvasRenderer.cullTransparentMesh=true;
+        var grid=gridImage.gameObject.AddComponent<InventoryGridView>();delivery.grid=grid;grid.containerId=InventoryModel.DeliveryContainerId;
+        grid.cellWidth=grid.cellHeight=78;grid.viewRows=5;grid.externalRefresh=true;grid.acceptsDrop=false;grid.recycleItems=true;grid.renderPartitions=false;grid.itemTemplate=itemTemplate;
+        grid.itemLayer=UI.Rect("Items",grid.transform,1,1,624,468);
+        delivery.details=UI.Details(root.transform,564,634);delivery.details.containerFilter=InventoryModel.DeliveryContainerId;
+        delivery.feeLabel=UI.Label("Storage Fee",root.transform,24,712,626,28,"",17);delivery.feeLabel.alignment=TextAnchor.MiddleCenter;
+        UiPerformanceLayers.Ensure(root.gameObject,true);root.gameObject.SetActive(false);icon.gameObject.SetActive(false);
+    }
+    static void ConfigureUiOnlyCamera(int sceneHandle)
+    {
+        // 새 UI 전용 데모에서만 적용합니다. Renderer/Terrain이 있으면 기존 카메라를 유지합니다.
+        if(Object.FindObjectsByType<global::UnityEngine.Renderer>(FindObjectsInactive.Include,FindObjectsSortMode.None).Length>0||Terrain.activeTerrain!=null)return;
+        foreach(var camera in Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))if(camera.name=="Main Camera"&&camera.gameObject.scene.handle==sceneHandle)
+        {
+            Undo.RecordObject(camera,"Configure UI-only Demo Camera");camera.cullingMask=0;camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=Color.black;camera.allowHDR=false;camera.allowMSAA=false;
+        }
+    }
+}
+#endif
