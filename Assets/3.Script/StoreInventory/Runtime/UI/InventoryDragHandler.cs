@@ -50,7 +50,6 @@ namespace GeneralStore.Inventory
             RectTransformUtility.ScreenPointToLocalPointInRectangle(view.Rect, pointer, panel.EventCamera, out local);
             grabbedX = Mathf.Clamp(Mathf.FloorToInt(local.x / view.Grid.cellWidth), 0, panel.Model.Width(selectedItem) - 1);
             grabbedY = Mathf.Clamp(Mathf.FloorToInt(-local.y / view.Grid.cellHeight), 0, panel.Model.Height(selectedItem) - 1);
-            if (!panel.Catalog.Shape(selectedItem.itemId).Contains(rotation, grabbedX, grabbedY)) return;
             active = true;NotifyDragging(true);e.pointerDrag=gameObject; sourceView.SetDragVisual(true);
             PrepareGhost(view.Grid.itemTemplate);ghost.Bind(panel, view.Grid, selectedItem.Copy()); ghost.enabled = false;
             CanvasGroup group = ghost.GetComponent<CanvasGroup>(); group.alpha = .8f; group.blocksRaycasts = false;

@@ -63,8 +63,8 @@ public static class CounterDemoSceneBuilder
         var surface=drop==null?UI.Box("Counter Stock Drop Area",root,720,640,600,345,new Color(1,1,1,0)):drop.GetComponent<global::UnityEngine.UI.Image>();
         Place(surface.rectTransform,720,640,600,345);surface.canvasRenderer.cullTransparentMesh=false;surface.raycastTarget=false;surface.transform.SetAsFirstSibling();trade.dropSurface=surface;
         var area=surface.GetComponent<RecommendationDropArea>();if(area==null)area=surface.gameObject.AddComponent<RecommendationDropArea>();area.panel=trade.panel;area.counter=trade;
-        var guide=root.Find("Counter Surface Guide");trade.surfaceGuide=guide==null?UI.Box("Counter Surface Guide",root,100,985,1720,2,Color.yellow):guide.GetComponent<global::UnityEngine.UI.Image>();trade.surfaceGuide.raycastTarget=false;trade.surfaceGuide.gameObject.SetActive(false);
-        trade.counterCellSize=100;trade.surfaceFromTop=985;trade.leftInset=100;trade.rightInset=100;trade.ceilingFromTop=40;trade.gravity=2200;trade.bounce=.1f;trade.horizontalDamping=6;trade.sleepSpeed=25;
+        var guide=root.Find("Counter Surface Guide");trade.surfaceGuide=guide==null?UI.Box("Counter Surface Guide",root,100,1028.5f,1720,2,Color.yellow):guide.GetComponent<global::UnityEngine.UI.Image>();trade.surfaceGuide.raycastTarget=false;trade.surfaceGuide.gameObject.SetActive(false);
+        trade.counterCellSize=100;trade.surfaceFromTop=1028.5f;trade.leftInset=100;trade.rightInset=100;trade.ceilingFromTop=40;trade.gravity=2200;trade.bounce=.1f;trade.horizontalDamping=6;trade.sleepSpeed=25;
         // Inventory windows and their drag ghost must remain above the physical counter bodies.
         var floating=root.parent.Find("Floating Windows");if(floating!=null)root.SetSiblingIndex(floating.GetSiblingIndex());
         if(trade.shop!=null&&trade.shop.customerInteraction!=null){trade.shop.customerInteraction.counterPose.position=new Vector2(480,-290);trade.shop.customerInteraction.counterPose.size=new Vector2(960,1440);EditorUtility.SetDirty(trade.shop.customerInteraction);}
@@ -73,14 +73,9 @@ public static class CounterDemoSceneBuilder
     public static void ConfigureCounterRow(CounterTradeUI trade)
     {
         if(trade==null||trade.tableItems==null)return;var root=(RectTransform)trade.tableItems.parent;
-        trade.surfaceLowerPercent=10;trade.surfaceBottomMargin=8;trade.itemGap=12;trade.keepControlsAboveGoods=true;trade.controlsGap=16;
-        var previous=root.Find("Previous Counter Page");
-        if(previous==null){trade.previousCounterPage=UI.ButtonBox("<",root,24,940,52,44,trade.PreviousCounterPage);trade.previousCounterPage.gameObject.name="Previous Counter Page";}
-        else trade.previousCounterPage=previous.GetComponent<Button>();
-        var next=root.Find("Next Counter Page");
-        if(next==null){trade.nextCounterPage=UI.ButtonBox(">",root,1844,940,52,44,trade.NextCounterPage);trade.nextCounterPage.gameObject.name="Next Counter Page";}
-        else trade.nextCounterPage=next.GetComponent<Button>();
-        trade.previousCounterPage.gameObject.SetActive(false);trade.nextCounterPage.gameObject.SetActive(false);
+        trade.surfaceFromTop=1028.5f;trade.surfaceLowerPercent=0;trade.surfaceBottomMargin=8;trade.keepControlsAboveGoods=true;trade.controlsGap=16;
+        foreach(string name in new[]{"Previous Counter Page","Next Counter Page"})
+        {var old=root.Find(name);if(old!=null)Undo.DestroyObjectImmediate(old.gameObject);}
         EditorUtility.SetDirty(trade);
     }
     static void ApplyWarehouse(InventoryPanel panel,WarehouseUI warehouse,InventoryDetailsView details)

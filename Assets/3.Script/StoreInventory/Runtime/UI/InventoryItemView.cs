@@ -43,10 +43,9 @@ namespace GeneralStore.Inventory
             visualRotation=rotation;visualCellSize=cellSize;ItemFootprint shape=Panel.Catalog.Shape(Record.itemId);
             Rect.sizeDelta=new Vector2(shape.Width(rotation)*cellSize.x,shape.Height(rotation)*cellSize.y);
             icon.Configure(shape,sprite,rotation,cellSize.x/cellSize.y);
-            GridCell first=shape.Cells(rotation)[0];
             nameLabel.text=sprite==null?Panel.Catalog.FindQuality(Record.itemId,Record.quality).name:"";
             var label=nameLabel.rectTransform;label.anchorMin=label.anchorMax=label.pivot=new Vector2(0,1);
-            label.anchoredPosition=new Vector2(first.x*cellSize.x+3,-first.y*cellSize.y-3);
+            label.anchoredPosition=new Vector2(3,-3);
             label.sizeDelta=new Vector2(cellSize.x-6,cellSize.y-6);nameLabel.transform.SetAsLastSibling();
         }
         public bool IsRaycastLocationValid(Vector2 point,Camera camera)

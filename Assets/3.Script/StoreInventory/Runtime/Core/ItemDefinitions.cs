@@ -15,8 +15,6 @@ namespace GeneralStore.Inventory
         public int width;
         public int height;
         public bool canRotate;
-        // 비어 있으면 width×height 직사각형입니다. 있으면 이 좌표만 실제로 점유합니다.
-        public GridCell[] occupiedCells;
         public string[] tags;
         public QualityDefinition[] qualities;
     }
@@ -70,8 +68,8 @@ namespace GeneralStore.Inventory
                     if (price > int.MaxValue) throw new ArgumentException("기준 가격이 너무 큽니다: " + definition.id);
                     quality.explanation = quality.explanation ?? "";
                 }
-                // 생성 단계에서 중복/범위/외곽 크기를 검사하고 네 방향 좌표를 미리 계산합니다.
-                shapes.Add(definition.id, new ItemFootprint(definition.width, definition.height, definition.occupiedCells));
+                // 크기는 직사각형 하나로 정의하며 짝수/홀수 회전 좌표만 필요할 때 캐시합니다.
+                shapes.Add(definition.id, new ItemFootprint(definition.width, definition.height));
                 definitions.Add(definition.id, definition);
             }
         }

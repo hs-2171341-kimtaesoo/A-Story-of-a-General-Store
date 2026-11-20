@@ -21,7 +21,7 @@ namespace GeneralStore.Inventory
         public static bool Fits(DisplayTypeDefinition definition,GridCell[] footprint,int x,int y)
         {
             if(definition==null||footprint==null||footprint.Length==0)return false;
-            // 불규칙 모양도 실제 점유 칸 전체가 한 구역에 있어야 합니다. 빈 부분으로 벽을 감싸는 배치도 막습니다.
+            // 물품의 직사각형 전체가 한 구역 안에 있어야 합니다.
             long left=long.MaxValue,right=long.MinValue,top=long.MaxValue,bottom=long.MinValue;
             foreach(var cell in footprint)
             {long px=(long)x+cell.x,py=(long)y+cell.y;left=Math.Min(left,px);right=Math.Max(right,px);top=Math.Min(top,py);bottom=Math.Max(bottom,py);}

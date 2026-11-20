@@ -145,32 +145,10 @@
       "tags": [
         "tool"
       ],
-      "occupiedCells": [
-        {
-          "x": 0,
-          "y": 0
-        },
-        {
-          "x": 0,
-          "y": 1
-        },
-        {
-          "x": 0,
-          "y": 2
-        },
-        {
-          "x": 1,
-          "y": 2
-        },
-        {
-          "x": 2,
-          "y": 2
-        }
-      ],
       "qualities": [
         {
           "quality": "common",
-          "name": "ㄱ자 프레임",
+          "name": "목재 프레임 A",
           "priceMultiplier": 1.0,
           "iconKey": "sample_lframe",
           "explanation": "빈 공간에 다른 물건을 끼워 넣을 수 있는 모양 테스트용 물건입니다."
@@ -187,40 +165,10 @@
       "tags": [
         "tool"
       ],
-      "occupiedCells": [
-        {
-          "x": 0,
-          "y": 0
-        },
-        {
-          "x": 1,
-          "y": 0
-        },
-        {
-          "x": 2,
-          "y": 0
-        },
-        {
-          "x": 0,
-          "y": 1
-        },
-        {
-          "x": 0,
-          "y": 2
-        },
-        {
-          "x": 1,
-          "y": 2
-        },
-        {
-          "x": 2,
-          "y": 2
-        }
-      ],
       "qualities": [
         {
           "quality": "common",
-          "name": "ㄷ자 프레임",
+          "name": "목재 프레임 B",
           "priceMultiplier": 1.0,
           "iconKey": "sample_cframe",
           "explanation": "빈 공간에 다른 물건을 끼워 넣을 수 있는 모양 테스트용 물건입니다."

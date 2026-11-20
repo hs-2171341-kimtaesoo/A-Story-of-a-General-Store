@@ -67,11 +67,10 @@ namespace GeneralStore.Inventory
                 if(!model.RefreshSuppliersForDay(1,out error))throw new InvalidOperationException(error);
                 if (addDemoItems)
                 {
-                    // 40칸 데모에는 큰 모양부터 넣어 공간 부족 경고 없이 모든 유형을 확인합니다.
-                    Seed(model, "sample_lframe", "common", 1, 50); Seed(model, "sample_cframe", "common", 1, 70);
-                    Seed(model, "sample_bag", "common", 1, 150);Seed(model, "sample_rope", "common", 1, 40);
-                    Seed(model, "sample_sword", "common", 1, 90);Seed(model, "C001", "common", 1, 80);
-                    Seed(model, "C001", "superior", 1, 110);Seed(model, "E001", "none", 1, 0);
+                    // 직사각형8개가 8×5의40칸에 맞도록 큰 물품부터 넣습니다.
+                    Seed(model,"sample_lframe","common",1,50);Seed(model,"sample_cframe","common",1,70);
+                    Seed(model,"sample_bag","common",1,150);Seed(model,"C001","common",1,80);Seed(model,"C001","superior",1,110);
+                    Seed(model,"sample_rope","common",1,40);Seed(model,"sample_sword","common",1,90);Seed(model,"E001","none",1,0);
                 }
                 if(includeWorkshopDemoItems&&addDemoItems)
                 {
@@ -122,7 +121,7 @@ namespace GeneralStore.Inventory
                     if(Model.Suppliers.Find(vendor.supplierId)==null||vendor.cycle>Model.Suppliers.Cycle(vendor.supplierId,world.clock.day))
                     {error="거래처의 저장 날짜가 잘못되었습니다.";return false;}
                 bool restored = Model.TryRestore(save, out error);
-                if (restored) {Clock.Restore(world.clock);Model.RefreshSuppliersForDay(world.clock.day,out error);Sales.Leave();if(Loaded!=null)Loaded();}
+                if (restored) {if(save.version<10)Debug.Log("직사각형 점유 전환 완료. 공간이 바뀐 물품은 상자/택배 보관함을 확인하세요.",this);Clock.Restore(world.clock);Model.RefreshSuppliersForDay(world.clock.day,out error);Sales.Leave();if(Loaded!=null)Loaded();}
                 return restored;
             }
             catch (Exception e) { error = e.Message; return false; }

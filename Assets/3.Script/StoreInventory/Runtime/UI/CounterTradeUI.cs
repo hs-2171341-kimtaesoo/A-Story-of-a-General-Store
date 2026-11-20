@@ -9,11 +9,11 @@ namespace GeneralStore.Inventory
         public RectTransform tableItems;public GameObject controls,priceEditor;
         public global::UnityEngine.UI.Image dropSurface;
         public CounterItemView itemTemplate;public Text totalLabel,infoLabel;public InputField proposedTotalInput;
-        public Button sellButton,talkButton,previousCounterPage,nextCounterPage;
+        public Button sellButton,talkButton;
         [Min(1)]public float counterCellSize=100;
-        public float surfaceFromTop=985,leftInset=100,rightInset=100,ceilingFromTop=40;
-        [Range(0,100)]public float surfaceLowerPercent=10;
-        [Min(0)]public float surfaceBottomMargin=8,itemGap=12;
+        public float surfaceFromTop=1028.5f,leftInset=100,rightInset=100,ceilingFromTop=40;
+        [Range(0,100)]public float surfaceLowerPercent=0;
+        [Min(0)]public float surfaceBottomMargin=8;
         public bool keepControlsAboveGoods=true;
         [Min(0)]public float controlsGap=16;
         [Range(100,20000)]public float gravity=2200;
@@ -27,17 +27,15 @@ namespace GeneralStore.Inventory
         readonly HashSet<string> seen=new HashSet<string>();readonly List<string> removed=new List<string>();
         public int LiveViewCount{get{return views.Count;}}public int CachedViewCount{get{return pool.Count;}}
         readonly List<CounterBodyState> bodies=new List<CounterBodyState>();
-        readonly List<CounterItemView> arrivals=new List<CounterItemView>();
         readonly Dictionary<string,Vector2> dropPoints=new Dictionary<string,Vector2>();
         readonly CounterTableSettings motion=new CounterTableSettings();
         CounterItemView dragging;bool ready;long quotedTotal;string selectedInfoUid;
-        public float TablePan{get;private set;}
-        float maximumPan,visibleRowWidth;Vector2 authoredControlsPosition,authoredInfoPosition;
+        Vector2 authoredControlsPosition,authoredInfoPosition;
         public bool IsItemDragging{get{return dragging!=null;}}
         public bool CanInteractWithItems{get{return ready&&!Busy&&!priceEditor.activeSelf;}}
         public int LastPhysicsSteps{get;private set;}
         public bool TryTablePoint(Vector2 screen,Camera camera,out Vector2 point)
-        {bool found=RectTransformUtility.ScreenPointToLocalPointInRectangle(tableItems,screen,camera,out point);if(found)point.x+=TablePan;return found;}
+        {return RectTransformUtility.ScreenPointToLocalPointInRectangle(tableItems,screen,camera,out point);}
         public Vector2 CellSizeIn(RectTransform layer)
         {Vector3 x=layer.InverseTransformVector(tableItems.TransformVector(new Vector3(counterCellSize,0,0))),y=layer.InverseTransformVector(tableItems.TransformVector(new Vector3(0,counterCellSize,0)));return new Vector2(x.magnitude,y.magnitude);}
         public void ReceiveStockDrop(UnityEngine.EventSystems.PointerEventData e)
@@ -46,7 +44,7 @@ namespace GeneralStore.Inventory
         {
             Vector2 point;var canvas=tableItems.GetComponentInParent<Canvas>();var camera=canvas!=null&&canvas.renderMode!=RenderMode.ScreenSpaceOverlay?canvas.worldCamera:null;
             if(!TryTablePoint(screen,camera,out point))return;
-            CounterItemView view;if(views.TryGetValue(uid,out view)){view.Body.x=point.x;view.Body.y=point.y;Clamp(view.Body);ArrangeBodies();WakeBodies();}
+            CounterItemView view;if(views.TryGetValue(uid,out view)){view.Body.x=point.x;view.Body.y=point.y;Clamp(view.Body);ApplyPositions();WakeBodies();}
             else dropPoints[uid]=point;
         }
         void ConfigureMotion()
@@ -54,8 +52,8 @@ namespace GeneralStore.Inventory
             motion.left=tableItems.rect.xMin+leftInset;motion.right=tableItems.rect.xMax-rightInset;
             float depth=CounterTableMotion.SurfaceDepth(surfaceFromTop,tableItems.rect.height,surfaceLowerPercent,surfaceBottomMargin);
             motion.surface=tableItems.rect.yMax-depth;motion.ceiling=tableItems.rect.yMax-ceilingFromTop;
-            motion.gravity=gravity;motion.bounce=bounce;motion.drag=horizontalDamping;motion.sleepSpeed=sleepSpeed;motion.gap=itemGap;motion.Validate();visibleRowWidth=motion.right-motion.left;
-            if(surfaceGuide!=null){surfaceGuide.gameObject.SetActive(showSurfaceGuide);surfaceGuide.rectTransform.anchoredPosition=new Vector2(leftInset,-depth);surfaceGuide.rectTransform.sizeDelta=new Vector2(visibleRowWidth,2);}
+            motion.gravity=gravity;motion.bounce=bounce;motion.drag=horizontalDamping;motion.sleepSpeed=sleepSpeed;motion.Validate();
+            if(surfaceGuide!=null){surfaceGuide.gameObject.SetActive(showSurfaceGuide);surfaceGuide.rectTransform.anchoredPosition=new Vector2(leftInset,-depth);surfaceGuide.rectTransform.sizeDelta=new Vector2(motion.right-motion.left,2);}
         }
         void PlaceControlsAboveGoods()
         {
@@ -66,29 +64,18 @@ namespace GeneralStore.Inventory
             position=new Vector2(authoredInfoPosition.x,-Mathf.Max(0,Mathf.Min(-authoredInfoPosition.y,top-infoLabel.rectTransform.rect.height-4)));
             if(infoLabel.rectTransform.anchoredPosition!=position)infoLabel.rectTransform.anchoredPosition=position;
         }
-        void ConfigureRowBounds()
-        {
-            motion.right=motion.left+Mathf.Max(visibleRowWidth,CounterTableMotion.RequiredFlatWidth(bodies,motion.gap));maximumPan=Mathf.Max(0,motion.right-motion.left-visibleRowWidth);
-            TablePan=Mathf.Clamp(TablePan,0,maximumPan);RefreshNavigation();
-        }
-        void RefreshNavigation()
-        {
-            bool show=ready&&Session.CounterPresented&&maximumPan>.1f;
-            if(previousCounterPage!=null){previousCounterPage.gameObject.SetActive(show);previousCounterPage.interactable=TablePan>.1f;}
-            if(nextCounterPage!=null){nextCounterPage.gameObject.SetActive(show);nextCounterPage.interactable=TablePan<maximumPan-.1f;}
-        }
         void ApplyPositions(){foreach(var view in views.Values)view.ApplyPosition();}
-        void ArrangeBodies(){CounterTableMotion.ArrangeFlat(bodies,motion);ApplyPositions();}
-        public void ScrollTable(float amount)
-        {if(!ready||IsItemDragging||maximumPan<=0)return;float next=Mathf.Clamp(TablePan+amount,0,maximumPan);if(next==TablePan)return;TablePan=next;ApplyPositions();RefreshNavigation();}
-        public void PreviousCounterPage(){ScrollTable(-visibleRowWidth*.75f);}
-        public void NextCounterPage(){ScrollTable(visibleRowWidth*.75f);}
+        void HideLegacyNavigation()
+        {
+            foreach(string name in new[]{"Previous Counter Page","Next Counter Page"})
+            {var button=tableItems.parent.Find(name);if(button!=null)button.gameObject.SetActive(false);}
+        }
         public void Clamp(CounterBodyState body){CounterTableMotion.ClampBody(body,motion);}
         public void WakeBodies(){foreach(var body in bodies)if(body.active)body.asleep=false;}
         public bool TryBeginCounterDrag(CounterItemView view)
         {if(Busy||priceEditor.activeSelf)return false;dragging=view;return true;}
         public void EndCounterDrag(CounterItemView view)
-        {if(dragging!=view)return;view.Body.dragged=false;view.Body.asleep=false;dragging=null;ArrangeBodies();WakeBodies();}
+        {if(dragging!=view)return;view.Body.dragged=false;view.Body.asleep=false;dragging=null;Clamp(view.Body);ApplyPositions();WakeBodies();}
         void LateUpdate()
         {
             if(!ready)return;LastPhysicsSteps=CounterTableMotion.Advance(bodies,motion,Mathf.Min(.1f,Time.unscaledDeltaTime));
@@ -103,7 +90,7 @@ namespace GeneralStore.Inventory
             string error;if(panel==null||shop==null||tableItems==null||controls==null||priceEditor==null||itemTemplate==null||totalLabel==null||infoLabel==null||proposedTotalInput==null||sellButton==null||talkButton==null||!panel.inventory.TryInitialize(out error))
             {Debug.LogError("카운터 거래 참조를 확인하세요. 새 데모 씬을 생성하세요.",this);enabled=false;return;}
             authoredControlsPosition=((RectTransform)controls.transform).anchoredPosition;authoredInfoPosition=infoLabel.rectTransform.anchoredPosition;
-            ConfigureMotion();itemTemplate.gameObject.SetActive(false);priceEditor.SetActive(false);ready=true;panel.drag.DraggingChanged+=OnHeld;Render();
+            HideLegacyNavigation();ConfigureMotion();itemTemplate.gameObject.SetActive(false);priceEditor.SetActive(false);ready=true;panel.drag.DraggingChanged+=OnHeld;Render();
         }
         void ReleaseUnused()
         {
@@ -119,10 +106,10 @@ namespace GeneralStore.Inventory
             if(tableItems.gameObject.activeSelf!=present)tableItems.gameObject.SetActive(present);
             if(dropSurface!=null)dropSurface.raycastTarget=present&&panel.drag.IsDragging&&!priceEditor.activeSelf;
             seen.Clear();quotedTotal=0;
-            if(!present){ReleaseUnused();bodies.Clear();arrivals.Clear();dropPoints.Clear();TablePan=maximumPan=0;RefreshNavigation();priceEditor.SetActive(false);infoLabel.text="";return;}
+            if(!present){ReleaseUnused();bodies.Clear();dropPoints.Clear();priceEditor.SetActive(false);infoLabel.text="";return;}
             var cart=Session.Purchases();long pickedTotal=0;foreach(var line in cart)pickedTotal+=line.price;var extra=Session.Offers();cart.AddRange(extra);int count=cart.Count;
             foreach(var line in cart){seen.Add(line.instanceId);quotedTotal+=line.price;}ReleaseUnused();if(selectedInfoUid!=null&&!seen.Contains(selectedInfoUid)){selectedInfoUid=null;infoLabel.text="";}
-            ConfigureMotion();bodies.Clear();arrivals.Clear();
+            ConfigureMotion();bodies.Clear();
             for(int n=0;n<count;n++)
             {
                 var offer=cart[n];CounterItemView v;bool arriving=!views.TryGetValue(offer.instanceId,out v);
@@ -130,20 +117,12 @@ namespace GeneralStore.Inventory
                 v.Bind(this,offer,arriving);bodies.Add(v.Body);
                 if(arriving)
                 {
-                    arrivals.Add(v);Vector2 point;
+                    Vector2 point;
                     if(dropPoints.TryGetValue(offer.instanceId,out point)){v.Body.x=point.x;v.Body.y=point.y;dropPoints.Remove(offer.instanceId);}
                     else{v.Body.x=(motion.left+motion.right)*.5f+((n%5)==0?0:(n%5)%2==1?-1:1)*Mathf.Ceil((n%5)/2f)*230;v.Body.y=motion.surface+v.Body.halfHeight+140;}
-
                 }
-
             }
-            ConfigureRowBounds();foreach(var body in bodies)Clamp(body);ArrangeBodies();
-            if(arrivals.Count>0&&maximumPan>0)
-            {
-                var latest=arrivals[arrivals.Count-1].Body;
-                float desired=latest.x+latest.halfWidth-(motion.left+visibleRowWidth);TablePan=Mathf.Clamp(desired,0,maximumPan);ApplyPositions();RefreshNavigation();
-            }
-            arrivals.Clear();WakeBodies();PlaceControlsAboveGoods();
+            foreach(var body in bodies)Clamp(body);ApplyPositions();WakeBodies();PlaceControlsAboveGoods();
             totalLabel.text="진열 등록 합계 "+pickedTotal.ToString("N0")+" G"+(extra.Count>0?" · 추천 포함 "+quotedTotal.ToString("N0")+" G":"");
             sellButton.interactable=count>0;talkButton.interactable=!Session.ConversationStarted;
         }

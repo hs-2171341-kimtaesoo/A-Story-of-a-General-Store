@@ -18,14 +18,9 @@ namespace GeneralStore.Inventory.Verification
                 Definition("sample_rope",3,1,true,new[]{"common"}),
                 Definition("sample_sword",1,3,swordCanRotate,new[]{"common"}),
                 Definition("sample_bag",3,2,true,new[]{"common"}),
-                Frame("sample_lframe",new[]{new GridCell(0,0),new GridCell(0,1),new GridCell(0,2),new GridCell(1,2),new GridCell(2,2)}),
-                Frame("sample_cframe",new[]{new GridCell(0,0),new GridCell(1,0),new GridCell(2,0),new GridCell(0,1),new GridCell(0,2),new GridCell(1,2),new GridCell(2,2)})
+                Definition("sample_lframe",3,3,true,new[]{"common"}),
+                Definition("sample_cframe",3,3,true,new[]{"common"})
             } });
-        }
-        static ItemDefinition Frame(string id, GridCell[] cells)
-        {
-            ItemDefinition definition = Definition(id,3,3,true,new[]{"common"});
-            definition.occupiedCells = cells; return definition;
         }
         static ItemDefinition Definition(string id, int width, int height, bool rotate, string[] codes)
         {
@@ -153,8 +148,8 @@ namespace GeneralStore.Inventory.Verification
             Check(demo.TryAdd("test_storage","sample_rope","common",1,40,out error),"데모 밧줄");
             Check(demo.TryAdd("test_storage","sample_sword","common",1,90,out error),"데모 검");
             Check(demo.TryAdd("test_storage","sample_bag","common",1,150,out error),"데모 가방");
-            Check(demo.TryAdd("test_storage","sample_lframe","common",1,50,out error),"데모 ㄱ자");
-            Check(demo.TryAdd("test_storage","sample_cframe","common",1,70,out error),"데모 ㄷ자");
+            Check(demo.TryAdd("test_storage","sample_lframe","common",1,50,out error),"데모 사각 프레임 A");
+            Check(demo.TryAdd("test_storage","sample_cframe","common",1,70,out error),"데모 사각 프레임 B");
             Check(demo.GetContainer("test_storage").items.Count==11,"데모 전체 11개 배치");
             Geometry(demo);
             // 무작위 이동 후에도 ID/매입가/전체 물건 수와 실제 점유 칸을 독립적으로 검사합니다.
@@ -163,8 +158,8 @@ namespace GeneralStore.Inventory.Verification
             fuzz.TryAdd("test_storage","sample_rope","common",1,40,out error);
             fuzz.TryAdd("test_storage","sample_sword","common",1,90,out error);
             fuzz.TryAdd("test_storage","sample_bag","common",1,150,out error);
-            Check(fuzz.TryAdd("test_storage","sample_lframe","common",1,50,out error),"무작위 ㄱ자 준비");
-            Check(fuzz.TryAdd("test_storage","sample_cframe","common",1,70,out error),"무작위 ㄷ자 준비");
+            Check(fuzz.TryAdd("test_storage","sample_lframe","common",1,50,out error),"무작위 사각 프레임 A");
+            Check(fuzz.TryAdd("test_storage","sample_cframe","common",1,70,out error),"무작위 사각 프레임 B");
             var prices = new Dictionary<string,int>();
             foreach (ItemRecord item in fuzz.GetContainer("test_storage").items) prices.Add(item.instanceId,item.purchasePrice);
             for (int iteration=0; iteration<1000; iteration++)
@@ -191,74 +186,36 @@ namespace GeneralStore.Inventory.Verification
         }
         static void ShapeChecks(ItemCatalog catalog)
         {
-            string error;
-            ItemFootprint shape = catalog.Shape("sample_lframe");
-            Check(shape.CellCount == 5 && shape.Width(0) == 3 && shape.Height(0) == 3,"ㄱ자는 바깥 9칸/실제 5칸");
-            Check(!shape.Contains(0,1,0) && shape.Contains(0,0,0),"ㄱ자의 빈 부분/채운 부분 구분");
-            GridCell[] copied = shape.Cells(0); copied[0] = new GridCell(99,99);
-            Check(shape.Contains(0,0,0),"외부 좌표 배열 수정으로 정의가 변하지 않음");
-            for (int direction=0;direction<4;direction++)
+            string error;var shape=catalog.Shape("sample_lframe");
+            Check(shape.CellCount==9&&shape.Contains(0,1,0)&&shape.Contains(0,1,1),"3x3 전체9칸 점유");
+            var copied=shape.Cells(0);copied[0]=new GridCell(99,99);Check(shape.Contains(0,0,0),"외부 배열 수정은 정의에 영향 없음");
+            foreach(var id in new[]{"C001","sample_rope","sample_lframe","sample_cframe"})
             {
-                var keys=new HashSet<string>();
-                foreach (GridCell cell in shape.Cells(direction))
+                shape=catalog.Shape(id);
+                for(int rotation=0;rotation<4;rotation++)
                 {
-                    Check(cell.x>=0 && cell.x<shape.Width(direction) && cell.y>=0 && cell.y<shape.Height(direction),"회전 좌표 범위");
-                    Check(keys.Add(cell.x+","+cell.y),"회전 점유 중복 없음");
-                    Check(shape.Contains(direction,cell.x,cell.y),"클릭 마스크와 점유 좌표 일치");
+                    Check(shape.CellCount==shape.Width(rotation)*shape.Height(rotation),"모든 회전에서 사각형 전체 점유");
+                    var keys=new HashSet<string>();foreach(var cell in shape.Cells(rotation)){Check(shape.Contains(rotation,cell.x,cell.y),"클릭/배치 영역 일치");Check(keys.Add(cell.x+","+cell.y),"좌표 중복 없음");}
+                    Check(keys.Count==shape.CellCount&&!shape.Contains(rotation,-1,0)&&!shape.Contains(rotation,shape.Width(rotation),0),"전체 면적과 경계");
                 }
-                Check(keys.Count==5,"모든 방향에서 점유 칸 수 보존");
-                for(int y=0;y<shape.Height(direction);y++) for(int x=0;x<shape.Width(direction);x++)
-                    Check(shape.Contains(direction,x,y)==keys.Contains(x+","+y),"회전된 빈칸/점유 칸 클릭 마스크 일치");
-                Check(!shape.Contains(direction,-1,0) && !shape.Contains(direction,shape.Width(direction),0),"모양 밖 클릭 거절");
             }
-            foreach (GridCell origin in shape.Cells(0))
-            {
-                int x=origin.x,y=origin.y;
-                for(int direction=0;direction<4;direction++)
-                { int previousX=x; x=shape.Height(direction)-1-y; y=previousX; }
-                Check(x==origin.x && y==origin.y,"네 번 회전 후 잡은 칸 복원");
-            }
-            // 같은 3x3 바깥 사각형 안에 ㄱ자와 2x2 포션을 함께 넣습니다.
-            InventoryModel nested=NewModel(catalog,3,3);
-            Check(nested.TryAdd("test_storage","sample_lframe","common",1,50,out error),"ㄱ자 입고");
-            Check(nested.TryAdd("test_storage","C001","common",1,80,out error),"ㄱ자 빈 공간에 포션 배치");
-            ContainerRecord container=nested.GetContainer("test_storage");
-            ItemRecord frame=container.items.Find(i=>i.itemId=="sample_lframe");
-            ItemRecord potion=container.items.Find(i=>i.itemId=="C001");
-            Check(potion.x==1 && potion.y==0 && container.items.Count==2,"서로 겹친 바깥 사각형 허용");
-            PlacementPreview good=nested.Preview(Move(nested,"test_storage",frame.instanceId,"test_storage",0,0,0));
-            Check(good.allowed && good.cells.Count==5 && good.cells.TrueForAll(c=>c.state==PlacementCellState.Free),"정상 위치는 점유 5칸만 초록");
-            PlacementPreview bad=nested.Preview(Move(nested,"test_storage",frame.instanceId,"test_storage",0,0,1));
-            Check(!bad.allowed && bad.cells.FindAll(c=>c.state==PlacementCellState.Occupied).Count==2,"회전 충돌 칸 정확히 검출");
-            long before=nested.Revision;
-            Check(!nested.TryMove(Move(nested,"test_storage",frame.instanceId,"test_storage",0,0,1),out error) && nested.Revision==before,"빨간 위치 실제 배치 거절");
-            PlacementPreview outside=nested.Preview(Move(nested,"test_storage",frame.instanceId,"test_storage",-1,0,0));
-            Check(!outside.allowed && outside.cells.Exists(c=>c.state==PlacementCellState.Outside),"격자 밖 칸 표시");
-            Check(!nested.CanMove(Move(nested,"test_storage",frame.instanceId,"test_storage",int.MaxValue,int.MaxValue,0),out error),"큰 좌표도 오버플로 없이 거절");
-            Check(!nested.CanMove(Move(nested,"test_storage",frame.instanceId,"test_storage",0,0,4),out error),"잘못된 회전 거절");
-            Geometry(nested);
-            InventoryModel cShape=NewModel(catalog,3,3);
-            Check(cShape.TryAdd("test_storage","sample_cframe","common",1,70,out error),"ㄷ자 입고");
-            Check(cShape.TryAdd("test_storage","E001","none",1,0,out error),"ㄷ자 빈 2x1에 빵 배치");
-            ItemRecord bread=cShape.GetContainer("test_storage").items.Find(i=>i.itemId=="E001");
-            Check(bread.x==1 && bread.y==1,"ㄷ자 내부 위치");
-            Geometry(cShape);
-            InventoryModel restored=NewModel(catalog);
-            Check(restored.TryRestore(nested.Snapshot(),out error),"서로 끼워진 모양 저장 복원");
-            Geometry(restored);
-            bool rejected=false;
-            try { new ItemFootprint(2,2,new[]{new GridCell(0,0),new GridCell(0,0),new GridCell(1,1)}); }
-            catch(ArgumentException) { rejected=true; }
-            Check(rejected,"중복 점유 좌표 거절");
-            rejected=false;
-            try { new ItemFootprint(2,2,new[]{new GridCell(0,0),new GridCell(2,1)}); }
-            catch(ArgumentException) { rejected=true; }
-            Check(rejected,"범위 밖 점유 좌표 거절");
-            rejected=false;
-            try { new ItemFootprint(3,3,new[]{new GridCell(0,0),new GridCell(1,1)}); }
-            catch(ArgumentException) { rejected=true; }
-            Check(rejected,"불필요한 바깥 여백 거절");
+            var full=NewModel(catalog,3,3);Check(full.TryAdd("test_storage","sample_lframe","common",1,50,out error),"3x3 프레임 입고");
+            long revision=full.Revision;Check(!full.TryAdd("test_storage","C001","common",1,80,out error)&&full.Revision==revision,"과거 구멍 자리에 추가 배치 불가");
+            var frame=full.GetContainer("test_storage").items[0];var preview=full.Preview(Move(full,"test_storage",frame.instanceId,"test_storage",0,0,0));Check(preview.allowed&&preview.cells.Count==9,"미리보기9칸");
+            var blocked=NewModel(catalog,6,3);Check(blocked.TryAdd("test_storage","sample_lframe","common",2,50,out error),"두 사각형 입고");frame=blocked.GetContainer("test_storage").items[0];
+            preview=blocked.Preview(Move(blocked,"test_storage",frame.instanceId,"test_storage",1,0,0));Check(!preview.allowed&&preview.cells.FindAll(x=>x.state==PlacementCellState.Occupied).Count==3,"충돌한 전체3칸 표시");
+            Check(!blocked.CanMove(Move(blocked,"test_storage",frame.instanceId,"test_storage",int.MaxValue,int.MaxValue,0),out error),"좌표 오버플로 거절");
+            Check(!blocked.CanMove(Move(blocked,"test_storage",frame.instanceId,"test_storage",0,0,4),out error),"잘못된 회전 거절");
+            foreach(int bad in new[]{0,65}){bool rejected=false;try{new ItemFootprint(bad,3);}catch(ArgumentException){rejected=true;}Check(rejected,"잘못된 직사각형 크기 거절");}
+            // Simulates a valid pre-v10 interlocking layout without retaining the old shape system.
+            var old=new InventorySave{version=9,gold=123,unpaidCosts=7,lastSettledDay=2};var box=new ContainerRecord{containerId="test_storage",columns=3,rows=3};old.containers.Add(box);
+            box.items.Add(new ItemRecord{instanceId="old-frame",itemId="sample_lframe",quality="common",purchasePrice=50});
+            box.items.Add(new ItemRecord{instanceId="old-potion",itemId="C001",quality="superior",x=1,y=0,purchasePrice=77});
+            var migrated=NewModel(catalog);Check(migrated.TryRestore(old,out error),"이전 끼워 넣기 저장 자동 전환");
+            Check(migrated.Snapshot().version==10&&migrated.GetItem("test_storage","old-frame").x==0&&migrated.GetItem(InventoryModel.DeliveryContainerId,"old-potion").purchasePrice==77,"UID/매입가/기존 유효 위치 유지 및 넘침 택배 이동");
+            Check(migrated.Gold==123&&migrated.UnpaidCosts==7&&old.version==9&&old.containers[0].items.Count==2,"원본 저장/돈/미납 유지");Geometry(migrated);
+            var current=old.Copy();current.version=10;revision=migrated.Revision;Check(!migrated.TryRestore(current,out error)&&migrated.Revision==revision,"현재 저장의 겹침은 복구하지 않고 원자적으로 거절");
+            var duplicate=old.Copy();duplicate.containers[0].items.Add(duplicate.containers[0].items[0].Copy());Check(!migrated.TryRestore(duplicate,out error)&&migrated.Revision==revision,"구형 저장 중복UID도 거절");
         }
-
     }
 }

@@ -329,42 +329,42 @@
       "qualities": [
         {
           "quality": "poor",
-          "name": "ㄱ자 프레임",
+          "name": "목재 프레임 A",
           "priceMultiplier": 0.7,
           "iconKey": "sample_lframe",
           "explanation": "공방 제작 품질 시험용 확장"
         },
         {
           "quality": "common",
-          "name": "ㄱ자 프레임",
+          "name": "목재 프레임 A",
           "priceMultiplier": 1,
           "iconKey": "sample_lframe",
           "explanation": "공방 제작 품질 시험용 확장"
         },
         {
           "quality": "superior",
-          "name": "ㄱ자 프레임",
+          "name": "목재 프레임 A",
           "priceMultiplier": 1.2,
           "iconKey": "sample_lframe",
           "explanation": "공방 제작 품질 시험용 확장"
         },
         {
           "quality": "perfect",
-          "name": "ㄱ자 프레임",
+          "name": "목재 프레임 A",
           "priceMultiplier": 1.5,
           "iconKey": "sample_lframe",
           "explanation": "공방 제작 품질 시험용 확장"
         },
         {
           "quality": "masterpiece",
-          "name": "ㄱ자 프레임",
+          "name": "목재 프레임 A",
           "priceMultiplier": 2,
           "iconKey": "sample_lframe",
           "explanation": "공방 제작 품질 시험용 확장"
         },
         {
           "quality": "legendary",
-          "name": "ㄱ자 프레임",
+          "name": "목재 프레임 A",
           "priceMultiplier": 2.5,
           "iconKey": "sample_lframe",
           "explanation": "공방 제작 품질 시험용 확장"

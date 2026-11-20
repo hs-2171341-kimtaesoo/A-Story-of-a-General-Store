@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace GeneralStore.Inventory
 {
-    // 격자당 메시 하나로 선택 모양의 바깥 경계를 표시합니다. 빈 구멍과 ㄱ/ㄷ 모양도 유지합니다.
+    // 선택된 물품의 직사각형 경계 네 면만 표시합니다.
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class ItemSelectionGraphic:MaskableGraphic
     {
@@ -16,14 +16,9 @@ namespace GeneralStore.Inventory
         protected override void OnPopulateMesh(VertexHelper h)
         {
             h.Clear();if(item==null||shape==null)return;var rect=GetPixelAdjustedRect();float t=Mathf.Min(thickness,Mathf.Min(cell.x,cell.y)*.25f);
-            foreach(var c in shape.InternalCells(item.rotation))
-            {
-                float x=rect.xMin+(item.x+c.x)*cell.x,y=rect.yMax-(item.y+c.y)*cell.y;
-                if(!shape.Contains(item.rotation,c.x,c.y-1))Quad(h,x,y,cell.x,t);
-                if(!shape.Contains(item.rotation,c.x,c.y+1))Quad(h,x,y-cell.y+t,cell.x,t);
-                if(!shape.Contains(item.rotation,c.x-1,c.y))Quad(h,x,y,t,cell.y);
-                if(!shape.Contains(item.rotation,c.x+1,c.y))Quad(h,x+cell.x-t,y,t,cell.y);
-            }
+            float x=rect.xMin+item.x*cell.x,y=rect.yMax-item.y*cell.y;
+            float width=shape.Width(item.rotation)*cell.x,height=shape.Height(item.rotation)*cell.y;
+            Quad(h,x,y,width,t);Quad(h,x,y-height+t,width,t);Quad(h,x,y,t,height);Quad(h,x+width-t,y,t,height);
         }
         void Quad(VertexHelper h,float x,float y,float w,float height)
         {int n=h.currentVertCount;Add(h,x,y);Add(h,x+w,y);Add(h,x+w,y-height);Add(h,x,y-height);h.AddTriangle(n,n+1,n+2);h.AddTriangle(n+2,n+3,n);}

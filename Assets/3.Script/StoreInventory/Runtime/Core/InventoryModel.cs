@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GeneralStore.Inventory
 {
-    // 점유 마스크 기반 낱개 인벤토리입니다. 모양의 빈칸은 다른 물건과 공유할 수 있습니다.
+    // 직사각형 낱개 인벤토리입니다. 가로×세로 전체를 점유합니다.
     public sealed partial class InventoryModel
     {
         public readonly ItemCatalog Catalog;
@@ -73,11 +73,11 @@ namespace GeneralStore.Inventory
         public int Height(ItemRecord item) { return Catalog.Shape(item.itemId).Height(item.rotation); }
         public GridCell[] Cells(ItemRecord item) { return Catalog.Shape(item.itemId).Cells(item.rotation); }
 
-        PlacementPreview InspectPlacement(InventorySave save,ContainerRecord container, ItemRecord item, string ignoredId)
+        PlacementPreview InspectPlacement(InventorySave save,ContainerRecord container, ItemRecord item, string ignoredId,HashSet<int> cachedOccupancy=null)
         {
             var result = new PlacementPreview { allowed = true };
-            var occupied = new HashSet<int>();
-            foreach (ItemRecord other in container.items)
+            var occupied = cachedOccupancy??new HashSet<int>();
+            if(cachedOccupancy==null)foreach (ItemRecord other in container.items)
             {
                 if (other.instanceId == ignoredId) continue;
                 foreach (GridCell offset in Catalog.Shape(other.itemId).InternalCells(other.rotation))
@@ -105,8 +105,8 @@ namespace GeneralStore.Inventory
         }
         void Validate(InventorySave save)
         {
-            if (save == null || save.format != "general-store-individual" || save.version != 9 || save.gold < 0 || save.unpaidCosts < 0 || save.lastSettledDay<1 || save.lastSettledDay>1000000 || save.displays == null || save.parcels == null || save.floorItems == null || save.deliveries == null || save.listings == null || save.containers == null
-                || save.containers.Count < 1 || save.containers.Count > 64) throw new ArgumentException("상점 v9 저장 파일이 아닙니다.");
+            if (save == null || save.format != "general-store-individual" || save.version != 10 || save.gold < 0 || save.unpaidCosts < 0 || save.lastSettledDay<1 || save.lastSettledDay>1000000 || save.displays == null || save.parcels == null || save.floorItems == null || save.deliveries == null || save.listings == null || save.containers == null
+                || save.containers.Count < 1 || save.containers.Count > 64) throw new ArgumentException("상점 v10 저장 파일이 아닙니다.");
             var containers = new HashSet<string>(StringComparer.Ordinal); var ids = new HashSet<string>(StringComparer.Ordinal);
             foreach (ContainerRecord c in save.containers)
             {
@@ -147,6 +147,62 @@ namespace GeneralStore.Inventory
                     if (IsDisplay(c.containerId) && c.items.Exists(i => i.instanceId == listing.instanceId)) found = true;
                 if (!found) throw new ArgumentException("진열되지 않은 물건의 가격 등록입니다.");
             }
+        }
+        // Only pre-v10 saves are repaired. Current saves still reject overlap/corruption.
+        // The input is already a deep copy, so any failure leaves both the caller and live model intact.
+        void MigrateRectangularOccupancy(InventorySave save)
+        {
+            var displaced=new List<ItemRecord>();var origins=new List<ContainerRecord>();
+            foreach(var container in save.containers)
+            {
+                if(container==null||container.items==null)throw new ArgumentException("이전 보관함 정보 오류입니다.");
+                var original=new List<ItemRecord>(container.items);container.items.Clear();var occupied=new HashSet<int>();
+                foreach(var item in original)
+                {
+                    var def=item==null?null:Catalog.Find(item.itemId);
+                    if(def==null||string.IsNullOrWhiteSpace(item.instanceId)||Catalog.FindQuality(item.itemId,item.quality)==null||item.rotation<0||item.rotation>3||!def.canRotate&&item.rotation!=0||item.purchasePrice<0)
+                        throw new ArgumentException("이전 물품 정보가 유효하지 않습니다.");
+                    if(InspectPlacement(save,container,item,null,occupied).allowed)
+                    {
+                        container.items.Add(item);
+                        foreach(var cell in Catalog.Shape(item.itemId).InternalCells(item.rotation))occupied.Add((item.y+cell.y)*container.columns+item.x+cell.x);
+                    }
+                    else{displaced.Add(item);origins.Add(container);}
+                }
+            }
+            var incoming=new List<ItemRecord>();
+            for(int n=0;n<displaced.Count;n++)
+            {
+                var item=displaced[n];var origin=origins[n];
+                if(origin.containerId==DeliveryContainerId){incoming.Add(item);continue;}
+                if(TryPlaceRectangle(save,origin,item))continue;
+                bool placed=false;
+                foreach(var container in save.containers)
+                    if(container!=origin&&IsWarehouse(container.containerId)&&TryPlaceRectangle(save,container,item)){placed=true;break;}
+                if(!placed)
+                {
+                    if(!CanReceiveDelivery(item.itemId))throw new ArgumentException("직사각형 전환 중 물품을 보관할 공간이 없습니다: "+item.itemId+". 기존 저장은 변경하지 않았습니다.");
+                    incoming.Add(item);
+                }
+                // Listings belong only to goods that remain on a display.
+                save.listings.RemoveAll(x=>x.instanceId==item.instanceId);
+            }
+            AppendDelivery(Find(save,DeliveryContainerId),incoming);TrimDelivery(save);
+        }
+        bool TryPlaceRectangle(InventorySave save,ContainerRecord container,ItemRecord original)
+        {
+            var item=original.Copy();var definition=Catalog.Find(item.itemId);
+            int rotations=definition.canRotate?4:1;
+            for(int n=0;n<rotations;n++)
+            {
+                item.rotation=definition.canRotate?(original.rotation+n)%4:0;
+                for(int y=0;y<container.rows;y++)for(int x=0;x<container.columns;x++)
+                {
+                    item.x=x;item.y=y;
+                    if(InspectPlacement(save,container,item,null).allowed){container.items.Add(item);return true;}
+                }
+            }
+            return false;
         }
         void Commit(InventorySave next) { state = next; Revision++; if (Changed != null) Changed(); }
         public bool TryAdd(string containerId, string itemId, string quality, int amount, int unitCost, out string error)

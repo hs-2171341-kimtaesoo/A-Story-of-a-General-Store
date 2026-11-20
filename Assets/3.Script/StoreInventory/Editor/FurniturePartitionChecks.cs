@@ -25,9 +25,8 @@ namespace GeneralStore.Inventory.Verification
             {
                 var shape=InventoryModelChecks.Fixture().Shape(id);
                 for(int rotation=0;rotation<4;rotation++)
-                {Check(DisplayPartitionRules.Fits(definition,shape.Cells(rotation),0,0),"불규칙 모양 같은 구역");Check(!DisplayPartitionRules.Fits(definition,shape.Cells(rotation),2,0),"불규칙 모양 벽 우회 거절");}
+                {Check(DisplayPartitionRules.Fits(definition,shape.Cells(rotation),0,0),"3x3 사각형 같은 구역");Check(!DisplayPartitionRules.Fits(definition,shape.Cells(rotation),2,0),"3x3 사각형 벽 통과 거절");}
             }
-            Check(!DisplayPartitionRules.Fits(definition,new[]{new GridCell(0,0),new GridCell(4,0)},0,0),"빈 공간으로 벽을 감싸도 거절");
             foreach(var bad in new[]{new[]{0},new[]{6},new[]{-1},new[]{2,2}})
             {
                 var d=Definition();d.verticalDividers=bad;bool rejected=false;try{DisplayPartitionRules.Validate(d);}catch(ArgumentException){rejected=true;}Check(rejected,"잘못된 경계 거절");

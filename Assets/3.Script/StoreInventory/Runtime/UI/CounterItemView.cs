@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 namespace GeneralStore.Inventory
 {
     // Visual body only: inventory ownership and reservation remain in RecommendationSession.
-    public sealed class CounterItemView:MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IBeginDragHandler,IDragHandler,IEndDragHandler,IDropHandler,IScrollHandler
+    public sealed class CounterItemView:MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IBeginDragHandler,IDragHandler,IEndDragHandler,IDropHandler,ICanvasRaycastFilter
     {
         public global::UnityEngine.UI.Image image;public global::UnityEngine.UI.Text fallbackLabel;
         public CounterTradeUI Trade{get{return owner;}}
@@ -39,10 +39,11 @@ namespace GeneralStore.Inventory
             Body.active=true;if(arriving){Body.dragged=false;Body.asleep=false;Body.vx=Body.vy=0;}
         }
         public void ApplyPosition()
-        {var rect=(RectTransform)transform;var position=new Vector2(Body.x-owner.TablePan,Body.y);if(rect.anchoredPosition!=position)rect.anchoredPosition=position;}
-        public void OnScroll(PointerEventData e){if(owner!=null)owner.ScrollTable(-e.scrollDelta.y*100);}
+        {var rect=(RectTransform)transform;var position=new Vector2(Body.x,Body.y);if(rect.anchoredPosition!=position)rect.anchoredPosition=position;}
+        public bool IsRaycastLocationValid(Vector2 point,Camera camera)
+        {return owner!=null&&RectTransformUtility.RectangleContainsScreenPoint((RectTransform)transform,point,camera);}
         public void OnDrop(PointerEventData e){if(owner!=null)owner.ReceiveStockDrop(e);}
-        public void OnPointerDown(PointerEventData e){suppressClick=false;}
+        public void OnPointerDown(PointerEventData e){suppressClick=false;if(e.button==PointerEventData.InputButton.Left&&owner!=null&&owner.CanInteractWithItems)transform.SetAsLastSibling();}
         public void OnBeginDrag(PointerEventData e)
         {
             if(e.button!=PointerEventData.InputButton.Left||owner==null||!owner.TryBeginCounterDrag(this))return;
@@ -63,7 +64,7 @@ namespace GeneralStore.Inventory
         {
             if(suppressClick){suppressClick=false;return;}if(owner==null||!owner.CanInteractWithItems)return;
             if(e.button==PointerEventData.InputButton.Right&&!picked)owner.shop.RemoveOffer(uid);
-            else if(e.button==PointerEventData.InputButton.Left)owner.ShowItem(containerId,uid);
+            else if(e.button==PointerEventData.InputButton.Left){transform.SetAsLastSibling();owner.ShowItem(containerId,uid);}
         }
         public void Release(){if(owner!=null&&Body.dragged)owner.EndCounterDrag(this);Body.active=false;Body.asleep=true;Body.dragged=false;suppressClick=false;owner=null;uid=containerId=null;if(image!=null)image.sprite=null;gameObject.SetActive(false);}
     }

@@ -27,9 +27,9 @@ namespace GeneralStore.Inventory
         }
         InventorySave PrepareSave(InventorySave source)
         {
-            if(source==null||source.format!="general-store-individual"||(source.version!=7&&source.version!=8&&source.version!=9)
+            if(source==null||source.format!="general-store-individual"||(source.version!=7&&source.version!=8&&source.version!=9&&source.version!=10)
                 ||source.containers==null||source.floorItems==null||source.parcels==null||source.deliveries==null)
-                throw new ArgumentException("상점 v7/v8/v9 저장 정보가 아닙니다.");
+                throw new ArgumentException("상점 v7/v8/v9/v10 저장 정보가 아닙니다.");
             var save=source.Copy();
             var box=Find(save,DeliveryContainerId);
             if(box==null){box=new ContainerRecord{containerId=DeliveryContainerId,columns=DeliveryColumns,rows=5};save.containers.Add(box);}
@@ -40,7 +40,7 @@ namespace GeneralStore.Inventory
                 foreach(var parcel in save.parcels){if(parcel==null||parcel.items==null)throw new ArgumentException("이전 택배 오류");legacy.AddRange(parcel.items);}
                 AppendDelivery(box,legacy);save.floorItems.Clear();save.parcels.Clear();save.version=8;
             }
-            save.version=9;PrepareWorkshops(save);return save;
+            PrepareWorkshops(save);if(source.version<10)MigrateRectangularOccupancy(save);save.version=10;return save;
         }
         void ValidateDeliveries(InventorySave save,HashSet<string> ids)
         {

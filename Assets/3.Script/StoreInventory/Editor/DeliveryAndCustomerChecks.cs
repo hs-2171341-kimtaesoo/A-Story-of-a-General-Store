@@ -22,14 +22,14 @@ namespace GeneralStore.Inventory.Verification
         public static int Run()
         {
             count=0;string error;DawnSettlement bill;var model=Model();
-            Check(model.TryOrderNextDawn(1,"sample_lframe","common",1,30,out error),"비정형 물품 주문");
+            Check(model.TryOrderNextDawn(1,"sample_lframe","common",1,30,out error),"직사각형 물품 주문");
             string uid=model.Snapshot().deliveries[0].items[0].instanceId;
             Check(model.TryBeginDawn(2,0,10,out bill,out error)&&bill.storageCost==0&&bill.delivered==1,"도착 당일 부과 없음");
-            Check(model.DeliveryOccupiedCells==5,"비정형 L은 외접9칸이 아닌 실제5칸");
+            Check(model.DeliveryOccupiedCells==9,"3x3 물품은 전체9칸");
             Check(model.TryOrderNextDawn(2,"C001","common",2,20,out error),"기존 잔량 위에 후속 주문");
             long before=model.Gold;
-            Check(model.TryBeginDawn(3,60,10,out bill,out error)&&bill.occupiedCells==5&&bill.storageCost==50&&bill.paid==110&&bill.delivered==2,"기존 잔량만 계산 후 새 배송 추가");
-            Check(model.Gold==before-110&&model.DeliveryItemCount==3&&model.DeliveryOccupiedCells==13,"금액/누적 낱개 보존");
+            Check(model.TryBeginDawn(3,60,10,out bill,out error)&&bill.occupiedCells==9&&bill.storageCost==90&&bill.paid==150&&bill.delivered==2,"기존 잔량만 계산 후 새 배송 추가");
+            Check(model.Gold==before-150&&model.DeliveryItemCount==3&&model.DeliveryOccupiedCells==17,"금액/누적 낱개 보존");
             long revision=model.Revision;
             Check(model.TryBeginDawn(3,60,10,out bill,out error)&&bill.alreadySettled&&model.Revision==revision,"같은 새벽 이중 과금/배송 없음");
             Check(model.TryMove(Withdraw(model,uid),out error)&&model.GetItem("warehouse",uid).purchasePrice==30&&model.DeliveryOccupiedCells==8,"상자 회수 시 UID/매입가 유지 및 보관 칸 감소");
@@ -37,7 +37,7 @@ namespace GeneralStore.Inventory.Verification
             Check(model.TryBeginDawn(4,0,10,out bill,out error)&&bill.storageCost==80&&model.Gold==before-80,"남은 물품만 다음 날 과금");
             var copy=model.GetContainer(InventoryModel.DeliveryContainerId);copy.items.Clear();
             Check(model.DeliveryItemCount==2,"UI 조회 복사본으로 원본 변경 불가");
-            var restored=Model();Check(restored.TryRestore(model.Snapshot(),out error)&&restored.DeliveryOccupiedCells==8,"v8 배송 잔량 저장 복원");
+            var restored=Model();Check(restored.TryRestore(model.Snapshot(),out error)&&restored.DeliveryOccupiedCells==8,"v10 배송 잔량 저장 복원");
             Check(restored.TryBeginDawn(4,0,10,out bill,out error)&&bill.alreadySettled,"로드 후 같은 새벽 재부과 없음");
             var back=Withdraw(model,uid);back.sourceContainer="warehouse";back.targetContainer=InventoryModel.DeliveryContainerId;
             Check(!model.TryMove(back,out error)&&model.GetItem("warehouse",uid)!=null,"보관료 회피용 역입고 금지");
@@ -186,10 +186,10 @@ namespace GeneralStore.Inventory.Verification
             foreach(float spriteAspect in new[]{.3f,.7f,1f,1.6f,3f})
             {
                 var shape=catalog.Shape(id);var quads=IconMeshGeometry.Build(shape,rotation,true,spriteAspect,cellAspect);
-                Check(quads.Count<=shape.CellCount,"직사각형 셀에서 메시 조각 증가 없음");
+                Check(quads.Count==1,"아이콘은 단일 사각형 메시");
                 foreach(var q in quads)
                 {
-                    Check(shape.Contains(rotation,(int)Math.Floor((q.x0+q.x1)/2),(int)Math.Floor((q.y0+q.y1)/2)),"직사각형 셀에서도 모양 구멍 유지");
+                    Check(shape.Contains(rotation,(int)Math.Floor((q.x0+q.x1)/2),(int)Math.Floor((q.y0+q.y1)/2)),"이미지는 사각형 범위 안에 맞춤");
                     foreach(var uv in new[]{q.topLeft,q.topRight,q.bottomRight,q.bottomLeft})
                         Check(uv.x>=0&&uv.x<=1&&uv.y>=0&&uv.y<=1,"직사각형 셀/회전 UV 범위");
                 }
@@ -253,19 +253,19 @@ namespace GeneralStore.Inventory.Verification
             }
             Check(CounterTableMotion.PresentationRotation(3,true,0)==1&&CounterTableMotion.PresentationRotation(2,true,0)==0,"customer tall item lays sideways");
             Check(CounterTableMotion.PresentationRotation(4,false,0)==0&&CounterTableMotion.PresentationRotation(3,true,3)==0,"recommendation unchanged and rotations wrap");
-            Check(Math.Abs(CounterTableMotion.SurfaceDepth(985,1080,10,8)-1072)<.01,"ten percent lowering bounded inside screen");
+            Check(Math.Abs(CounterTableMotion.SurfaceDepth(1028.5f,1080,0,8)-(985+1072)*.5f)<.01,"landing line midway between old positions");
             var lower=new CounterBodyState{x=960,y=settings.surface+50,halfWidth=50,halfHeight=50,active=true,asleep=true};
             var upper=new CounterBodyState{x=960,y=-700,halfWidth=50,halfHeight=50,active=true};var row=new List<CounterBodyState>{lower,upper};
-            CounterTableMotion.ArrangeFlat(row,settings);
             for(int i=0;i<300;i++)CounterTableMotion.Advance(row,settings,1f/60);
-            Check(upper.asleep&&lower.asleep&&Math.Abs(upper.Bottom-settings.surface)<.01f&&Math.Abs(lower.Bottom-settings.surface)<.01f,"both goods settle on table, never on each other");
-            Check(Math.Abs(upper.x-lower.x)>=upper.halfWidth+lower.halfWidth+settings.gap-.01f,"horizontal separation");
+            Check(upper.asleep&&lower.asleep&&Math.Abs(upper.Bottom-settings.surface)<.01f&&Math.Abs(lower.Bottom-settings.surface)<.01f,"both goods land on table, not on each other");
+            Check(upper.x==960&&lower.x==960,"overlapping horizontal positions are retained");
             upper.dragged=true;upper.y=-2000;CounterTableMotion.ClampBody(upper,settings);Check(upper.Bottom>=settings.surface,"drag clamp");
             upper.y=-500;float y=upper.y;CounterTableMotion.Advance(row,settings,1f/30);Check(upper.y==y,"held body ignores gravity");
-            upper.dragged=false;upper.asleep=false;upper.x=lower.x;CounterTableMotion.ArrangeFlat(row,settings);Check(Math.Abs(upper.x-lower.x)>=100+settings.gap-.01,"release over a good moves sideways");
-            var overflow=new List<CounterBodyState>();for(int n=0;n<5;n++)overflow.Add(new CounterBodyState{x=960,y=-500,halfWidth=250,halfHeight=50,active=true});
-            var wide=new CounterTableSettings();wide.right=wide.left+CounterTableMotion.RequiredFlatWidth(overflow,wide.gap);CounterTableMotion.ArrangeFlat(overflow,wide);
-            for(int n=1;n<overflow.Count;n++)Check(overflow[n].x-overflow[n-1].x>=500+wide.gap-.01,"overflow expands viewing space without overlap/shrink");
+            upper.dragged=false;upper.asleep=false;upper.x=lower.x;for(int i=0;i<300;i++)CounterTableMotion.Advance(row,settings,1f/60);
+            Check(upper.x==lower.x&&Math.Abs(upper.Bottom-settings.surface)<.01f,"release over another good stays at chosen X and returns to table");
+            var crowded=new List<CounterBodyState>();for(int n=0;n<5;n++)crowded.Add(new CounterBodyState{x=960,y=-500,halfWidth=250,halfHeight=50,active=true});
+            for(int i=0;i<300;i++)CounterTableMotion.Advance(crowded,settings,1f/60);
+            foreach(var body in crowded)Check(body.x==960&&body.halfWidth==250&&Math.Abs(body.Bottom-settings.surface)<.01,"crowded goods retain size and chosen position without extra row space");
             bool rejected=false;try{CounterTableMotion.Advance(row,settings,float.NaN);}catch(ArgumentException){rejected=true;}Check(rejected,"invalid timestep rejected");
             return count;
         }

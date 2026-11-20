@@ -29,7 +29,7 @@ namespace GeneralStore.Inventory
         public float x0,y0,x1,y1;
         public IconPoint topLeft,topRight,bottomRight,bottomLeft;
     }
-    // 실제 아이콘도 하나의 메시입니다. 점유 칸마다 사각형 정점만 추가하고 GameObject는 만들지 않습니다.
+    // 물품 아이콘은 직사각형 메시 하나입니다. 칸별 분할/구멍 마스킹을 하지 않습니다.
     // 좌표는 칸 단위, y는 아래쪽입니다. Unity 좌표/아틀라스 UV 변환은 Graphic이 담당합니다.
     public static class IconMeshGeometry
     {
@@ -49,18 +49,13 @@ namespace GeneralStore.Inventory
             float imageW=rotation%2==0?rotatedW:rotatedH,imageH=rotation%2==0?rotatedH:rotatedW;
             float offsetX=(bw-imageW)*.5f,offsetY=(bh-imageH)*.5f;
             float left=(rw-rotatedW)*.5f,top=(rh-rotatedH)*.5f;
-            var result=new List<IconQuad>();
-            foreach(GridCell cell in shape.Cells(rotation))
-            {
-                float x0=Math.Max(cell.x,left),y0=Math.Max(cell.y,top);
-                float x1=Math.Min(cell.x+1,left+rotatedW),y1=Math.Min(cell.y+1,top+rotatedH);
-                if(x1-x0<.00001f || y1-y0<.00001f) continue;
-                result.Add(new IconQuad { x0=x0,y0=y0,x1=x1,y1=y1,
-                    topLeft=Uv(x0,y0,rotation,bw,bh,offsetX,offsetY,imageW,imageH),
-                    topRight=Uv(x1,y0,rotation,bw,bh,offsetX,offsetY,imageW,imageH),
-                    bottomRight=Uv(x1,y1,rotation,bw,bh,offsetX,offsetY,imageW,imageH),
-                    bottomLeft=Uv(x0,y1,rotation,bw,bh,offsetX,offsetY,imageW,imageH) });
-            }
+            // A rectangle uses one quad, regardless of its number of occupied cells.
+            float x0=left,y0=top,x1=left+rotatedW,y1=top+rotatedH;
+            var result=new List<IconQuad>(1){new IconQuad{x0=x0,y0=y0,x1=x1,y1=y1,
+                topLeft=Uv(x0,y0,rotation,bw,bh,offsetX,offsetY,imageW,imageH),
+                topRight=Uv(x1,y0,rotation,bw,bh,offsetX,offsetY,imageW,imageH),
+                bottomRight=Uv(x1,y1,rotation,bw,bh,offsetX,offsetY,imageW,imageH),
+                bottomLeft=Uv(x0,y1,rotation,bw,bh,offsetX,offsetY,imageW,imageH)}};
             return result;
         }
         static IconPoint Uv(float x,float y,int rotation,float bw,float bh,float ox,float oy,float iw,float ih)

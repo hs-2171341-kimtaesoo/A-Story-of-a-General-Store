@@ -12,13 +12,13 @@ namespace GeneralStore.Inventory
     }
     public sealed class CounterTableSettings
     {
-        public float left=100,right=1820,surface=-1072,ceiling=-40;
-        public float gravity=2200,bounce=.1f,drag=6,sleepSpeed=25,gap=12;
+        public float left=100,right=1820,surface=-1028.5f,ceiling=-40;
+        public float gravity=2200,bounce=.1f,drag=6,sleepSpeed=25;
         static bool Finite(float n){return !float.IsNaN(n)&&!float.IsInfinity(n);}
         public void Validate()
         {
-            if(!Finite(left)||!Finite(right)||!Finite(surface)||!Finite(ceiling)||!Finite(gravity)||!Finite(bounce)||!Finite(drag)||!Finite(sleepSpeed)||!Finite(gap)
-                ||right<=left||ceiling<=surface||gravity<=0||gravity>20000||bounce<0||bounce>.5f||drag<0||sleepSpeed<=0||gap<0)
+            if(!Finite(left)||!Finite(right)||!Finite(surface)||!Finite(ceiling)||!Finite(gravity)||!Finite(bounce)||!Finite(drag)||!Finite(sleepSpeed)
+                ||right<=left||ceiling<=surface||gravity<=0||gravity>20000||bounce<0||bounce>.5f||drag<0||sleepSpeed<=0)
                 throw new ArgumentException("Counter surface/gravity settings are invalid.");
         }
     }
@@ -49,33 +49,6 @@ namespace GeneralStore.Inventory
                 throw new ArgumentException("Counter surface depth is invalid.");
             return Math.Min(height-bottomMargin,authoredDepth*(1+lowerPercent*.01f));
         }
-        public static float RequiredFlatWidth(IList<CounterBodyState> bodies,float gap)
-        {
-            float width=0;int count=0;foreach(var b in bodies)if(b.active){width+=b.halfWidth*2;count++;}
-            return width+Math.Max(0,count-1)*gap;
-        }
-        static bool Placed(CounterBodyState b){return b.active&&!b.dragged;}
-        // Stable X order, then two constraint passes. There is always room because the
-        // owner expands the horizontal viewing space instead of stacking/shrinking stock.
-        public static void ArrangeFlat(IList<CounterBodyState> bodies,CounterTableSettings settings)
-        {
-            for(int n=1;n<bodies.Count;n++)
-            {
-                var body=bodies[n];int previous=n-1;
-                while(previous>=0)
-                {
-                    var other=bodies[previous];bool after=(!Placed(other)&&Placed(body))||(Placed(other)&&Placed(body)&&other.x>body.x);
-                    if(!after)break;bodies[previous+1]=other;previous--;
-                }
-                bodies[previous+1]=body;
-            }
-            float width=0;int count=0;foreach(var b in bodies)if(Placed(b)){width+=b.halfWidth*2;count++;}
-            if(width+Math.Max(0,count-1)*settings.gap>settings.right-settings.left+.1f)throw new ArgumentException("Counter horizontal viewing space is too narrow.");
-            float cursor=settings.left;
-            foreach(var body in bodies)if(Placed(body)){body.x=Math.Max(cursor+body.halfWidth,body.x);cursor=body.x+body.halfWidth+settings.gap;}
-            cursor=settings.right;
-            for(int n=bodies.Count-1;n>=0;n--){var body=bodies[n];if(!Placed(body))continue;body.x=Math.Min(body.x,cursor-body.halfWidth);cursor=body.x-body.halfWidth-settings.gap;}
-        }
         public static int Advance(IList<CounterBodyState> bodies,CounterTableSettings settings,float seconds)
         {
             settings.Validate();
@@ -104,7 +77,7 @@ namespace GeneralStore.Inventory
                 // The table line is an unconditional final constraint, including large time steps.
                 if(body.Bottom<settings.surface){body.y=settings.surface+body.halfHeight;body.vy=Math.Max(0,body.vy);}
             }
-            ArrangeFlat(bodies,settings);return work;
+            return work;
         }
     }
 }

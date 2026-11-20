@@ -79,16 +79,16 @@ public static class InventoryAssetTools
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(selected.scene);
         Debug.Log("카운터 연출/1초 전환/진열 목록 유지 적용. 씬을 저장하세요. 가구 위치와 재고 데이터는 유지했습니다.");
     }
-    [MenuItem("Store Inventory/Existing Scene Tools/Apply Counter Flat Update To Selection")]
+    [MenuItem("Store Inventory/Existing Scene Tools/Apply Counter Placement Update To Selection")]
     public static void UpgradeCounterFlatSelection()
     {
         if(Application.isPlaying){Debug.LogWarning("Stop Play first.");return;}
         var selected=Selection.activeGameObject;
         if(selected==null||selected.GetComponentsInChildren<CounterTradeUI>(true).Length==0){Debug.LogWarning("Hierarchy에서 Store Scene 전체를 선택하세요.");return;}
-        Undo.RegisterFullObjectHierarchyUndo(selected,"Counter Flat Update");
+        Undo.RegisterFullObjectHierarchyUndo(selected,"Counter Placement Update");
         foreach(var trade in selected.GetComponentsInChildren<CounterTradeUI>(true))CounterDemoSceneBuilder.ConfigureCounterRow(trade);
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(selected.scene);
-        Debug.Log("긴 손님 물품 가로 표시/쌓임 방지/안착선 하향/넘침 좌우 보기 적용. 기존 가구와 공방 데이터는 유지했습니다. 씬을 저장하세요.");
+        Debug.Log("손님 물품90도 표시/겹쳐 놓기/클릭 물품 앞으로/중간 안착선 적용. 기존 가구와 공방 데이터는 유지했습니다. 씬을 저장하세요.");
     }
     static TextAsset Json(string name)
     {

@@ -127,13 +127,13 @@ namespace GeneralStore.Inventory.Verification
                 {
                     ItemFootprint shape=catalog.Shape(id);var placeholder=IconMeshGeometry.Build(shape,rotation,false,1);
                     double area=0;foreach(IconQuad quad in placeholder)area+=(quad.x1-quad.x0)*(quad.y1-quad.y0);
-                    Check(placeholder.Count==shape.CellCount&&Math.Abs(area-shape.CellCount)<.0001,"한 메시의 점유 면적 보존");
+                    Check(placeholder.Count==1&&Math.Abs(area-shape.CellCount)<.0001,"단일 사각형 메시 면적 보존");
                     for(int attempt=0;attempt<25;attempt++)
                     {
                         float aspect=(float)(.2+random.NextDouble()*4);
                         foreach(IconQuad quad in IconMeshGeometry.Build(shape,rotation,true,aspect))
                         {
-                            Check(shape.Contains(rotation,(int)Math.Floor((quad.x0+quad.x1)*.5f),(int)Math.Floor((quad.y0+quad.y1)*.5f)),"메시가 모양의 구멍을 채우지 않음");
+                            Check(shape.Contains(rotation,(int)Math.Floor((quad.x0+quad.x1)*.5f),(int)Math.Floor((quad.y0+quad.y1)*.5f)),"메시가 물품 사각형 내부에 있음");
                             foreach(IconPoint uv in new[]{quad.topLeft,quad.topRight,quad.bottomRight,quad.bottomLeft})
                                 Check(uv.x>=0&&uv.x<=1&&uv.y>=0&&uv.y<=1,"회전/비율 변경 후 UV 범위");
                         }
