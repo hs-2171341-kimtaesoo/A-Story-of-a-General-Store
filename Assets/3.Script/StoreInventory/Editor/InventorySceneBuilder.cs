@@ -25,6 +25,7 @@ public static class InventorySceneBuilder
     {var image=Rect(name,parent,x,y,w,h).gameObject.AddComponent<global::UnityEngine.UI.Image>();image.color=color;return image;}
     public static Text Label(string name,Transform parent,float x,float y,float w,float h,string content,int size=22)
     {
+        if(font==null)font=LatestDemoSetup.FindKoreanFont()??Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         var text=Rect(name,parent,x,y,w,h).gameObject.AddComponent<Text>();text.font=font;text.fontSize=size;
         text.color=new Color(.97f,.9f,.75f);text.text=content;text.raycastTarget=false;text.supportRichText=false;return text;
     }
@@ -91,7 +92,7 @@ public static class InventorySceneBuilder
         if(font==null)font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         Furniture13SceneBuilder.PrepareSprites();CustomDisplayArtBuilder.PrepareSprites();SlidingDemoSceneBuilder.PrepareCustomerSprite();CounterDemoSceneBuilder.PrepareSprites();
         PlayerSettings.defaultScreenWidth=1920;PlayerSettings.defaultScreenHeight=1080;
-        var data=new GameObject("Store Inventory Data");Undo.RegisterCreatedObjectUndo(data,"Create Store Data");var runtime=data.AddComponent<InventoryRuntime>();runtime.startAllFurnitureOwnedForTest=false;runtime.initialFurnitureForDemo=new[]{"mannequin","table","weapon_rack"};runtime.initialGold=10000;runtime.initialWarehouseCount=2;runtime.includeWorkshopDemoItems=true;runtime.workshopJson=Resources.Load<TextAsset>("StoreInventory/workshops");InventoryAssetTools.Connect(runtime);data.AddComponent<StorePerformanceSettings>();
+        var data=new GameObject("Store Inventory Data");Undo.RegisterCreatedObjectUndo(data,"Create Store Data");var runtime=data.AddComponent<InventoryRuntime>();runtime.startAllFurnitureOwnedForTest=false;runtime.initialFurnitureForDemo=new[]{"mannequin","table","weapon_rack"};runtime.initialGold=10000;runtime.initialWarehouseCount=2;ItemTableTools.Configure(runtime);InventoryAssetTools.Connect(runtime);data.AddComponent<StorePerformanceSettings>();
         var sceneRoot=new GameObject("Store Scene");data.transform.SetParent(sceneRoot.transform,false);Undo.RegisterCreatedObjectUndo(sceneRoot,"Create Store Layers");
         var backgroundCanvas=SceneLayerBuilder.CreateCanvas("Store Background Canvas",sceneRoot.transform,SceneLayerOrder.Background,false);
         var furnitureCanvas=SceneLayerBuilder.CreateCanvas("Store Furniture Canvas",sceneRoot.transform,SceneLayerOrder.Furniture,true);
@@ -212,8 +213,11 @@ public static class InventorySceneBuilder
         CompactDemoSceneBuilder.BuildDelivery(layout,furnitureLayout,panel,template);
         WorkshopSceneBuilder.Build(layout,panel);
         CompactDemoSceneBuilder.Build(layout,panel);
+        CounterDemoSceneBuilder.BuildTooltip(panel);
+        DrawerSceneBuilder.EnsureItemIdGrant(layout,simulation);
+        ItemTableTools.ConnectIcons(runtime,false);
         Selection.activeGameObject=sceneRoot;UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(go.scene);
-        Debug.Log("최신 통합 데모 생성 완료: 왼쪽 하단 소형 상자2개 / 같은 칸 크기 진열창 / 문 앞 택배8열 / 새벽 보관료 / 가구3개. 씬을 저장하고 Play하세요. 공방3곳/5슬롯 제작 포함. 왼쪽 제작 의뢰 또는 테스트 전체 해금 버튼으로 확인하세요. 추가 적용 메뉴는 필요 없습니다.");
+        Debug.Log("최신 통합 데모 생성 완료: 중앙 높이로 열리는 왼쪽 하단 상자2개 / 정보창을 분리한 진열 Sprite 창12종(휠 스크롤4종) / 8×7 상자 / 반환 예약 칸 표시 / 공통 아이템 툴팁 / 오른쪽 세로 거래창 / 방문 후 탐색 / 문 앞 택배 자동 수령 / 16열 임시 저장고 / 새벽 보관료 / 가구3개. 씬을 저장하고 Play하세요. 208개 아이템 표 적용. 공방3곳/제작121개, 낮9분·밤6분·새벽3분, 실제 작업 초·휴무 이월·야간 수당 적용. 왼쪽 제작 의뢰 또는 테스트 전체 해금 버튼으로 확인하세요. 추가 적용 메뉴는 필요 없습니다.");
         if(!hasKoreanFont)Debug.LogWarning("프로젝트에서 알려진 한국어 Font를 찾지 못해 기본 폰트를 사용했습니다. 글자가 네모로 보이면 Store UI Canvas의 InventoryPanel > Korean Font에 한국어 Font를 연결하세요.");
     }
 }

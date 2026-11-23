@@ -14,6 +14,10 @@ namespace GeneralStore.Inventory
         [Min(1)]public float buttonWidth=82,buttonHeight=86;
         [Min(0)]public float buttonGap=8,screenVerticalMargin=100;
         [Min(1)]public float maximumViewportHeight=700;
+        public bool autoHide=true,keepVisibleWhileWindowOpen=true;
+        [Min(1)]public float revealWidth=56,slideSpeed=14;
+        [Min(0)]public float hideDelay=.35f;
+        bool revealed;float outsideTime;
         ScrollRect scroll;int layoutCount=-1;float layoutScreenHeight,layoutButtonHeight,layoutGap,layoutMaximum,layoutMargin;
         readonly Dictionary<string,RightMenuButtonView> views=new Dictionary<string,RightMenuButtonView>();bool dirty=true;string selected;
         void Start()
@@ -23,6 +27,19 @@ namespace GeneralStore.Inventory
             scroll=DisplayWindowAppearance.FindScrollInParents(content);
             var ids=new HashSet<string>();foreach(var e in entries)if(e==null||string.IsNullOrWhiteSpace(e.id)||!ids.Add(e.id))
             {Debug.LogError("메뉴 ID가 비어 있거나 중복되었습니다.",this);enabled=false;return;}
+            if(autoHide){var rect=(RectTransform)transform;rect.anchoredPosition=new Vector2(-buttonWidth-8,rect.anchoredPosition.y);}
+        }
+        public void RefreshLayout(){dirty=true;layoutCount=-1;if(!Application.isPlaying){var rect=(RectTransform)transform;rect.anchoredPosition=new Vector2(autoHide?-buttonWidth-8:8,rect.anchoredPosition.y);}}
+        void Slide()
+        {
+            var rect=(RectTransform)transform;var bounds=rect.parent as RectTransform;if(bounds==null)return;
+            bool open=false;if(keepVisibleWhileWindowOpen)foreach(var entry in entries)if(entry.window!=null&&entry.window.activeSelf){open=true;break;}
+            Vector2 screen,point;bool inside=false;
+            if(InventoryKeys.TryPointerPosition(out screen)&&RectTransformUtility.ScreenPointToLocalPointInRectangle(bounds,screen,panel.EventCamera,out point))
+            {float x=point.x-bounds.rect.xMin;inside=x>=0&&x<=(revealed?buttonWidth+28:revealWidth)&&point.y>=bounds.rect.yMin&&point.y<=bounds.rect.yMax;}
+            if(!autoHide||inside||open){revealed=true;outsideTime=0;}else{outsideTime+=Time.unscaledDeltaTime;if(outsideTime>=hideDelay)revealed=false;}
+            float xTarget=revealed?8:-buttonWidth-8;float xNext=DrawerGeometry.Step(rect.anchoredPosition.x,xTarget,slideSpeed,Time.unscaledDeltaTime);
+            if(rect.anchoredPosition.x!=xNext)rect.anchoredPosition=new Vector2(xNext,rect.anchoredPosition.y);
         }
         public void SetUnlocked(string id,bool value){foreach(var e in entries)if(e.id==id){e.unlocked=value;if(!value&&e.window!=null)e.window.SetActive(false);dirty=true;}}
         public void AddEntry(ShopMenuEntry entry){if(entry==null||string.IsNullOrWhiteSpace(entry.id))throw new ArgumentException("메뉴 ID가 필요합니다.");foreach(var e in entries)if(e.id==entry.id)throw new ArgumentException("중복 메뉴 ID");entries.Add(entry);dirty=true;}
@@ -36,6 +53,7 @@ namespace GeneralStore.Inventory
         }
         void LateUpdate()
         {
+            Slide();
             if(selected!=null)foreach(var e in entries)if(e.id==selected&&e.window!=null&&!e.window.activeSelf){selected=null;dirty=true;break;}
             var parentRect=transform.parent as RectTransform;
             if(parentRect!=null&&parentRect.rect.height!=layoutScreenHeight)dirty=true;

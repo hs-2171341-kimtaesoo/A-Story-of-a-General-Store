@@ -60,7 +60,7 @@ namespace GeneralStore.Inventory
         void RemoveItem(InventorySave save,string containerId,string instanceId)
         {
             Find(save,containerId).items.RemoveAll(i=>i.instanceId==instanceId);
-            if(containerId==DeliveryContainerId)TrimDelivery(save);
+            if(IsDynamicStorage(containerId))TrimDelivery(save);
         }
         public ContainerRecord GetContainer(string id) { ContainerRecord c = Find(state, id); return c == null ? null : c.Copy(); }
         public ItemRecord GetItem(string containerId, string instanceId)
@@ -105,13 +105,13 @@ namespace GeneralStore.Inventory
         }
         void Validate(InventorySave save)
         {
-            if (save == null || save.format != "general-store-individual" || save.version != 10 || save.gold < 0 || save.unpaidCosts < 0 || save.lastSettledDay<1 || save.lastSettledDay>1000000 || save.displays == null || save.parcels == null || save.floorItems == null || save.deliveries == null || save.listings == null || save.containers == null
-                || save.containers.Count < 1 || save.containers.Count > 64) throw new ArgumentException("상점 v10 저장 파일이 아닙니다.");
+            if (save == null || save.format != "general-store-individual" || save.version != 13 || save.gold < 0 || save.unpaidCosts < 0 || save.lastSettledDay<1 || save.lastSettledDay>1000000 || save.displays == null || save.parcels == null || save.floorItems == null || save.deliveries == null || save.listings == null || save.containers == null
+                || save.containers.Count < 1 || save.containers.Count > 64) throw new ArgumentException("상점 v13 저장 파일이 아닙니다.");
             var containers = new HashSet<string>(StringComparer.Ordinal); var ids = new HashSet<string>(StringComparer.Ordinal);
             foreach (ContainerRecord c in save.containers)
             {
                 if (c == null || string.IsNullOrWhiteSpace(c.containerId) || c.containerId=="floor" || !containers.Add(c.containerId)
-                    || c.columns < 1 || c.columns > 64 || c.rows < 1 || (c.containerId==DeliveryContainerId?(c.columns!=DeliveryColumns||c.rows>int.MaxValue/DeliveryColumns):c.rows>64) || c.items == null
+                    || c.columns < 1 || c.columns > 64 || c.rows < 1 || (IsDynamicStorage(c.containerId)?(c.columns!=TemporaryStorageColumns||c.rows>int.MaxValue/TemporaryStorageColumns):c.rows>64) || c.items == null
                     || c.items.Count > (long)c.columns * c.rows) throw new ArgumentException("컨테이너 정보 오류입니다.");
                 foreach (ItemRecord item in c.items)
                 {
@@ -133,7 +133,7 @@ namespace GeneralStore.Inventory
                 }
             }
             foreach(var c in save.containers)if(IsWarehouse(c.containerId)&&(c.columns!=WarehouseColumns||c.rows!=WarehouseRows))
-                throw new ArgumentException("상자는 가로8칸, 세로5칸 고정입니다.");
+                throw new ArgumentException("상자는 가로8칸, 세로7칸 고정입니다.");
             ValidateDisplays(save);
             ValidateSuppliers(save);
             ValidateDeliveries(save,ids);ValidateWorkshops(save,ids);
@@ -231,12 +231,12 @@ namespace GeneralStore.Inventory
             }
             Commit(trial); return true;
         }
-        PlacementPreview InspectRequest(InventorySave save, MoveRequest request, out ContainerRecord source, out ContainerRecord target, out ItemRecord item)
+        PlacementPreview InspectRequest(InventorySave save, MoveRequest request, out ContainerRecord source, out ContainerRecord target, out ItemRecord item,bool returningOffer=false)
         {
             source = target = null; item = null;
             if (request == null || (request.expectedRevision >= 0 && request.expectedRevision != Revision))
                 return new PlacementPreview { error = "재고가 변경되었습니다. 다시 선택하세요." };
-            if (IsReserved(request.instanceId)) return new PlacementPreview { error = "손님이 고른 물건은 계산 전까지 변경할 수 없습니다." };
+            if (IsReserved(request.instanceId)&&!returningOffer) return new PlacementPreview { error = "손님이 고른 물건은 계산 전까지 변경할 수 없습니다." };
             source = Find(save, request.sourceContainer); target = Find(save, request.targetContainer);
             item = source == null ? null : source.items.Find(i => i.instanceId == request.instanceId);
             if(request.targetContainer=="floor"||request.targetContainer==DeliveryContainerId)
@@ -260,9 +260,30 @@ namespace GeneralStore.Inventory
             PlacementPreview preview = InspectRequest(trial, request, out source, out target, out item); error = preview.error;
             if (!preview.allowed) return false;
             ItemRecord moved = item.Copy(); moved.x = request.x; moved.y = request.y; moved.rotation = request.rotation;
-            RemoveItem(trial,source.containerId,item.instanceId); target.items.Add(moved);
+            RemoveItem(trial,source.containerId,item.instanceId); target.items.Add(moved);if(IsDynamicStorage(target.containerId))TrimDynamic(trial,target.containerId);
             if (!IsDisplay(target.containerId)) trial.listings.RemoveAll(l => l.instanceId == item.instanceId);
             Commit(trial); return true;
+        }
+        // Session-only return: validate on a copy, then release the reservation and commit together.
+        internal PlacementPreview PreviewCounterReturn(MoveRequest request)
+        {
+            if(request==null||!IsReserved(request.instanceId)||(!IsWarehouse(request.targetContainer)&&request.targetContainer!=TemporaryStorageId&&!IsDisplay(request.targetContainer)))
+                return new PlacementPreview{error="상자, 진열장 또는 임시 저장고로 옮기세요."};
+            ContainerRecord source,target;ItemRecord item;var preview=InspectRequest(state,request,out source,out target,out item,true);
+            if(item!=null&&IsDisplay(request.targetContainer)&&!Catalog.CanTrade(item.itemId)){preview.allowed=false;preview.error="판매할 수 없는 물품입니다.";}
+            return preview;
+        }
+        internal bool TryReturnCounterOffer(MoveRequest request,int displayPrice,out string error)
+        {
+            var preview=PreviewCounterReturn(request);error=preview.error;if(!preview.allowed)return false;
+            if(displayPrice<0){error="진열 판매가 오류";return false;}
+            var next=state.Copy();ContainerRecord source,target;ItemRecord item;
+            InspectRequest(next,request,out source,out target,out item,true);
+            var moved=item.Copy();moved.x=request.x;moved.y=request.y;moved.rotation=request.rotation;
+            RemoveItem(next,source.containerId,item.instanceId);target.items.Add(moved);if(IsDynamicStorage(target.containerId))TrimDynamic(next,target.containerId);
+            next.listings.RemoveAll(line=>line.instanceId==item.instanceId);
+            if(IsDisplay(target.containerId))next.listings.Add(new DisplayListing{instanceId=item.instanceId,price=displayPrice});
+            Validate(next);reserved.Remove(item.instanceId);Commit(next);return true;
         }
         public bool TryRemove(string containerId, string instanceId, out string error)
         {
@@ -284,15 +305,16 @@ namespace GeneralStore.Inventory
             InventorySave trial = state.Copy(); ContainerRecord source, target; ItemRecord item;
             PlacementPreview preview = InspectRequest(trial, request, out source, out target, out item);
             if (!preview.allowed) { error = preview.error; return false; }
+            if(!Catalog.CanTrade(item.itemId)){error="판매할 수 없는 이벤트 물품입니다.";return false;}
             ItemRecord moved = item.Copy(); moved.x = request.x; moved.y = request.y; moved.rotation = request.rotation;
-            RemoveItem(trial,source.containerId,item.instanceId); target.items.Add(moved);
+            RemoveItem(trial,source.containerId,item.instanceId); target.items.Add(moved);if(IsDynamicStorage(target.containerId))TrimDynamic(trial,target.containerId);
             trial.listings.RemoveAll(l => l.instanceId == moved.instanceId);
             trial.listings.Add(new DisplayListing { instanceId = moved.instanceId, price = price });
             Commit(trial); return true;
         }
         public bool TryGetOfferPrice(string containerId, string instanceId, out int price)
         {
-            price = 0; ItemRecord item = GetItem(containerId, instanceId); if (item == null) return false;
+            price = 0; ItemRecord item = GetItem(containerId, instanceId); if (item == null||!Catalog.CanTrade(item.itemId)) return false;
             if (IsDisplay(containerId))
             {
                 DisplayListing listing = state.listings.Find(l => l.instanceId == instanceId);

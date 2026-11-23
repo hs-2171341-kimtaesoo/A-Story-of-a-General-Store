@@ -23,7 +23,7 @@ namespace GeneralStore.Inventory.Verification
         static InventoryModel Model()
         {
             var catalog=InventoryModelChecks.Fixture();catalog.Find("C001").type="potion";catalog.Find("sample_sword").type="weapon";
-            var save=new InventorySave{gold=1000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=5});
+            var save=new InventorySave{gold=1000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});
             var defs=Definitions();defs.AddInitialContainers(save);return new InventoryModel(catalog,save,null,defs);
         }
         static MoveRequest Move(InventoryModel m,string src,string uid,string dst,int x=0,int y=0)
@@ -66,7 +66,7 @@ namespace GeneralStore.Inventory.Verification
             Check(m.TryInstallDisplay("wall","extra",out id,out error),"방문 중 다른 공간 추가 가능");long revenue;
             Check(customer.TrySubmitPurchasesOnly(out revenue,out error)&&revenue==100&&m.SummarizeDisplay("display_rack").itemCount==0,"동적 진열 구매/돈/차감 정상");
             string selected;Check(m.StorageAction("warehouse")==StorageUpgradeAction.AddBox,"상자 추가 버튼만 제공");
-            Check(m.TryCreateWarehouse(5,out selected,out error)&&selected=="warehouse_2","직접 고정 크기 상자 추가");
+            Check(m.TryCreateWarehouse(InventoryModel.WarehouseRows,out selected,out error)&&selected=="warehouse_2","직접 고정 크기 상자 추가");
             // 드래그 수학은 CanvasScaler의 배율이 적용된 로컬 좌표로 테스트합니다.
             var inside=WindowDragGeometry.Clamp(960,-146,690,882,1920,1080);
             Check(inside.x==960&&inside.y==-146,"창의 정상 위치 유지");
@@ -90,7 +90,7 @@ namespace GeneralStore.Inventory.Verification
             bool invalidLayout=false;try{DisplayWindowLayout.Calculate(1,1,float.NaN,85,24,164,220,440,624,520);}catch(ArgumentException){invalidLayout=true;}
             Check(invalidLayout,"유효하지 않은 외형 수치 거절");
             var db=new DisplayDatabase{types=new[]{new DisplayTypeDefinition{id="buy",title="구매 선반",columns=6,rows=2,purchasePrice=250}},initialTypes=new[]{"buy"}};
-            var catalog=new DisplayCatalog(db);var start=new InventorySave{gold=600};start.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=5});catalog.AddInitialContainers(start);
+            var catalog=new DisplayCatalog(db);var start=new InventorySave{gold=600};start.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});catalog.AddInitialContainers(start);
             var bought=new InventoryModel(InventoryModelChecks.Fixture(),start,null,catalog);
             Check(bought.TryBuyDisplay("buy",out id,out error)&&bought.Gold==350&&bought.DisplayIds().Count==2,"구매 즉시 공간 추가와 금액 차감");
             Check(bought.TryBuyDisplay("buy",out id,out error)&&bought.Gold==100&&bought.DisplayIds().Count==3,"같은 종류 여러개 구매 가능");

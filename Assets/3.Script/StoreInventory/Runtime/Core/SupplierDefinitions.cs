@@ -33,7 +33,7 @@ namespace GeneralStore.Inventory
                 var ids=new HashSet<string>(StringComparer.Ordinal);
                 foreach(var o in s.offers)
                 {
-                    if(o==null||string.IsNullOrWhiteSpace(o.offerId)||!ids.Add(o.offerId)||items.FindQuality(o.itemId,o.quality)==null
+                    if(o==null||string.IsNullOrWhiteSpace(o.offerId)||!ids.Add(o.offerId)||!items.CanTrade(o.itemId)||items.FindQuality(o.itemId,o.quality)==null
                         ||o.minStock<0||o.maxStock<o.minStock||o.maxStock>100||o.priceBase<0
                         ||double.IsNaN(o.minPriceMultiplier)||double.IsNaN(o.maxPriceMultiplier)||o.minPriceMultiplier<0
                         ||o.maxPriceMultiplier<o.minPriceMultiplier||double.IsInfinity(o.maxPriceMultiplier)

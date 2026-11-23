@@ -35,7 +35,8 @@ namespace GeneralStore.Inventory
         [Min(1)]public float selectionThickness=3;
         ItemSelectionGraphic selectionGraphic;
         PlacementPreviewGraphic previewGraphic;
-        DisplayPartitionGraphic partitionGraphic;
+        DisplayPartitionGraphic partitionGraphic;ReservedSlotGraphic reservedGraphic;
+        readonly List<ItemRecord> reservedItems=new List<ItemRecord>();
         public Color dividerColor=new Color(.5f,.29f,.1f,1);
         [Range(2,16)]public float dividerThickness=8;
         public bool externalRefresh;
@@ -81,10 +82,11 @@ namespace GeneralStore.Inventory
                 itemLayer.SetAsLastSibling();
             }
             // 돈/예약 변경 때마다 모든 카드를 파괴하지 않고 UID별로 재사용합니다.
-            seen.Clear();
+            seen.Clear();reservedItems.Clear();
             foreach (ItemRecord record in container.items)
             {
-                if(!IsVisible(record)||(Panel.inventory.Sales.CounterPresented&&Panel.Model.IsReserved(record.instanceId)))continue;
+                if(!IsVisible(record))continue;
+                if(Panel.inventory.Sales.CounterPresented&&Panel.Model.IsReserved(record.instanceId)){reservedItems.Add(record);continue;}
                 seen.Add(record.instanceId);InventoryItemView view;
                 if(!itemObjects.TryGetValue(record.instanceId,out view))
                 {
@@ -95,14 +97,20 @@ namespace GeneralStore.Inventory
             }
             removed.Clear();foreach(var pair in itemObjects)if(!seen.Contains(pair.Key))removed.Add(pair.Key);
             foreach(var id in removed){var view=itemObjects[id];view.gameObject.SetActive(false);if(recycleItems&&itemPool.Count<128)itemPool.Push(view);else Destroy(view.gameObject);itemObjects.Remove(id);}
-            RefreshPartitions();HidePreview();RefreshSelection();
+            RefreshReservations();RefreshPartitions();HidePreview();RefreshSelection();
+        }
+        void RefreshReservations()
+        {
+            if(reservedGraphic==null&&reservedItems.Count==0)return;
+            if(reservedGraphic==null){var go=new GameObject("Reserved Return Slots",typeof(RectTransform),typeof(CanvasRenderer));go.transform.SetParent(transform,false);TopLeft(go);reservedGraphic=go.AddComponent<ReservedSlotGraphic>();}
+            reservedGraphic.rectTransform.sizeDelta=LogicalSize;reservedGraphic.rectTransform.anchoredPosition=new Vector2(ContentOrigin,-ContentOrigin);reservedGraphic.Show(reservedItems,this);reservedGraphic.transform.SetAsLastSibling();
         }
         public bool IsVisible(ItemRecord item){return item!=null&&item.x>=startColumn&&item.y>=startRow&&item.x+Panel.Model.Width(item)<=startColumn+columns&&item.y+Panel.Model.Height(item)<=startRow+rows;}
         void RefreshPartitions()
         {
             var installation=Panel.Model.Installation(containerId);
             var definition=installation==null||Panel.Model.Displays==null?null:Panel.Model.Displays.Type(installation.typeId);
-            bool any=renderPartitions&&startColumn==0&&startRow==0&&viewColumns==0&&viewRows==0&&definition!=null&&((definition.horizontalDividers!=null&&definition.horizontalDividers.Length>0)||(definition.verticalDividers!=null&&definition.verticalDividers.Length>0));
+            bool any=renderPartitions&&startColumn==0&&startRow==0&&viewColumns==0&&viewRows==0&&definition!=null&&((definition.horizontalDividers!=null&&definition.horizontalDividers.Length>0)||(definition.verticalDividers!=null&&definition.verticalDividers.Length>0)||(definition.lowerVerticalDividers!=null&&definition.lowerVerticalDividers.Length>0));
             if(!any){if(partitionGraphic!=null)partitionGraphic.gameObject.SetActive(false);return;}
             if(partitionGraphic==null)
             {
@@ -153,6 +161,11 @@ namespace GeneralStore.Inventory
             else previewGraphic.Show(preview,CellSize,cellGap);
         }
         public void HidePreview() { if(previewGraphic!=null)previewGraphic.ClearPreview(); }
-        public void OnDrop(PointerEventData e) { if (Panel != null&&acceptsDrop) Panel.drag.Drop(this, e.position); }
+        public void OnDrop(PointerEventData e)
+        {
+            if(Panel==null||!acceptsDrop)return;
+            var counter=e.pointerDrag==null?null:e.pointerDrag.GetComponent<CounterItemView>();
+            if(counter!=null){counter.TryReturnTo(this,e);return;}Panel.drag.Drop(this,e.position);
+        }
     }
 }

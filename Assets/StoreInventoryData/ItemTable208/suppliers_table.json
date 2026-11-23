@@ -1,0 +1,1925 @@
+{
+  "seed": 3721,
+  "suppliers": [
+    {
+      "id": "materials",
+      "name": "원재료 거래처",
+      "description": "품목별 임시 거래처. 정식 인물/해금 조건은 추후 설정합니다.",
+      "greeting": "필요한 물건을 골라 주세요.",
+      "portraitKey": "",
+      "initiallyUnlocked": true,
+      "initiallyBlocked": false,
+      "refreshDays": 2,
+      "offers": [
+        {
+          "offerId": "R001",
+          "itemId": "R001",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R002",
+          "itemId": "R002",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R003",
+          "itemId": "R003",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R004",
+          "itemId": "R004",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R005",
+          "itemId": "R005",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R006",
+          "itemId": "R006",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R007",
+          "itemId": "R007",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R008",
+          "itemId": "R008",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R009",
+          "itemId": "R009",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R010",
+          "itemId": "R010",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R011",
+          "itemId": "R011",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R012",
+          "itemId": "R012",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R013",
+          "itemId": "R013",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R014",
+          "itemId": "R014",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R015",
+          "itemId": "R015",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R016",
+          "itemId": "R016",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R017",
+          "itemId": "R017",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R018",
+          "itemId": "R018",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R019",
+          "itemId": "R019",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R020",
+          "itemId": "R020",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R021",
+          "itemId": "R021",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R022",
+          "itemId": "R022",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R024",
+          "itemId": "R024",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R025",
+          "itemId": "R025",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R026",
+          "itemId": "R026",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R027",
+          "itemId": "R027",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R028",
+          "itemId": "R028",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R029",
+          "itemId": "R029",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R030",
+          "itemId": "R030",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R031",
+          "itemId": "R031",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R032",
+          "itemId": "R032",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R033",
+          "itemId": "R033",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R034",
+          "itemId": "R034",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R035",
+          "itemId": "R035",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R036",
+          "itemId": "R036",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R037",
+          "itemId": "R037",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R038",
+          "itemId": "R038",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R039",
+          "itemId": "R039",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R040",
+          "itemId": "R040",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R041",
+          "itemId": "R041",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R042",
+          "itemId": "R042",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R043",
+          "itemId": "R043",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R044",
+          "itemId": "R044",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R045",
+          "itemId": "R045",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R046",
+          "itemId": "R046",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R047",
+          "itemId": "R047",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R048",
+          "itemId": "R048",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R049",
+          "itemId": "R049",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R050",
+          "itemId": "R050",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R051",
+          "itemId": "R051",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R052",
+          "itemId": "R052",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R053",
+          "itemId": "R053",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R054",
+          "itemId": "R054",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R055",
+          "itemId": "R055",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R056",
+          "itemId": "R056",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R057",
+          "itemId": "R057",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R058",
+          "itemId": "R058",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R059",
+          "itemId": "R059",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "R060",
+          "itemId": "R060",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        }
+      ]
+    },
+    {
+      "id": "processed",
+      "name": "가공품 거래처",
+      "description": "품목별 임시 거래처. 정식 인물/해금 조건은 추후 설정합니다.",
+      "greeting": "필요한 물건을 골라 주세요.",
+      "portraitKey": "",
+      "initiallyUnlocked": true,
+      "initiallyBlocked": false,
+      "refreshDays": 2,
+      "offers": [
+        {
+          "offerId": "M001",
+          "itemId": "M001",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M002",
+          "itemId": "M002",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M003",
+          "itemId": "M003",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M004",
+          "itemId": "M004",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M005",
+          "itemId": "M005",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M006",
+          "itemId": "M006",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M007",
+          "itemId": "M007",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M009",
+          "itemId": "M009",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M010",
+          "itemId": "M010",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M011",
+          "itemId": "M011",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M012",
+          "itemId": "M012",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M013",
+          "itemId": "M013",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M014",
+          "itemId": "M014",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M015",
+          "itemId": "M015",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M016",
+          "itemId": "M016",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M017",
+          "itemId": "M017",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M018",
+          "itemId": "M018",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M019",
+          "itemId": "M019",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M020",
+          "itemId": "M020",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M021",
+          "itemId": "M021",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M022",
+          "itemId": "M022",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M023",
+          "itemId": "M023",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M024",
+          "itemId": "M024",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M025",
+          "itemId": "M025",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M027",
+          "itemId": "M027",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M028",
+          "itemId": "M028",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M029",
+          "itemId": "M029",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M030",
+          "itemId": "M030",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M031",
+          "itemId": "M031",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M032",
+          "itemId": "M032",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "M033",
+          "itemId": "M033",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        }
+      ]
+    },
+    {
+      "id": "equipment",
+      "name": "장비 거래처",
+      "description": "품목별 임시 거래처. 정식 인물/해금 조건은 추후 설정합니다.",
+      "greeting": "필요한 물건을 골라 주세요.",
+      "portraitKey": "",
+      "initiallyUnlocked": true,
+      "initiallyBlocked": false,
+      "refreshDays": 2,
+      "offers": [
+        {
+          "offerId": "T010",
+          "itemId": "T010",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W001",
+          "itemId": "W001",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W002",
+          "itemId": "W002",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W003",
+          "itemId": "W003",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W004",
+          "itemId": "W004",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W005",
+          "itemId": "W005",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W006",
+          "itemId": "W006",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W007",
+          "itemId": "W007",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W008",
+          "itemId": "W008",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W009",
+          "itemId": "W009",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W010",
+          "itemId": "W010",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W012",
+          "itemId": "W012",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W013",
+          "itemId": "W013",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W014",
+          "itemId": "W014",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W015",
+          "itemId": "W015",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W016",
+          "itemId": "W016",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W017",
+          "itemId": "W017",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W018",
+          "itemId": "W018",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W019",
+          "itemId": "W019",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W020",
+          "itemId": "W020",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W021",
+          "itemId": "W021",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W022",
+          "itemId": "W022",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W023",
+          "itemId": "W023",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "W024",
+          "itemId": "W024",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        }
+      ]
+    },
+    {
+      "id": "alchemy",
+      "name": "연금 물품 거래처",
+      "description": "품목별 임시 거래처. 정식 인물/해금 조건은 추후 설정합니다.",
+      "greeting": "필요한 물건을 골라 주세요.",
+      "portraitKey": "",
+      "initiallyUnlocked": true,
+      "initiallyBlocked": false,
+      "refreshDays": 2,
+      "offers": [
+        {
+          "offerId": "P001",
+          "itemId": "P001",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P002",
+          "itemId": "P002",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P003",
+          "itemId": "P003",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P004",
+          "itemId": "P004",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P005",
+          "itemId": "P005",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P006",
+          "itemId": "P006",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P007",
+          "itemId": "P007",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P008",
+          "itemId": "P008",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P009",
+          "itemId": "P009",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P010",
+          "itemId": "P010",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P012",
+          "itemId": "P012",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P013",
+          "itemId": "P013",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P014",
+          "itemId": "P014",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P015",
+          "itemId": "P015",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P017",
+          "itemId": "P017",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P018",
+          "itemId": "P018",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P019",
+          "itemId": "P019",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P020",
+          "itemId": "P020",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P021",
+          "itemId": "P021",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "P022",
+          "itemId": "P022",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S001",
+          "itemId": "S001",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S002",
+          "itemId": "S002",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S003",
+          "itemId": "S003",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S004",
+          "itemId": "S004",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S005",
+          "itemId": "S005",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S006",
+          "itemId": "S006",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S007",
+          "itemId": "S007",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S008",
+          "itemId": "S008",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S009",
+          "itemId": "S009",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S010",
+          "itemId": "S010",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S011",
+          "itemId": "S011",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "S012",
+          "itemId": "S012",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        }
+      ]
+    },
+    {
+      "id": "general",
+      "name": "생활품 거래처",
+      "description": "품목별 임시 거래처. 정식 인물/해금 조건은 추후 설정합니다.",
+      "greeting": "필요한 물건을 골라 주세요.",
+      "portraitKey": "",
+      "initiallyUnlocked": true,
+      "initiallyBlocked": false,
+      "refreshDays": 2,
+      "offers": [
+        {
+          "offerId": "T002",
+          "itemId": "T002",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T003",
+          "itemId": "T003",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T004",
+          "itemId": "T004",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T005",
+          "itemId": "T005",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T006",
+          "itemId": "T006",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T007",
+          "itemId": "T007",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T008",
+          "itemId": "T008",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T009",
+          "itemId": "T009",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T011",
+          "itemId": "T011",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T012",
+          "itemId": "T012",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T013",
+          "itemId": "T013",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T014",
+          "itemId": "T014",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T015",
+          "itemId": "T015",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T016",
+          "itemId": "T016",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T017",
+          "itemId": "T017",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T018",
+          "itemId": "T018",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T019",
+          "itemId": "T019",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T020",
+          "itemId": "T020",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T021",
+          "itemId": "T021",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T022",
+          "itemId": "T022",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T023",
+          "itemId": "T023",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T024",
+          "itemId": "T024",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "T025",
+          "itemId": "T025",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V001",
+          "itemId": "V001",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V002",
+          "itemId": "V002",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V003",
+          "itemId": "V003",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V004",
+          "itemId": "V004",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V005",
+          "itemId": "V005",
+          "quality": "none",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V006",
+          "itemId": "V006",
+          "quality": "none",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V007",
+          "itemId": "V007",
+          "quality": "none",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V008",
+          "itemId": "V008",
+          "quality": "none",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V009",
+          "itemId": "V009",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V010",
+          "itemId": "V010",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V011",
+          "itemId": "V011",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V012",
+          "itemId": "V012",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V013",
+          "itemId": "V013",
+          "quality": "none",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V014",
+          "itemId": "V014",
+          "quality": "none",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V015",
+          "itemId": "V015",
+          "quality": "none",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V016",
+          "itemId": "V016",
+          "quality": "none",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        },
+        {
+          "offerId": "V017",
+          "itemId": "V017",
+          "quality": "common",
+          "minStock": 1,
+          "maxStock": 5,
+          "priceBase": 0,
+          "minPriceMultiplier": 0.85,
+          "maxPriceMultiplier": 1.15
+        }
+      ]
+    }
+  ]
+}

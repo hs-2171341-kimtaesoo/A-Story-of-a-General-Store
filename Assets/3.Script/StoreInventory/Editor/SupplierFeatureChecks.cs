@@ -75,14 +75,14 @@ namespace GeneralStore.Inventory.Verification
             Check(!restored.TryRestore(bad,out error),"재고 한도 초과 저장 거절");
             bad=comparison.Snapshot();bad.suppliers[0].stocks[0].unitPrice=-1;
             Check(!restored.TryRestore(bad,out error),"음수 가격 저장 거절");
-            m=Model();var fixedSave=m.Snapshot();fixedSave.containers[0].containerId="warehouse";fixedSave.containers[0].columns=8;fixedSave.containers[0].rows=5;m.TryRestore(fixedSave,out error);
+            m=Model();var fixedSave=m.Snapshot();fixedSave.containers[0].containerId="warehouse";fixedSave.containers[0].columns=8;fixedSave.containers[0].rows=7;m.TryRestore(fixedSave,out error);
             m.TryAdd("warehouse","C001","common",1,80,out error);string uid=m.GetContainer("warehouse").items[0].instanceId;
             Check(!m.TryExpandWarehouse("warehouse",out error),"상자 크기 확장 제거");string id;
-            Check(m.TryCreateWarehouse(5,out id,out error)&&m.GetContainer(id).columns==8&&m.GetContainer(id).rows==5,"확장 없이 고정40칸 상자 추가");
+            Check(m.TryCreateWarehouse(InventoryModel.WarehouseRows,out id,out error)&&m.GetContainer(id).columns==8&&m.GetContainer(id).rows==7,"확장 없이 고정56칸 상자 추가");
             Check(m.TryMove(new MoveRequest{sourceContainer="warehouse",targetContainer=id,instanceId=uid,expectedRevision=m.Revision},out error)&&m.GetItem(id,uid)!=null,"상자 사이 낱개 이동");
             Check(restored.TryRestore(m.Snapshot(),out error)&&restored.WarehouseIds().Count==2,"다중 상자 저장 복원");
             bad=m.Snapshot();bad.containers[0].columns=7;Check(!m.TryRestore(bad,out error),"8열 고정 검증");
-            bad=m.Snapshot();bad.containers[0].rows=6;Check(!m.TryRestore(bad,out error),"5행 고정 검증");
+            bad=m.Snapshot();bad.containers[0].rows=6;Check(!m.TryRestore(bad,out error),"7행 고정 검증");
             foreach(var dims in new[]{new[]{40f,200f},new[]{300f,40f},new[]{100f,100f}})
             {
                 var fit=IconFitGeometry.Fit(dims[0],dims[1],0,0,dims[0],dims[1],96,96,6);

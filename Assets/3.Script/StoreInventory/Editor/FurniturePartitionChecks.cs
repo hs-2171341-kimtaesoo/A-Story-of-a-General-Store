@@ -10,7 +10,7 @@ namespace GeneralStore.Inventory.Verification
         static InventoryModel Model(out string display)
         {
             var catalog=new DisplayCatalog(new DisplayDatabase{types=new[]{Definition()},initialTypes=new[]{"partition"}});
-            var save=new InventorySave{gold=10000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=5});catalog.AddInitialContainers(save);
+            var save=new InventorySave{gold=10000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});catalog.AddInitialContainers(save);
             var model=new InventoryModel(InventoryModelChecks.Fixture(),save,null,catalog);display=model.DisplayIds()[0];return model;
         }
         public static int Run()
@@ -52,7 +52,7 @@ namespace GeneralStore.Inventory.Verification
         public static int CheckCatalogue(DisplayCatalog definitions)
         {
             count=0;Check(definitions.TypeIds().Count==12,"가구12개");
-            var save=new InventorySave{gold=100000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=5});definitions.AddInitialContainers(save);
+            var save=new InventorySave{gold=100000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});definitions.AddInitialContainers(save);
             var model=new InventoryModel(InventoryModelChecks.Fixture(),save,null,definitions);
             foreach(var id in definitions.TypeIds())
             {
@@ -61,7 +61,7 @@ namespace GeneralStore.Inventory.Verification
                 string duplicate,e;Check(!model.TryBuyDisplay(id,out duplicate,out e),"같은 위치 가구 재구매 금지");
             }
             Check(model.DisplayIds().Count==12,"전체12개 연결");
-            var allSave=new InventorySave{gold=1000};allSave.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=5});definitions.AddInitialContainers(allSave,true);
+            var allSave=new InventorySave{gold=1000};allSave.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});definitions.AddInitialContainers(allSave,true);
             var allModel=new InventoryModel(InventoryModelChecks.Fixture(),allSave,null,definitions);Check(allModel.DisplayIds().Count==12&&allModel.Gold==1000,"전체 소유 테스트는 구매 자금을 소비하지 않는 별도 초기 상태");
             string loadError;Check(model.TryRestore(model.Snapshot(),out loadError),"12개 저장 복원");return count;
         }

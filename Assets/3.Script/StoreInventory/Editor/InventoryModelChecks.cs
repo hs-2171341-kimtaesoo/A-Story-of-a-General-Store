@@ -212,7 +212,7 @@ namespace GeneralStore.Inventory.Verification
             box.items.Add(new ItemRecord{instanceId="old-frame",itemId="sample_lframe",quality="common",purchasePrice=50});
             box.items.Add(new ItemRecord{instanceId="old-potion",itemId="C001",quality="superior",x=1,y=0,purchasePrice=77});
             var migrated=NewModel(catalog);Check(migrated.TryRestore(old,out error),"이전 끼워 넣기 저장 자동 전환");
-            Check(migrated.Snapshot().version==10&&migrated.GetItem("test_storage","old-frame").x==0&&migrated.GetItem(InventoryModel.DeliveryContainerId,"old-potion").purchasePrice==77,"UID/매입가/기존 유효 위치 유지 및 넘침 택배 이동");
+            Check(migrated.Snapshot().version==13&&migrated.GetItem("test_storage","old-frame").x==0&&migrated.GetItem(InventoryModel.TemporaryStorageId,"old-potion").purchasePrice==77,"UID/매입가/기존 유효 위치 유지 및 넘침 택배 이동");
             Check(migrated.Gold==123&&migrated.UnpaidCosts==7&&old.version==9&&old.containers[0].items.Count==2,"원본 저장/돈/미납 유지");Geometry(migrated);
             var current=old.Copy();current.version=10;revision=migrated.Revision;Check(!migrated.TryRestore(current,out error)&&migrated.Revision==revision,"현재 저장의 겹침은 복구하지 않고 원자적으로 거절");
             var duplicate=old.Copy();duplicate.containers[0].items.Add(duplicate.containers[0].items[0].Copy());Check(!migrated.TryRestore(duplicate,out error)&&migrated.Revision==revision,"구형 저장 중복UID도 거절");

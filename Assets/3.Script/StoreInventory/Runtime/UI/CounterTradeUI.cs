@@ -15,6 +15,19 @@ namespace GeneralStore.Inventory
         [Range(0,100)]public float surfaceLowerPercent=0;
         [Min(0)]public float surfaceBottomMargin=8;
         public bool keepControlsAboveGoods=true;
+        public bool verticalControls=true;
+        [Range(.6f,.95f)]public float controlsCenterFraction=.8f;
+        [Range(.7f,.9f)]public float controlsTopFraction=.82f;
+        Rect visibleRegion=new Rect(0,-1080,1920,1080);
+        public void RefreshViewport(Rect region)
+        {
+            visibleRegion=region;if(!verticalControls||controls==null||priceEditor==null)return;
+            if(infoLabel!=null)infoLabel.gameObject.SetActive(false);
+            float scale=Mathf.Min(1,Mathf.Min(region.width*.28f/540,region.height*(1-controlsTopFraction)/172));
+            var position=new Vector2(region.xMin+region.width*controlsCenterFraction-270*scale,region.yMax-region.height*controlsTopFraction);
+            foreach(var go in new[]{controls,priceEditor}){var rect=(RectTransform)go.transform;rect.localScale=new Vector3(scale,scale,1);rect.anchoredPosition=position;}
+            if(ready)ConfigureMotion();
+        }
         [Min(0)]public float controlsGap=16;
         [Range(100,20000)]public float gravity=2200;
         [Range(0,.5f)]public float bounce=.1f;
@@ -32,6 +45,7 @@ namespace GeneralStore.Inventory
         CounterItemView dragging;bool ready;long quotedTotal;string selectedInfoUid;
         Vector2 authoredControlsPosition,authoredInfoPosition;
         public bool IsItemDragging{get{return dragging!=null;}}
+        public event System.Action<bool> DraggingChanged;
         public bool CanInteractWithItems{get{return ready&&!Busy&&!priceEditor.activeSelf;}}
         public int LastPhysicsSteps{get;private set;}
         public bool TryTablePoint(Vector2 screen,Camera camera,out Vector2 point)
@@ -57,7 +71,7 @@ namespace GeneralStore.Inventory
         }
         void PlaceControlsAboveGoods()
         {
-            if(!keepControlsAboveGoods)return;float height=0;foreach(var body in bodies)if(body.active)height=Mathf.Max(height,body.halfHeight*2);
+            if(verticalControls||!keepControlsAboveGoods)return;float height=0;foreach(var body in bodies)if(body.active)height=Mathf.Max(height,body.halfHeight*2);
             var rect=controls.transform as RectTransform;if(rect==null)return;
             float depth=tableItems.rect.yMax-motion.surface,top=Mathf.Max(0,Mathf.Min(-authoredControlsPosition.y,depth-height-rect.rect.height-controlsGap));
             var position=new Vector2(authoredControlsPosition.x,-top);if(rect.anchoredPosition!=position)rect.anchoredPosition=position;
@@ -73,12 +87,15 @@ namespace GeneralStore.Inventory
         public void Clamp(CounterBodyState body){CounterTableMotion.ClampBody(body,motion);}
         public void WakeBodies(){foreach(var body in bodies)if(body.active)body.asleep=false;}
         public bool TryBeginCounterDrag(CounterItemView view)
-        {if(Busy||priceEditor.activeSelf)return false;dragging=view;return true;}
+        {if(Busy||priceEditor.activeSelf)return false;dragging=view;DraggingChanged?.Invoke(true);return true;}
         public void EndCounterDrag(CounterItemView view)
-        {if(dragging!=view)return;view.Body.dragged=false;view.Body.asleep=false;dragging=null;Clamp(view.Body);ApplyPositions();WakeBodies();}
+        {if(dragging!=view)return;dragging=null;view.Body.dragged=false;view.Body.asleep=false;view.RestoreCounterLayer();panel.drag.ClearCounterPreview();Clamp(view.Body);ApplyPositions();WakeBodies();DraggingChanged?.Invoke(false);}
+        Vector2 counterPointer;
+        public void CounterPointer(Vector2 point){counterPointer=point;}
         void LateUpdate()
         {
-            if(!ready)return;LastPhysicsSteps=CounterTableMotion.Advance(bodies,motion,Mathf.Min(.1f,Time.unscaledDeltaTime));
+            if(!ready)return;if(dragging!=null)panel.drag.UpdateCounterPreview(dragging,counterPointer);
+            LastPhysicsSteps=CounterTableMotion.Advance(bodies,motion,Mathf.Min(.1f,Time.unscaledDeltaTime));
             if(LastPhysicsSteps>0)ApplyPositions();
         }
         void OnDisable(){if(dragging!=null)EndCounterDrag(dragging);}
@@ -90,7 +107,7 @@ namespace GeneralStore.Inventory
             string error;if(panel==null||shop==null||tableItems==null||controls==null||priceEditor==null||itemTemplate==null||totalLabel==null||infoLabel==null||proposedTotalInput==null||sellButton==null||talkButton==null||!panel.inventory.TryInitialize(out error))
             {Debug.LogError("카운터 거래 참조를 확인하세요. 새 데모 씬을 생성하세요.",this);enabled=false;return;}
             authoredControlsPosition=((RectTransform)controls.transform).anchoredPosition;authoredInfoPosition=infoLabel.rectTransform.anchoredPosition;
-            HideLegacyNavigation();ConfigureMotion();itemTemplate.gameObject.SetActive(false);priceEditor.SetActive(false);ready=true;panel.drag.DraggingChanged+=OnHeld;Render();
+            RefreshViewport(visibleRegion);HideLegacyNavigation();ConfigureMotion();itemTemplate.gameObject.SetActive(false);priceEditor.SetActive(false);ready=true;panel.drag.DraggingChanged+=OnHeld;Render();
         }
         void ReleaseUnused()
         {
@@ -122,12 +139,12 @@ namespace GeneralStore.Inventory
                     else{v.Body.x=(motion.left+motion.right)*.5f+((n%5)==0?0:(n%5)%2==1?-1:1)*Mathf.Ceil((n%5)/2f)*230;v.Body.y=motion.surface+v.Body.halfHeight+140;}
                 }
             }
-            foreach(var body in bodies)Clamp(body);ApplyPositions();WakeBodies();PlaceControlsAboveGoods();
-            totalLabel.text="진열 등록 합계 "+pickedTotal.ToString("N0")+" G"+(extra.Count>0?" · 추천 포함 "+quotedTotal.ToString("N0")+" G":"");
-            sellButton.interactable=count>0;talkButton.interactable=!Session.ConversationStarted;
+            foreach(var body in bodies)if(!body.dragged)Clamp(body);ApplyPositions();WakeBodies();PlaceControlsAboveGoods();
+            totalLabel.text=verticalControls?quotedTotal.ToString("N0")+" G":"진열 등록 합계 "+pickedTotal.ToString("N0")+" G"+(extra.Count>0?" · 추천 포함 "+quotedTotal.ToString("N0")+" G":"");
+            sellButton.interactable=count>0;talkButton.interactable=true;
         }
         public void Sell(){if(Busy)return;shop.SubmitOffer();}
-        public void Talk(){if(Busy)return;shop.BeginTalk();panel.ShowMessage("추가로 권할 물건을 카운터 위에 드래그하세요. 추천 물건은 우클릭으로 제외할 수 있습니다.");}
+        public void Talk(){if(Busy)return;shop.BeginTalk();}
         public void Reject(){if(!Busy)shop.LeaveCustomer();}
         public void TogglePrice()
         {if(Busy||!Session.CustomerPresent)return;bool open=!priceEditor.activeSelf;priceEditor.SetActive(open);OnHeld(panel.drag.IsDragging);if(open){proposedTotalInput.text=quotedTotal.ToString();proposedTotalInput.ActivateInputField();}}
@@ -146,6 +163,7 @@ namespace GeneralStore.Inventory
             var item=panel.Model.GetItem(container,uid);if(item==null)return;selectedInfoUid=uid;
             var quality=panel.Catalog.FindQuality(item.itemId,item.quality);int price;panel.Model.TryGetOfferPrice(container,uid,out price);
             infoLabel.text=quality.name+" · "+QualityLabels.Title(item.quality)+" · "+(InventoryModel.IsDisplay(container)?"등록가 ":"기준가 ")+price+" G";
+            if(verticalControls)panel.ShowMessage(infoLabel.text);
         }
     }
 }

@@ -20,6 +20,8 @@ namespace GeneralStore.Inventory
             {float y=rect.yMax-boundary*cell.y;Quad(helper,rect.xMin,y+half,rect.xMax,y-half,color);}
             if(definition.verticalDividers!=null)foreach(int boundary in definition.verticalDividers)
             {float x=rect.xMin+boundary*cell.x;Quad(helper,x-half,rect.yMax,x+half,rect.yMin,color);}
+            if(definition.lowerVerticalDividers!=null)foreach(int boundary in definition.lowerVerticalDividers)
+            {float x=rect.xMin+boundary*cell.x;Quad(helper,x-half,rect.yMax-definition.lowerPartitionStartRow*cell.y,x+half,rect.yMin,color);}
         }
         static void Quad(VertexHelper h,float left,float top,float right,float bottom,Color tint)
         {

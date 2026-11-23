@@ -1,0 +1,40 @@
+{
+  "items": 208,
+  "qualityItems": 178,
+  "noQualityItems": 30,
+  "tradeDisabled": [
+    "E017",
+    "E018",
+    "E020",
+    "E021"
+  ],
+  "recipes": 121,
+  "liveRecipes": 121,
+  "pendingRecipeIds": [],
+  "workshopRecipes": {
+    "alchemy": 43,
+    "smith": 31,
+    "processing": 47
+  },
+  "timeUnit": "active real seconds",
+  "types": {
+    "Quest": 20,
+    "Weapon": 16,
+    "ProcessedMaterial": 31,
+    "Potion": 20,
+    "Material": 59,
+    "Scroll": 12,
+    "Tool": 23,
+    "Armor": 8,
+    "Valuable": 17,
+    "Shield": 2
+  },
+  "qualityMultipliers": {
+    "common": 1.0,
+    "superior": 1.4,
+    "perfect": 1.9,
+    "masterpiece": 2.6,
+    "legendary": 3.6
+  },
+  "checks": "IDs, required fields, types, dimensions, flags, prices, recipe quantities/references/cycles checked. Cached workbook values read; Excel recalculation not executed."
+}

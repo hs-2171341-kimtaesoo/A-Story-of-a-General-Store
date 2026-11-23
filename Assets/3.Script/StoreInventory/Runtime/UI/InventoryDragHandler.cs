@@ -21,6 +21,7 @@ namespace GeneralStore.Inventory
         InventoryGridView previewGrid;
         bool previewValid;
         int previewX,previewY,previewRotation;
+        string previewUid;long previewRevision;
         ItemRecord selectedItem;
         string sourceContainer;
         int grabbedX, grabbedY;
@@ -103,6 +104,16 @@ namespace GeneralStore.Inventory
         // 원본 카드가 탭 변경으로 파괴되어도 계속 살아 있는 이 처리기가 포인터를 받습니다.
         public void OnDrag(PointerEventData e){MovePointer(e.position);}public void OnEndDrag(PointerEventData e){Cancel(false);}
         public void InvalidatePreview(){HideCachedPreview();}
+        public void UpdateCounterPreview(CounterItemView view,Vector2 position)
+        {
+            if(active||panel==null||view==null)return;pointer=position;
+            var target=HoverGrid();if(target==null||target.Panel!=panel||!target.acceptsDrop){HideCachedPreview();return;}
+            var request=view.ReturnRequest(target,position);if(request==null){HideCachedPreview();return;}
+            if(previewValid&&previewGrid==target&&previewX==request.x&&previewY==request.y&&previewRotation==request.rotation&&previewUid==request.instanceId&&previewRevision==panel.Model.Revision)return;
+            HideCachedPreview();previewGrid=target;previewX=request.x;previewY=request.y;previewRotation=request.rotation;previewUid=request.instanceId;previewRevision=panel.Model.Revision;previewValid=true;
+            using(StoreProfiler.Preview.Auto())target.ShowPreview(panel.inventory.Sales.PreviewCounterReturn(request));
+        }
+        public void ClearCounterPreview(){if(active)return;HideCachedPreview();hoverTimer.Reset();displayHoverTimer.Reset();}
         public void MovePointer(Vector2 position){if(active)pointer=position;}
         void HideCachedPreview()
         {if(previewGrid!=null)previewGrid.HidePreview();previewGrid=null;previewValid=false;}

@@ -11,7 +11,7 @@ namespace GeneralStore.Inventory
         {
             owner=ui;jobId=job;var sprite=item==null?null:ui.panel.FindItemIcon(item.itemId);icon.sprite=sprite;icon.enabled=sprite!=null;icon.raycastTarget=false;
             if(item!=null)ui.panel.ApplyQuality(icon,item.quality);
-            label.text=item==null?(result?"결과":"재료 "+(slot+1)):ui.ItemName(item)+(locked?"\n작업 중":"")+(result?"\n×"+count:"\n"+QualityLabels.Title(item.quality));
+            label.text=item==null?(result?"":"+"):ui.ItemName(item)+(locked?"\n작업 중":"")+(result?"\n×1":"\n"+QualityLabels.Title(item.quality));
             label.color=item==null?new Color(.8f,.8f,.8f):QualityVisuals.Color(item.quality);
             background.color=locked?new Color(.38f,.27f,.12f):new Color(.13f,.10f,.07f);
         }

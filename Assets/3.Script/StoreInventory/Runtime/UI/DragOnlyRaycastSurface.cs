@@ -6,18 +6,22 @@ namespace GeneralStore.Inventory
     {
         public InventoryPanel panel;public global::UnityEngine.UI.Image image;
         InventoryDragHandler source;
+        CounterTradeUI counter;
         void OnEnable(){Connect();}void Start(){Connect();}
         void Connect()
         {
             if(panel==null||panel.drag==null)return;
             if(image==null)image=GetComponent<global::UnityEngine.UI.Image>();
-            if(source==null){source=panel.drag;source.DraggingChanged+=Render;}Render(source.IsDragging);
+            if(source==null){source=panel.drag;source.DraggingChanged+=Render;}
+            if(counter==null&&panel.shop!=null){counter=panel.shop.counterTrade;if(counter!=null)counter.DraggingChanged+=Render;}
+            Render(source.IsDragging);
         }
         void Render(bool held)
         {
+            held=(source!=null&&source.IsDragging)||(counter!=null&&counter.IsItemDragging);
             if(image==null)return;image.raycastTarget=held;image.canvasRenderer.cullTransparentMesh=!held;
             if(held)image.canvasRenderer.cull=false;image.SetVerticesDirty();
         }
-        void OnDisable(){if(source!=null)source.DraggingChanged-=Render;source=null;}
+        void OnDisable(){if(source!=null)source.DraggingChanged-=Render;if(counter!=null)counter.DraggingChanged-=Render;source=null;counter=null;}
     }
 }

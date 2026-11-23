@@ -18,8 +18,74 @@ namespace GeneralStore.Inventory
             var d=save.displays.Find(v=>v.containerId==containerId);if(d==null)return true; // 일반 모델 테스트의 메타데이터 없는 격자 호환.
             var t=Displays==null?null:Displays.Type(d.typeId);var item=Catalog.Find(itemId);
             if(t==null||item==null){error="진열 종류 정보가 없습니다.";return false;}
-            if(t.allowedItemTypes!=null&&t.allowedItemTypes.Length>0&&Array.IndexOf(t.allowedItemTypes,item.type)<0)
+            if(t.allowedItemTypes!=null&&t.allowedItemTypes.Length>0&&!Array.Exists(t.allowedItemTypes,allowed=>string.Equals(allowed,item.type,StringComparison.OrdinalIgnoreCase)))
             {error=t.title+"에 놓을 수 없는 물품 종류입니다.";return false;}return true;
+        }
+        void MigrateDisplayArtworkSizes(InventorySave save)
+        {
+            if(Displays==null||save.displays==null)return;var overflow=new List<ItemRecord>();
+            foreach(var installation in save.displays)
+            {
+                if(installation==null||!string.IsNullOrEmpty(installation.locationId))continue;
+                string id=installation.typeId;int oldColumns,oldRows;
+                if(id=="shelf"){oldColumns=8;oldRows=10;}
+                else if(id=="aisle_left"||id=="aisle_right"){oldColumns=8;oldRows=6;}
+                else if(id=="wall_shelf"||id=="wall_shelf_lower"){oldColumns=8;oldRows=2;}
+                else if(id=="single_stand"){oldColumns=2;oldRows=6;}else continue;
+                var box=Find(save,installation.containerId);var type=Displays.Type(id);
+                if(box==null||type==null||box.items==null||box.columns!=oldColumns||box.rows!=oldRows||(box.columns==type.columns&&box.rows==type.rows))continue;
+                var previous=new List<ItemRecord>(box.items);box.items.Clear();box.columns=type.columns;box.rows=type.rows;
+                foreach(var item in previous)
+                {
+                    if(item==null||Catalog.FindQuality(item.itemId,item.quality)==null)throw new ArgumentException("이전 진열 물품 오류");
+                    if(InspectPlacement(save,box,item,null).allowed){box.items.Add(item);continue;}
+                    if(TryPlaceRectangle(save,box,item))continue;
+                    overflow.Add(item);save.listings.RemoveAll(line=>line.instanceId==item.instanceId);
+                }
+            }
+            if(overflow.Count>0)AppendTemporary(save,overflow);
+        }
+        void MigrateScrollingDisplaySizes(InventorySave save)
+        {
+            if(Displays==null||save.displays==null)return;var overflow=new List<ItemRecord>();
+            foreach(var installation in save.displays)
+            {
+                if(installation==null||!string.IsNullOrEmpty(installation.locationId))continue;
+                var type=Displays.Type(installation.typeId);var box=Find(save,installation.containerId);if(type==null||box==null||box.items==null)continue;
+                bool known=(installation.typeId=="side_shelf"&&box.columns==6&&box.rows==10)
+                    ||((installation.typeId=="cubby_cabinet"||installation.typeId=="drawer_cabinet")&&box.columns==8&&box.rows==6)
+                    ||(installation.typeId=="single_stand"&&box.columns==5&&box.rows==8)||(installation.typeId=="weapon_rack"&&box.columns==7&&box.rows==8);
+                if(!known)continue;var items=new List<ItemRecord>(box.items);box.items.Clear();box.columns=type.columns;box.rows=type.rows;
+                foreach(var item in items)
+                {
+                    if(item==null||Catalog.FindQuality(item.itemId,item.quality)==null)throw new ArgumentException("이전 진열 물품 오류");
+                    if(InspectPlacement(save,box,item,null).allowed){box.items.Add(item);continue;}if(TryPlaceRectangle(save,box,item))continue;
+                    overflow.Add(item);save.listings.RemoveAll(line=>line.instanceId==item.instanceId);
+                }
+            }
+            if(overflow.Count>0)AppendTemporary(save,overflow);
+        }
+        // Narrowing the mannequin rule must not delete goods from an existing save.
+        // This runs on PrepareSave's copy; failed validation never changes the live inventory.
+        void RelocateFormerMannequinGoods(InventorySave save)
+        {
+            if(save.displays==null)return;
+            var incoming=new List<ItemRecord>();
+            foreach(var installation in save.displays)
+            {
+                if(installation==null||installation.typeId!="mannequin")continue;
+                var box=Find(save,installation.containerId);if(box==null||box.items==null)continue;
+                foreach(var item in new List<ItemRecord>(box.items))
+                {
+                    string error;if(item==null||string.IsNullOrWhiteSpace(item.instanceId)||item.rotation<0||item.rotation>3||item.purchasePrice<0||Catalog.FindQuality(item.itemId,item.quality)==null||(!Catalog.Find(item.itemId).canRotate&&item.rotation!=0)||AcceptDisplay(save,box.containerId,item.itemId,out error))continue;
+                    box.items.Remove(item);bool placed=false;
+                    foreach(var warehouse in save.containers)
+                        if(IsWarehouse(warehouse.containerId)&&TryPlaceRectangle(save,warehouse,item)){placed=true;break;}
+                    if(!placed)incoming.Add(item);
+                    save.listings.RemoveAll(listing=>listing.instanceId==item.instanceId);
+                }
+            }
+            if(incoming.Count>0){AppendTemporary(save,incoming);TrimDelivery(save);}
         }
         // 저장의 설치 메타데이터와 고정 크기를 대조합니다.
         // 정의를 바꿨다고 이미 물건이 든 진열장을 조용히 줄이거나 넓히지 않습니다.

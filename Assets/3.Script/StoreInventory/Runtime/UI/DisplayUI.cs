@@ -10,6 +10,9 @@ namespace GeneralStore.Inventory
         public InventoryPanel panel;public InventoryGridView cellReference;
         public bool matchWarehouseCells=true;public DisplayWindowView windowTemplate;public DisplayWindowTemplateEntry[] typeTemplates;public RectTransform windowLayer;
         public bool centerVertically=true;public bool slideFromRight=true;[Min(0)]public float rightInset=112;
+        [Range(.5f,.95f)]public float horizontalCenterFraction=.8f;
+        [Range(.6f,.9f)]public float bottomLimitFraction=.8f;
+        [Min(0)]public float screenMargin=24;
         [HideInInspector]public bool useViewport;[HideInInspector]public Rect viewport;
         public Vector2 openedPosition=new Vector2(112,-110),maximumSize=new Vector2(760,900);
         [Min(1)]public float slideSpeed=28;[Min(0)]public float hiddenMargin=30;
@@ -69,17 +72,26 @@ namespace GeneralStore.Inventory
             get
             {
                 float top=useViewport?viewport.yMax:0,height=useViewport?viewport.height:windowLayer.rect.height;
-                if(centerVertically&&movingRect!=null)return top-(height-movingRect.rect.height*Mathf.Abs(movingRect.localScale.y))*.5f;
+                if(centerVertically&&movingRect!=null)
+                {
+                    float h=movingRect.rect.height*Mathf.Abs(movingRect.localScale.y);
+                    float down=Mathf.Clamp((height-h)*.5f,screenMargin,Mathf.Max(screenMargin,height*bottomLimitFraction-h));return top-down;
+                }
                 return top+openedPosition.y;
             }
         }
-        float OpenX(DisplayWindowView v){var rt=(RectTransform)v.transform;return slideFromRight?RightEdge-rightInset-rt.rect.width*rt.localScale.x:openedPosition.x;}
+        float OpenX(DisplayWindowView v)
+        {
+            var rt=(RectTransform)v.transform;if(!slideFromRight)return openedPosition.x;
+            float width=rt.rect.width*rt.localScale.x,left=useViewport?viewport.xMin:0,screen=useViewport?viewport.width:windowLayer.rect.width;
+            return Mathf.Clamp(left+screen*horizontalCenterFraction-width*.5f,left+screenMargin,Mathf.Max(left+screenMargin,RightEdge-rightInset-width));
+        }
         float HiddenX(DisplayWindowView v){var rt=(RectTransform)v.transform;return slideFromRight?RightEdge+hiddenMargin:-rt.rect.width*rt.localScale.x-hiddenMargin;}
         void Fit(DisplayWindowView v)
         {
             var rt=(RectTransform)v.transform;float width=Mathf.Max(1,rt.rect.width),height=Mathf.Max(1,rt.rect.height);
-            float availableWidth=useViewport?Mathf.Min(maximumSize.x,viewport.width*.45f):maximumSize.x;
-            float availableHeight=useViewport?Mathf.Min(maximumSize.y,Mathf.Max(100,viewport.height+openedPosition.y-70)):maximumSize.y;
+            float availableWidth=useViewport?Mathf.Max(100,viewport.width-rightInset-screenMargin):maximumSize.x;
+            float availableHeight=useViewport?Mathf.Max(100,viewport.height*bottomLimitFraction-screenMargin):maximumSize.y;
             float scale=Mathf.Min(availableWidth/width,availableHeight/height);
             if(matchWarehouseCells&&cellReference!=null)
             {
@@ -94,6 +106,19 @@ namespace GeneralStore.Inventory
         {
             return Mathf.Max(grid.cellWidth*Mathf.Abs(grid.transform.lossyScale.x)/Mathf.Max(.0001f,Mathf.Abs(root.lossyScale.x)),
                 grid.cellHeight*Mathf.Abs(grid.transform.lossyScale.y)/Mathf.Max(.0001f,Mathf.Abs(root.lossyScale.y)));
+        }
+        // Match both windows to one safe cell budget, including the tallest full-height artwork.
+        public float WarehouseCellLimit(Rect region)
+        {
+            float limit=float.PositiveInfinity;if(typeTemplates==null)return limit;
+            foreach(var entry in typeTemplates)
+            {
+                if(entry?.template==null)continue;var view=entry.template;var rect=(RectTransform)view.transform;
+                if(view.appearance==null||!view.appearance.useAuthoredLayout)continue;
+                float cell=LocalCellEdge(view.grid,rect);if(view.extraGrids!=null)foreach(var grid in view.extraGrids)if(grid!=null)cell=Mathf.Max(cell,LocalCellEdge(grid,rect));
+                limit=Mathf.Min(limit,(region.height*bottomLimitFraction-screenMargin)*cell/Mathf.Max(1,rect.rect.height));
+            }
+            return limit;
         }
         public void RefreshViewport(Rect region)
         {

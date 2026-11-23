@@ -1,0 +1,2473 @@
+{
+  "workshops": [
+    {
+      "id": "processing",
+      "name": "가공소",
+      "dailyWage": 40,
+      "instantFee": 0,
+      "unlockSales": 1,
+      "queueCapacity": 1
+    },
+    {
+      "id": "alchemy",
+      "name": "연금술공방",
+      "dailyWage": 60,
+      "instantFee": 25,
+      "unlockSales": 2,
+      "queueCapacity": 1
+    },
+    {
+      "id": "smith",
+      "name": "대장간",
+      "dailyWage": 80,
+      "instantFee": 0,
+      "unlockSales": 3,
+      "queueCapacity": 3
+    }
+  ],
+  "recipes": [
+    {
+      "id": "recipe_E005",
+      "name": "봉인된 영혼구",
+      "workshopId": "alchemy",
+      "outputItemId": "E005",
+      "outputCount": 1,
+      "workSeconds": 600.0,
+      "ingredients": [
+        {
+          "itemId": "E004",
+          "count": 1
+        },
+        {
+          "itemId": "S007",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_E009",
+      "name": "화산 심장 부적",
+      "workshopId": "alchemy",
+      "outputItemId": "E009",
+      "outputCount": 1,
+      "workSeconds": 780.0,
+      "ingredients": [
+        {
+          "itemId": "E008",
+          "count": 1
+        },
+        {
+          "itemId": "M009",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_E014",
+      "name": "복원된 영웅의 검",
+      "workshopId": "smith",
+      "outputItemId": "E014",
+      "outputCount": 1,
+      "workSeconds": 1080.0,
+      "ingredients": [
+        {
+          "itemId": "E013",
+          "count": 1
+        },
+        {
+          "itemId": "M010",
+          "count": 2
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_E016",
+      "name": "정령 회복 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "E016",
+      "outputCount": 1,
+      "workSeconds": 480.0,
+      "ingredients": [
+        {
+          "itemId": "E015",
+          "count": 1
+        },
+        {
+          "itemId": "P001",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M001",
+      "name": "목재 판재",
+      "workshopId": "processing",
+      "outputItemId": "M001",
+      "outputCount": 1,
+      "workSeconds": 45.0,
+      "ingredients": [
+        {
+          "itemId": "R001",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_M002",
+      "name": "목재 손잡이",
+      "workshopId": "processing",
+      "outputItemId": "M002",
+      "outputCount": 1,
+      "workSeconds": 30.0,
+      "ingredients": [
+        {
+          "itemId": "M001",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M003",
+      "name": "튼튼한 밧줄",
+      "workshopId": "processing",
+      "outputItemId": "M003",
+      "outputCount": 1,
+      "workSeconds": 40.0,
+      "ingredients": [
+        {
+          "itemId": "R002",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "recipe_M004",
+      "name": "가공 가죽",
+      "workshopId": "processing",
+      "outputItemId": "M004",
+      "outputCount": 1,
+      "workSeconds": 60.0,
+      "ingredients": [
+        {
+          "itemId": "R007",
+          "count": 2
+        },
+        {
+          "itemId": "R047",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M005",
+      "name": "방한 안감",
+      "workshopId": "processing",
+      "outputItemId": "M005",
+      "outputCount": 1,
+      "workSeconds": 110.0,
+      "ingredients": [
+        {
+          "itemId": "R027",
+          "count": 2
+        },
+        {
+          "itemId": "M004",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M006",
+      "name": "철괴",
+      "workshopId": "smith",
+      "outputItemId": "M006",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "R011",
+          "count": 3
+        },
+        {
+          "itemId": "R015",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M007",
+      "name": "구리괴",
+      "workshopId": "smith",
+      "outputItemId": "M007",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "R012",
+          "count": 3
+        },
+        {
+          "itemId": "R015",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M009",
+      "name": "은괴",
+      "workshopId": "smith",
+      "outputItemId": "M009",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "R014",
+          "count": 3
+        },
+        {
+          "itemId": "R015",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M010",
+      "name": "흑철괴",
+      "workshopId": "smith",
+      "outputItemId": "M010",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "R022",
+          "count": 3
+        },
+        {
+          "itemId": "R015",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_M011",
+      "name": "금속 경첩",
+      "workshopId": "smith",
+      "outputItemId": "M011",
+      "outputCount": 1,
+      "workSeconds": 135.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M012",
+      "name": "쇠못 묶음",
+      "workshopId": "smith",
+      "outputItemId": "M012",
+      "outputCount": 1,
+      "workSeconds": 120.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M013",
+      "name": "유리병",
+      "workshopId": "processing",
+      "outputItemId": "M013",
+      "outputCount": 1,
+      "workSeconds": 55.0,
+      "ingredients": [
+        {
+          "itemId": "R037",
+          "count": 2
+        },
+        {
+          "itemId": "R013",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M014",
+      "name": "정제 약액",
+      "workshopId": "alchemy",
+      "outputItemId": "M014",
+      "outputCount": 1,
+      "workSeconds": 150.0,
+      "ingredients": [
+        {
+          "itemId": "R004",
+          "count": 2
+        },
+        {
+          "itemId": "R033",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M015",
+      "name": "해독 농축액",
+      "workshopId": "alchemy",
+      "outputItemId": "M015",
+      "outputCount": 1,
+      "workSeconds": 165.0,
+      "ingredients": [
+        {
+          "itemId": "R003",
+          "count": 1
+        },
+        {
+          "itemId": "R034",
+          "count": 2
+        },
+        {
+          "itemId": "R033",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M016",
+      "name": "마력 용액",
+      "workshopId": "alchemy",
+      "outputItemId": "M016",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "R017",
+          "count": 1
+        },
+        {
+          "itemId": "R039",
+          "count": 1
+        },
+        {
+          "itemId": "R042",
+          "count": 1
+        },
+        {
+          "itemId": "R033",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M017",
+      "name": "화염 촉매",
+      "workshopId": "alchemy",
+      "outputItemId": "M017",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "R029",
+          "count": 1
+        },
+        {
+          "itemId": "R030",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M018",
+      "name": "서리 촉매",
+      "workshopId": "alchemy",
+      "outputItemId": "M018",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "R026",
+          "count": 1
+        },
+        {
+          "itemId": "R028",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M019",
+      "name": "마법 잉크",
+      "workshopId": "alchemy",
+      "outputItemId": "M019",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "R039",
+          "count": 2
+        },
+        {
+          "itemId": "M016",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M020",
+      "name": "주문용 종이",
+      "workshopId": "processing",
+      "outputItemId": "M020",
+      "outputCount": 1,
+      "workSeconds": 50.0,
+      "ingredients": [
+        {
+          "itemId": "M031",
+          "count": 1
+        },
+        {
+          "itemId": "R047",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M021",
+      "name": "활시위",
+      "workshopId": "processing",
+      "outputItemId": "M021",
+      "outputCount": 1,
+      "workSeconds": 45.0,
+      "ingredients": [
+        {
+          "itemId": "R040",
+          "count": 2
+        },
+        {
+          "itemId": "R002",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M022",
+      "name": "방화 가죽",
+      "workshopId": "processing",
+      "outputItemId": "M022",
+      "outputCount": 1,
+      "workSeconds": 120.0,
+      "ingredients": [
+        {
+          "itemId": "M004",
+          "count": 1
+        },
+        {
+          "itemId": "R032",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_M023",
+      "name": "연마한 석영",
+      "workshopId": "processing",
+      "outputItemId": "M023",
+      "outputCount": 1,
+      "workSeconds": 60.0,
+      "ingredients": [
+        {
+          "itemId": "R016",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_M024",
+      "name": "뼈 분말",
+      "workshopId": "processing",
+      "outputItemId": "M024",
+      "outputCount": 1,
+      "workSeconds": 45.0,
+      "ingredients": [
+        {
+          "itemId": "R019",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_M025",
+      "name": "밀가루",
+      "workshopId": "processing",
+      "outputItemId": "M025",
+      "outputCount": 1,
+      "workSeconds": 30.0,
+      "ingredients": [
+        {
+          "itemId": "R041",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_M027",
+      "name": "직물 천",
+      "workshopId": "processing",
+      "outputItemId": "M027",
+      "outputCount": 1,
+      "workSeconds": 50.0,
+      "ingredients": [
+        {
+          "itemId": "R046",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "id": "recipe_M028",
+      "name": "치유 추출액",
+      "workshopId": "alchemy",
+      "outputItemId": "M028",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "R044",
+          "count": 1
+        },
+        {
+          "itemId": "R004",
+          "count": 2
+        },
+        {
+          "itemId": "M014",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M029",
+      "name": "은신 촉매",
+      "workshopId": "alchemy",
+      "outputItemId": "M029",
+      "outputCount": 1,
+      "workSeconds": 225.0,
+      "ingredients": [
+        {
+          "itemId": "R006",
+          "count": 1
+        },
+        {
+          "itemId": "R005",
+          "count": 1
+        },
+        {
+          "itemId": "M016",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M030",
+      "name": "별실 은사",
+      "workshopId": "processing",
+      "outputItemId": "M030",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "R049",
+          "count": 1
+        },
+        {
+          "itemId": "M009",
+          "count": 1
+        },
+        {
+          "itemId": "R048",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M031",
+      "name": "양피지",
+      "workshopId": "processing",
+      "outputItemId": "M031",
+      "outputCount": 1,
+      "workSeconds": 75.0,
+      "ingredients": [
+        {
+          "itemId": "R007",
+          "count": 2
+        },
+        {
+          "itemId": "R018",
+          "count": 1
+        },
+        {
+          "itemId": "R033",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M032",
+      "name": "산악 강화 가죽",
+      "workshopId": "processing",
+      "outputItemId": "M032",
+      "outputCount": 1,
+      "workSeconds": 100.0,
+      "ingredients": [
+        {
+          "itemId": "R058",
+          "count": 2
+        },
+        {
+          "itemId": "R047",
+          "count": 1
+        },
+        {
+          "itemId": "M004",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_M033",
+      "name": "고장력 실",
+      "workshopId": "processing",
+      "outputItemId": "M033",
+      "outputCount": 1,
+      "workSeconds": 85.0,
+      "ingredients": [
+        {
+          "itemId": "R059",
+          "count": 2
+        },
+        {
+          "itemId": "R040",
+          "count": 1
+        },
+        {
+          "itemId": "M003",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P001",
+      "name": "회복 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P001",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "M014",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P002",
+      "name": "마력 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P002",
+      "outputCount": 1,
+      "workSeconds": 195.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "M016",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P003",
+      "name": "해독 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P003",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "M015",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P004",
+      "name": "지구력 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P004",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "R010",
+          "count": 1
+        },
+        {
+          "itemId": "R009",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P005",
+      "name": "야간 시야 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P005",
+      "outputCount": 1,
+      "workSeconds": 195.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "R005",
+          "count": 1
+        },
+        {
+          "itemId": "R003",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P006",
+      "name": "수면 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P006",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "R006",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_P007",
+      "name": "독 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P007",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "R035",
+          "count": 1
+        },
+        {
+          "itemId": "R006",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P008",
+      "name": "서리 저항 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P008",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "M018",
+          "count": 1
+        },
+        {
+          "itemId": "R009",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P009",
+      "name": "화염 저항 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P009",
+      "outputCount": 1,
+      "workSeconds": 270.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "M017",
+          "count": 1
+        },
+        {
+          "itemId": "R025",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P010",
+      "name": "집중력 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P010",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "M016",
+          "count": 1
+        },
+        {
+          "itemId": "R005",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P012",
+      "name": "수중 호흡 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P012",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "R034",
+          "count": 2
+        },
+        {
+          "itemId": "R036",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P013",
+      "name": "신속 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P013",
+      "outputCount": 1,
+      "workSeconds": 225.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "R024",
+          "count": 2
+        },
+        {
+          "itemId": "M014",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P014",
+      "name": "맑은 정신 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P014",
+      "outputCount": 1,
+      "workSeconds": 195.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "R005",
+          "count": 1
+        },
+        {
+          "itemId": "R042",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P015",
+      "name": "강철 피부 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P015",
+      "outputCount": 1,
+      "workSeconds": 270.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "M016",
+          "count": 1
+        },
+        {
+          "itemId": "R022",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P017",
+      "name": "은신 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P017",
+      "outputCount": 1,
+      "workSeconds": 300.0,
+      "ingredients": [
+        {
+          "itemId": "M029",
+          "count": 1
+        },
+        {
+          "itemId": "M013",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P018",
+      "name": "특제 회복 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P018",
+      "outputCount": 1,
+      "workSeconds": 300.0,
+      "ingredients": [
+        {
+          "itemId": "M028",
+          "count": 1
+        },
+        {
+          "itemId": "M014",
+          "count": 1
+        },
+        {
+          "itemId": "M013",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P019",
+      "name": "수상한 향약",
+      "workshopId": "alchemy",
+      "outputItemId": "P019",
+      "outputCount": 1,
+      "workSeconds": 285.0,
+      "ingredients": [
+        {
+          "itemId": "R043",
+          "count": 1
+        },
+        {
+          "itemId": "M016",
+          "count": 1
+        },
+        {
+          "itemId": "M013",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P020",
+      "name": "달그림자 영약",
+      "workshopId": "alchemy",
+      "outputItemId": "P020",
+      "outputCount": 1,
+      "workSeconds": 720.0,
+      "ingredients": [
+        {
+          "itemId": "R048",
+          "count": 1
+        },
+        {
+          "itemId": "R055",
+          "count": 1
+        },
+        {
+          "itemId": "M013",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P021",
+      "name": "고산 적응 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P021",
+      "outputCount": 1,
+      "workSeconds": 225.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "R060",
+          "count": 1
+        },
+        {
+          "itemId": "R010",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_P022",
+      "name": "잿꽃 재생 포션",
+      "workshopId": "alchemy",
+      "outputItemId": "P022",
+      "outputCount": 1,
+      "workSeconds": 600.0,
+      "ingredients": [
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "M014",
+          "count": 1
+        },
+        {
+          "itemId": "R053",
+          "count": 1
+        },
+        {
+          "itemId": "V010",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_R013",
+      "name": "목탄",
+      "workshopId": "processing",
+      "outputItemId": "R013",
+      "outputCount": 1,
+      "workSeconds": 75.0,
+      "ingredients": [
+        {
+          "itemId": "R001",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_S001",
+      "name": "불꽃 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S001",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "R047",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S002",
+      "name": "서리 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S002",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "R033",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S003",
+      "name": "치유 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S003",
+      "outputCount": 1,
+      "workSeconds": 195.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "M014",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S004",
+      "name": "해독 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S004",
+      "outputCount": 1,
+      "workSeconds": 195.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "M015",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S005",
+      "name": "탐지 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S005",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "M023",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S006",
+      "name": "방어막 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S006",
+      "outputCount": 1,
+      "workSeconds": 225.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "M006",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S007",
+      "name": "봉인 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S007",
+      "outputCount": 1,
+      "workSeconds": 420.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "M024",
+          "count": 1
+        },
+        {
+          "itemId": "R021",
+          "count": 1
+        },
+        {
+          "itemId": "R038",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S008",
+      "name": "잠금 해제 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S008",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "M011",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S009",
+      "name": "정화 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S009",
+      "outputCount": 1,
+      "workSeconds": 270.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "R020",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S010",
+      "name": "수중 이동 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S010",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "R034",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S011",
+      "name": "귀환 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S011",
+      "outputCount": 1,
+      "workSeconds": 360.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 2
+        },
+        {
+          "itemId": "R017",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_S012",
+      "name": "감정 스크롤",
+      "workshopId": "alchemy",
+      "outputItemId": "S012",
+      "outputCount": 1,
+      "workSeconds": 225.0,
+      "ingredients": [
+        {
+          "itemId": "M020",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        },
+        {
+          "itemId": "M023",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T002",
+      "name": "강철 곡괭이",
+      "workshopId": "smith",
+      "outputItemId": "T002",
+      "outputCount": 1,
+      "workSeconds": 225.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 1
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T003",
+      "name": "벌목 도끼",
+      "workshopId": "smith",
+      "outputItemId": "T003",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 1
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T004",
+      "name": "사냥칼",
+      "workshopId": "smith",
+      "outputItemId": "T004",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 1
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T005",
+      "name": "야영 랜턴",
+      "workshopId": "processing",
+      "outputItemId": "T005",
+      "outputCount": 1,
+      "workSeconds": 90.0,
+      "ingredients": [
+        {
+          "itemId": "M007",
+          "count": 1
+        },
+        {
+          "itemId": "M013",
+          "count": 1
+        },
+        {
+          "itemId": "R009",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T006",
+      "name": "휴대 횃불",
+      "workshopId": "processing",
+      "outputItemId": "T006",
+      "outputCount": 1,
+      "workSeconds": 35.0,
+      "ingredients": [
+        {
+          "itemId": "M002",
+          "count": 1
+        },
+        {
+          "itemId": "R009",
+          "count": 1
+        },
+        {
+          "itemId": "R047",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T007",
+      "name": "등산용 로프",
+      "workshopId": "processing",
+      "outputItemId": "T007",
+      "outputCount": 1,
+      "workSeconds": 60.0,
+      "ingredients": [
+        {
+          "itemId": "M003",
+          "count": 2
+        },
+        {
+          "itemId": "M011",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T008",
+      "name": "갈고리",
+      "workshopId": "smith",
+      "outputItemId": "T008",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 1
+        },
+        {
+          "itemId": "M003",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T009",
+      "name": "가죽 배낭",
+      "workshopId": "processing",
+      "outputItemId": "T009",
+      "outputCount": 1,
+      "workSeconds": 90.0,
+      "ingredients": [
+        {
+          "itemId": "M004",
+          "count": 2
+        },
+        {
+          "itemId": "M003",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T010",
+      "name": "방한 망토",
+      "workshopId": "processing",
+      "outputItemId": "T010",
+      "outputCount": 1,
+      "workSeconds": 150.0,
+      "ingredients": [
+        {
+          "itemId": "M005",
+          "count": 2
+        },
+        {
+          "itemId": "M003",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T011",
+      "name": "방독 두건",
+      "workshopId": "processing",
+      "outputItemId": "T011",
+      "outputCount": 1,
+      "workSeconds": 75.0,
+      "ingredients": [
+        {
+          "itemId": "M004",
+          "count": 1
+        },
+        {
+          "itemId": "R003",
+          "count": 1
+        },
+        {
+          "itemId": "R034",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T012",
+      "name": "수로 방수화",
+      "workshopId": "processing",
+      "outputItemId": "T012",
+      "outputCount": 1,
+      "workSeconds": 90.0,
+      "ingredients": [
+        {
+          "itemId": "M004",
+          "count": 2
+        },
+        {
+          "itemId": "R034",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T013",
+      "name": "붕대 묶음",
+      "workshopId": "processing",
+      "outputItemId": "T013",
+      "outputCount": 1,
+      "workSeconds": 30.0,
+      "ingredients": [
+        {
+          "itemId": "M027",
+          "count": 1
+        },
+        {
+          "itemId": "R003",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T014",
+      "name": "휴대 식량",
+      "workshopId": "processing",
+      "outputItemId": "T014",
+      "outputCount": 1,
+      "workSeconds": 45.0,
+      "ingredients": [
+        {
+          "itemId": "R045",
+          "count": 2
+        },
+        {
+          "itemId": "R010",
+          "count": 1
+        },
+        {
+          "itemId": "M025",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T015",
+      "name": "낚시 도구",
+      "workshopId": "processing",
+      "outputItemId": "T015",
+      "outputCount": 1,
+      "workSeconds": 60.0,
+      "ingredients": [
+        {
+          "itemId": "M002",
+          "count": 1
+        },
+        {
+          "itemId": "M003",
+          "count": 1
+        },
+        {
+          "itemId": "R036",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T016",
+      "name": "나침반",
+      "workshopId": "processing",
+      "outputItemId": "T016",
+      "outputCount": 1,
+      "workSeconds": 90.0,
+      "ingredients": [
+        {
+          "itemId": "M007",
+          "count": 1
+        },
+        {
+          "itemId": "M023",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T017",
+      "name": "간이 수리 도구",
+      "workshopId": "processing",
+      "outputItemId": "T017",
+      "outputCount": 1,
+      "workSeconds": 75.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 1
+        },
+        {
+          "itemId": "M012",
+          "count": 1
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T018",
+      "name": "봉인함",
+      "workshopId": "processing",
+      "outputItemId": "T018",
+      "outputCount": 1,
+      "workSeconds": 120.0,
+      "ingredients": [
+        {
+          "itemId": "M001",
+          "count": 2
+        },
+        {
+          "itemId": "M011",
+          "count": 1
+        },
+        {
+          "itemId": "M023",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T019",
+      "name": "보관 상자",
+      "workshopId": "processing",
+      "outputItemId": "T019",
+      "outputCount": 1,
+      "workSeconds": 90.0,
+      "ingredients": [
+        {
+          "itemId": "M001",
+          "count": 3
+        },
+        {
+          "itemId": "M012",
+          "count": 1
+        },
+        {
+          "itemId": "M011",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T020",
+      "name": "정제 도가니",
+      "workshopId": "smith",
+      "outputItemId": "T020",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 2
+        },
+        {
+          "itemId": "M023",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T021",
+      "name": "빵",
+      "workshopId": "processing",
+      "outputItemId": "T021",
+      "outputCount": 1,
+      "workSeconds": 45.0,
+      "ingredients": [
+        {
+          "itemId": "M025",
+          "count": 2
+        },
+        {
+          "itemId": "R033",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T022",
+      "name": "여행용 구급 가방",
+      "workshopId": "processing",
+      "outputItemId": "T022",
+      "outputCount": 1,
+      "workSeconds": 90.0,
+      "ingredients": [
+        {
+          "itemId": "M004",
+          "count": 1
+        },
+        {
+          "itemId": "M027",
+          "count": 1
+        },
+        {
+          "itemId": "T013",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_T023",
+      "name": "방수 지도통",
+      "workshopId": "processing",
+      "outputItemId": "T023",
+      "outputCount": 1,
+      "workSeconds": 60.0,
+      "ingredients": [
+        {
+          "itemId": "M004",
+          "count": 1
+        },
+        {
+          "itemId": "M027",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T024",
+      "name": "길잃은 자의 나침반",
+      "workshopId": "processing",
+      "outputItemId": "T024",
+      "outputCount": 1,
+      "workSeconds": 270.0,
+      "ingredients": [
+        {
+          "itemId": "T016",
+          "count": 1
+        },
+        {
+          "itemId": "R050",
+          "count": 1
+        },
+        {
+          "itemId": "R052",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_T025",
+      "name": "절벽 등반 장비",
+      "workshopId": "processing",
+      "outputItemId": "T025",
+      "outputCount": 1,
+      "workSeconds": 150.0,
+      "ingredients": [
+        {
+          "itemId": "M033",
+          "count": 1
+        },
+        {
+          "itemId": "T008",
+          "count": 1
+        },
+        {
+          "itemId": "M032",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_V001",
+      "name": "은반지",
+      "workshopId": "smith",
+      "outputItemId": "V001",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M009",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_V002",
+      "name": "석영 목걸이",
+      "workshopId": "processing",
+      "outputItemId": "V002",
+      "outputCount": 1,
+      "workSeconds": 90.0,
+      "ingredients": [
+        {
+          "itemId": "M023",
+          "count": 1
+        },
+        {
+          "itemId": "M003",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_V003",
+      "name": "늑대 송곳니 장식",
+      "workshopId": "processing",
+      "outputItemId": "V003",
+      "outputCount": 1,
+      "workSeconds": 60.0,
+      "ingredients": [
+        {
+          "itemId": "R008",
+          "count": 2
+        },
+        {
+          "itemId": "M003",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_V004",
+      "name": "은제 성표",
+      "workshopId": "smith",
+      "outputItemId": "V004",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "M009",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_V011",
+      "name": "진주 조개 장식",
+      "workshopId": "processing",
+      "outputItemId": "V011",
+      "outputCount": 1,
+      "workSeconds": 120.0,
+      "ingredients": [
+        {
+          "itemId": "R036",
+          "count": 2
+        },
+        {
+          "itemId": "M009",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_V012",
+      "name": "마력석 펜던트",
+      "workshopId": "smith",
+      "outputItemId": "V012",
+      "outputCount": 1,
+      "workSeconds": 300.0,
+      "ingredients": [
+        {
+          "itemId": "R017",
+          "count": 2
+        },
+        {
+          "itemId": "M009",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_V016",
+      "name": "망령의 은방울",
+      "workshopId": "smith",
+      "outputItemId": "V016",
+      "outputCount": 1,
+      "workSeconds": 720.0,
+      "ingredients": [
+        {
+          "itemId": "M030",
+          "count": 1
+        },
+        {
+          "itemId": "R054",
+          "count": 1
+        },
+        {
+          "itemId": "M009",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W002",
+      "name": "철제 단검",
+      "workshopId": "smith",
+      "outputItemId": "W002",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 1
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W003",
+      "name": "철검",
+      "workshopId": "smith",
+      "outputItemId": "W003",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 2
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W004",
+      "name": "장검",
+      "workshopId": "smith",
+      "outputItemId": "W004",
+      "outputCount": 1,
+      "workSeconds": 270.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 3
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        },
+        {
+          "itemId": "M004",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W005",
+      "name": "흑철검",
+      "workshopId": "smith",
+      "outputItemId": "W005",
+      "outputCount": 1,
+      "workSeconds": 360.0,
+      "ingredients": [
+        {
+          "itemId": "M010",
+          "count": 2
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W006",
+      "name": "사냥활",
+      "workshopId": "processing",
+      "outputItemId": "W006",
+      "outputCount": 1,
+      "workSeconds": 120.0,
+      "ingredients": [
+        {
+          "itemId": "M001",
+          "count": 2
+        },
+        {
+          "itemId": "M021",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W007",
+      "name": "강화 장궁",
+      "workshopId": "processing",
+      "outputItemId": "W007",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "M001",
+          "count": 2
+        },
+        {
+          "itemId": "M021",
+          "count": 2
+        },
+        {
+          "itemId": "R024",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W008",
+      "name": "화살 묶음",
+      "workshopId": "processing",
+      "outputItemId": "W008",
+      "outputCount": 1,
+      "workSeconds": 60.0,
+      "ingredients": [
+        {
+          "itemId": "M001",
+          "count": 1
+        },
+        {
+          "itemId": "R040",
+          "count": 1
+        },
+        {
+          "itemId": "R047",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W009",
+      "name": "철촉 화살 묶음",
+      "workshopId": "smith",
+      "outputItemId": "W009",
+      "outputCount": 1,
+      "workSeconds": 180.0,
+      "ingredients": [
+        {
+          "itemId": "W008",
+          "count": 1
+        },
+        {
+          "itemId": "M006",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W010",
+      "name": "철제 방패",
+      "workshopId": "smith",
+      "outputItemId": "W010",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 2
+        },
+        {
+          "itemId": "M001",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W012",
+      "name": "가죽 갑옷",
+      "workshopId": "processing",
+      "outputItemId": "W012",
+      "outputCount": 1,
+      "workSeconds": 150.0,
+      "ingredients": [
+        {
+          "itemId": "M004",
+          "count": 3
+        },
+        {
+          "itemId": "M003",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W013",
+      "name": "철제 흉갑",
+      "workshopId": "smith",
+      "outputItemId": "W013",
+      "outputCount": 1,
+      "workSeconds": 360.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 4
+        },
+        {
+          "itemId": "M004",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W014",
+      "name": "방한 갑옷",
+      "workshopId": "processing",
+      "outputItemId": "W014",
+      "outputCount": 1,
+      "workSeconds": 240.0,
+      "ingredients": [
+        {
+          "itemId": "W012",
+          "count": 1
+        },
+        {
+          "itemId": "M005",
+          "count": 2
+        },
+        {
+          "itemId": "M018",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W015",
+      "name": "화염 저항 갑옷",
+      "workshopId": "smith",
+      "outputItemId": "W015",
+      "outputCount": 1,
+      "workSeconds": 720.0,
+      "ingredients": [
+        {
+          "itemId": "W013",
+          "count": 1
+        },
+        {
+          "itemId": "M022",
+          "count": 2
+        },
+        {
+          "itemId": "M017",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W016",
+      "name": "은제 퇴마검",
+      "workshopId": "smith",
+      "outputItemId": "W016",
+      "outputCount": 1,
+      "workSeconds": 420.0,
+      "ingredients": [
+        {
+          "itemId": "M009",
+          "count": 2
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        },
+        {
+          "itemId": "M024",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W017",
+      "name": "흑요석 단검",
+      "workshopId": "smith",
+      "outputItemId": "W017",
+      "outputCount": 1,
+      "workSeconds": 300.0,
+      "ingredients": [
+        {
+          "itemId": "R031",
+          "count": 2
+        },
+        {
+          "itemId": "M002",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W018",
+      "name": "사슬 갑옷",
+      "workshopId": "smith",
+      "outputItemId": "W018",
+      "outputCount": 1,
+      "workSeconds": 480.0,
+      "ingredients": [
+        {
+          "itemId": "M006",
+          "count": 3
+        },
+        {
+          "itemId": "M011",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "recipe_W019",
+      "name": "수호 부적 방패",
+      "workshopId": "smith",
+      "outputItemId": "W019",
+      "outputCount": 1,
+      "workSeconds": 540.0,
+      "ingredients": [
+        {
+          "itemId": "W010",
+          "count": 1
+        },
+        {
+          "itemId": "M023",
+          "count": 1
+        },
+        {
+          "itemId": "M019",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W020",
+      "name": "설산 사냥창",
+      "workshopId": "smith",
+      "outputItemId": "W020",
+      "outputCount": 1,
+      "workSeconds": 420.0,
+      "ingredients": [
+        {
+          "itemId": "M010",
+          "count": 1
+        },
+        {
+          "itemId": "M002",
+          "count": 2
+        },
+        {
+          "itemId": "M005",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W021",
+      "name": "설광 미스릴 장검",
+      "workshopId": "smith",
+      "outputItemId": "W021",
+      "outputCount": 1,
+      "workSeconds": 900.0,
+      "ingredients": [
+        {
+          "itemId": "R056",
+          "count": 2
+        },
+        {
+          "itemId": "V009",
+          "count": 1
+        },
+        {
+          "itemId": "M018",
+          "count": 1
+        },
+        {
+          "itemId": "M009",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W022",
+      "name": "용암 아다만타이트 갑옷",
+      "workshopId": "smith",
+      "outputItemId": "W022",
+      "outputCount": 1,
+      "workSeconds": 1440.0,
+      "ingredients": [
+        {
+          "itemId": "R057",
+          "count": 1
+        },
+        {
+          "itemId": "V010",
+          "count": 1
+        },
+        {
+          "itemId": "M017",
+          "count": 1
+        },
+        {
+          "itemId": "M022",
+          "count": 1
+        },
+        {
+          "itemId": "M005",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W023",
+      "name": "강화 화살 묶음",
+      "workshopId": "processing",
+      "outputItemId": "W023",
+      "outputCount": 1,
+      "workSeconds": 75.0,
+      "ingredients": [
+        {
+          "itemId": "W009",
+          "count": 1
+        },
+        {
+          "itemId": "R024",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "recipe_W024",
+      "name": "산악 정찰 갑옷",
+      "workshopId": "processing",
+      "outputItemId": "W024",
+      "outputCount": 1,
+      "workSeconds": 210.0,
+      "ingredients": [
+        {
+          "itemId": "M032",
+          "count": 2
+        },
+        {
+          "itemId": "M033",
+          "count": 1
+        },
+        {
+          "itemId": "R051",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "qualityWeights": [
+    {
+      "quality": "none",
+      "rank": 1,
+      "weight": 60
+    },
+    {
+      "quality": "common",
+      "rank": 1,
+      "weight": 60
+    },
+    {
+      "quality": "superior",
+      "rank": 2,
+      "weight": 23
+    },
+    {
+      "quality": "perfect",
+      "rank": 3,
+      "weight": 8
+    },
+    {
+      "quality": "masterpiece",
+      "rank": 4,
+      "weight": 3
+    },
+    {
+      "quality": "legendary",
+      "rank": 5,
+      "weight": 1
+    }
+  ],
+  "qualityInfluence": 0.8,
+  "usePhaseSchedule": true,
+  "dayWork": true,
+  "nightWork": false,
+  "dawnWork": false,
+  "paidNightWorkEnabled": true,
+  "nightWageMultiplier": 0.5,
+  "emergencyRemainingFraction": 0.25,
+  "repeatUsesTemporary": true
+}

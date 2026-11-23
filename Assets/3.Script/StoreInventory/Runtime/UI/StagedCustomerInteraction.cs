@@ -14,7 +14,7 @@ namespace GeneralStore.Inventory
         public CustomerVisitPose[] browsingStops;public CustomerVisitPose counterPose;
         [Min(.05f)]public float fadeSeconds=.25f;
         public bool Engaged{get;private set;}public bool AtCounter{get;private set;}
-        bool visiting,restoreDrawer,restoreDisplay;string displayId;int stage;float elapsed;
+        bool visiting;int stage;float elapsed;
         bool Busy{get{return shop.panel.IsWindowDragging||shop.panel.drag.IsDragging||shop.HasPendingPlacement||(shop.counterTrade!=null&&shop.counterTrade.IsItemDragging);}}
         CustomerVisitPose Pose{get{return browsingStops!=null&&stage<browsingStops.Length?browsingStops[stage]:counterPose;}}
         public void BeginVisit(){visiting=true;Engaged=false;AtCounter=false;stage=0;elapsed=0;ApplyPose();shop.RefreshDialogue();}
@@ -28,16 +28,12 @@ namespace GeneralStore.Inventory
         {
             if(!visiting||!AtCounter||Engaged||Busy)return;
             string error;if(!shop.panel.inventory.Sales.PresentOnCounter(out error)){shop.panel.ShowMessage(error);return;}
-            restoreDrawer=shop.drawer.IsOpen;restoreDisplay=shop.displays.AnyOpen;displayId=shop.displays.SelectedId;
-            shop.displays.CloseAll();shop.drawer.Close();
             Engaged=true;sceneImage.enabled=sceneImage.sprite!=null;sceneImage.raycastTarget=false;shop.RefreshDialogue();
         }
         public void Minimize()
         {
             if(!Engaged||Busy)return;
             Engaged=false;
-            if(restoreDrawer)shop.drawer.Open();else shop.drawer.Close();
-            if(restoreDisplay&&shop.panel.Model.Installation(displayId)!=null)shop.displays.Open(displayId);
             sceneImage.enabled=visiting&&shop.panel.inventory.Sales.CustomerPresent&&sceneImage.sprite!=null;
             sceneImage.raycastTarget=sceneImage.enabled&&AtCounter;shop.RefreshDialogue();
         }
@@ -52,10 +48,25 @@ namespace GeneralStore.Inventory
             if(!shop.simulation.timeRunning)return;
             elapsed+=Time.deltaTime;var p=Pose;float hold=p==null?2:Mathf.Max(.2f,p.holdSeconds),fade=Mathf.Max(.05f,fadeSeconds);
             bool last=browsingStops==null||stage>=browsingStops.Length;
+            if(last&&shop.panel.inventory.Sales.Browsing)
+            {
+                if(Busy)return;string error;if(!shop.panel.inventory.Sales.FinishBrowsing(out error))
+                {visiting=false;sceneImage.enabled=false;sceneImage.raycastTarget=false;shop.panel.ShowMessage(error);shop.RefreshDialogue();return;}
+            }
             float alpha=Mathf.Clamp01(elapsed/fade);if(!last)alpha=Mathf.Min(alpha,Mathf.Clamp01((hold+fade*2-elapsed)/fade));
             sceneImage.color=new Color(1,1,1,alpha);
             if(last&&elapsed>=fade){AtCounter=true;sceneImage.color=Color.white;sceneImage.raycastTarget=!Busy;}
-            else if(!last&&elapsed>=hold+fade*2){stage++;elapsed=0;ApplyPose();}
+            else if(!last&&elapsed>=hold+fade*2)
+            {
+                bool leavingBrowse=stage+1>=browsingStops.Length;
+                if(leavingBrowse&&shop.panel.inventory.Sales.Browsing)
+                {
+                    if(Busy)return;string error;
+                    if(!shop.panel.inventory.Sales.FinishBrowsing(out error))
+                    {visiting=false;sceneImage.enabled=false;sceneImage.raycastTarget=false;shop.panel.ShowMessage(error);shop.RefreshDialogue();return;}
+                }
+                stage++;elapsed=0;ApplyPose();
+            }
         }
     }
 }

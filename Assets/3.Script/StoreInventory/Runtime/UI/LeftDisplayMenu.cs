@@ -28,7 +28,7 @@ namespace GeneralStore.Inventory
         public void RefreshLayout(){dirty=true;lastHeight=-1;if(!revealed)window.anchoredPosition=new Vector2(HiddenX,window.anchoredPosition.y);}
         void MarkDirty(){dirty=true;}
         public void Toggle(string id){displays.Toggle(id);}
-        public void OpenFromHover(string id){if(panel.drag.IsDragging)displays.OpenWhileDragging(id);}
+        public void OpenFromHover(string id){if(panel.drag.IsDragging||(panel.shop.counterTrade!=null&&panel.shop.counterTrade.IsItemDragging))displays.OpenWhileDragging(id);}
         void Sync()
         {
             dirty=false;seen.Clear();var ids=panel.Model.DisplayIds();int n=0;

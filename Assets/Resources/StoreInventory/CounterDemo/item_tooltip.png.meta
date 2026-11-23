@@ -1,0 +1,806 @@
+fileFormatVersion: 2
+guid: 14fbe63824fd1544c91a9bc0b36f00a5
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3689199419604283073
+    second: item_tooltip_0
+  - first:
+      213: -7008598435467119293
+    second: item_tooltip_1
+  - first:
+      213: 1659377430616737745
+    second: item_tooltip_2
+  - first:
+      213: 7309042801007136889
+    second: item_tooltip_3
+  - first:
+      213: -3602197930632810368
+    second: item_tooltip_4
+  - first:
+      213: -2126104970943290388
+    second: item_tooltip_5
+  - first:
+      213: -3108948359755911513
+    second: item_tooltip_6
+  - first:
+      213: -4563408561184713123
+    second: item_tooltip_7
+  - first:
+      213: -3902921208719990670
+    second: item_tooltip_8
+  - first:
+      213: 1588827963711270282
+    second: item_tooltip_9
+  - first:
+      213: -439015994105863486
+    second: item_tooltip_10
+  - first:
+      213: 6925727290963020256
+    second: item_tooltip_11
+  - first:
+      213: -6025023657747343907
+    second: item_tooltip_12
+  - first:
+      213: -7979872084040187595
+    second: item_tooltip_13
+  - first:
+      213: -6288235427706432689
+    second: item_tooltip_14
+  - first:
+      213: -117752255394962667
+    second: item_tooltip_15
+  - first:
+      213: 152614418116109066
+    second: item_tooltip_16
+  - first:
+      213: 7446914635374902244
+    second: item_tooltip_17
+  - first:
+      213: -2013467810801000443
+    second: item_tooltip_18
+  - first:
+      213: -1285823659640782711
+    second: item_tooltip_19
+  - first:
+      213: -8229203761073828044
+    second: item_tooltip_20
+  - first:
+      213: 6416154646151301894
+    second: item_tooltip_21
+  - first:
+      213: -6701908729112395318
+    second: item_tooltip_22
+  - first:
+      213: 6413373597135604595
+    second: item_tooltip_23
+  - first:
+      213: 5298671921508961859
+    second: item_tooltip_24
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 1024
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: item_tooltip_0
+      rect:
+        serializedVersion: 2
+        x: 174
+        y: 1003
+        width: 20
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f31d8e09ca45dccc0800000000000000
+      internalID: -3689199419604283073
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_1
+      rect:
+        serializedVersion: 2
+        x: 237
+        y: 1014
+        width: 20
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 345bf982bd47cbe90800000000000000
+      internalID: -7008598435467119293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_2
+      rect:
+        serializedVersion: 2
+        x: 640
+        y: 934
+        width: 160
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d7063c3bfa470710800000000000000
+      internalID: 1659377430616737745
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_3
+      rect:
+        serializedVersion: 2
+        x: 878
+        y: 973
+        width: 69
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 970182ad3bfee6560800000000000000
+      internalID: 7309042801007136889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_4
+      rect:
+        serializedVersion: 2
+        x: 952
+        y: 942
+        width: 263
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 080fbfd311c620ec0800000000000000
+      internalID: -3602197930632810368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_5
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1518
+        height: 1005
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce3abb32bce8e72e0800000000000000
+      internalID: -2126104970943290388
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_6
+      rect:
+        serializedVersion: 2
+        x: 189
+        y: 998
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ae27bf40fbcad4d0800000000000000
+      internalID: -3108948359755911513
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_7
+      rect:
+        serializedVersion: 2
+        x: 222
+        y: 953
+        width: 59
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d56db9177148ba0c0800000000000000
+      internalID: -4563408561184713123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_8
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 949
+        width: 75
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27028e7d6d906d9c0800000000000000
+      internalID: -3902921208719990670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_9
+      rect:
+        serializedVersion: 2
+        x: 348
+        y: 943
+        width: 83
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8da7327d96ac0610800000000000000
+      internalID: 1588827963711270282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_10
+      rect:
+        serializedVersion: 2
+        x: 430
+        y: 956
+        width: 145
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c2ea94874d48e9f0800000000000000
+      internalID: -439015994105863486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_11
+      rect:
+        serializedVersion: 2
+        x: 574
+        y: 992
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e9441de6402d1060800000000000000
+      internalID: 6925727290963020256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_12
+      rect:
+        serializedVersion: 2
+        x: 605
+        y: 989
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd515acb7e0d26ca0800000000000000
+      internalID: -6025023657747343907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_13
+      rect:
+        serializedVersion: 2
+        x: 840
+        y: 991
+        width: 25
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5318ab56e9cc14190800000000000000
+      internalID: -7979872084040187595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_14
+      rect:
+        serializedVersion: 2
+        x: 1233
+        y: 951
+        width: 34
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f43188be133bbb8a0800000000000000
+      internalID: -6288235427706432689
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_15
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 981
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 513aea592f8ad5ef0800000000000000
+      internalID: -117752255394962667
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_16
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 981
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a03e96331023e1200800000000000000
+      internalID: 152614418116109066
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_17
+      rect:
+        serializedVersion: 2
+        x: 616
+        y: 979
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ebbd2ac761c85760800000000000000
+      internalID: 7446914635374902244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_18
+      rect:
+        serializedVersion: 2
+        x: 624
+        y: 978
+        width: 22
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 500e582a1b9be04e0800000000000000
+      internalID: -2013467810801000443
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_19
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 987
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9808153b136d72ee0800000000000000
+      internalID: -1285823659640782711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_20
+      rect:
+        serializedVersion: 2
+        x: 1390
+        y: 983
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43fc2ec87cefbcd80800000000000000
+      internalID: -8229203761073828044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_21
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 977
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60b02db08a2ca0950800000000000000
+      internalID: 6416154646151301894
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_22
+      rect:
+        serializedVersion: 2
+        x: 818
+        y: 959
+        width: 37
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac18a24e4890ef2a0800000000000000
+      internalID: -6701908729112395318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_23
+      rect:
+        serializedVersion: 2
+        x: 1206
+        y: 957
+        width: 27
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37b032d9e41e00950800000000000000
+      internalID: 6413373597135604595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: item_tooltip_24
+      rect:
+        serializedVersion: 2
+        x: 1288
+        y: 974
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34ec0eef90aa88940800000000000000
+      internalID: 5298671921508961859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      item_tooltip_0: -3689199419604283073
+      item_tooltip_1: -7008598435467119293
+      item_tooltip_10: -439015994105863486
+      item_tooltip_11: 6925727290963020256
+      item_tooltip_12: -6025023657747343907
+      item_tooltip_13: -7979872084040187595
+      item_tooltip_14: -6288235427706432689
+      item_tooltip_15: -117752255394962667
+      item_tooltip_16: 152614418116109066
+      item_tooltip_17: 7446914635374902244
+      item_tooltip_18: -2013467810801000443
+      item_tooltip_19: -1285823659640782711
+      item_tooltip_2: 1659377430616737745
+      item_tooltip_20: -8229203761073828044
+      item_tooltip_21: 6416154646151301894
+      item_tooltip_22: -6701908729112395318
+      item_tooltip_23: 6413373597135604595
+      item_tooltip_24: 5298671921508961859
+      item_tooltip_3: 7309042801007136889
+      item_tooltip_4: -3602197930632810368
+      item_tooltip_5: -2126104970943290388
+      item_tooltip_6: -3108948359755911513
+      item_tooltip_7: -4563408561184713123
+      item_tooltip_8: -3902921208719990670
+      item_tooltip_9: 1588827963711270282
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

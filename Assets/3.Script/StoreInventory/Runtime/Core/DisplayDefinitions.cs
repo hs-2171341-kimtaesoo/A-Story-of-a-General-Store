@@ -10,6 +10,7 @@ namespace GeneralStore.Inventory
         public string[] allowedItemTypes;
         // 0부터 세는 칸 경계. 예:2는 1행과2행 사이(사람 기준2번째와3번째). 전체 폭/높이의 벽입니다.
         public int[] horizontalDividers,verticalDividers;
+        public int[] lowerVerticalDividers;public int lowerPartitionStartRow;
     }
     [Serializable] public sealed class DisplayLocationDefinition
     {
@@ -35,14 +36,14 @@ namespace GeneralStore.Inventory
             if(database==null||database.types==null||database.types.Length==0||database.types.Length>32||database.locations.Length>16)throw new ArgumentException("진열 종류/위치 JSON 오류입니다.");
             foreach(var t in database.types)
             {
-                if(t==null||string.IsNullOrWhiteSpace(t.id)||types.ContainsKey(t.id)||t.maximumOwned<0||t.maximumOwned>30||t.purchasePrice<0||t.columns<1||t.columns>12||t.rows<1||t.rows>10)throw new ArgumentException("진열 종류 크기/ID 오류입니다.");
+                if(t==null||string.IsNullOrWhiteSpace(t.id)||types.ContainsKey(t.id)||t.maximumOwned<0||t.maximumOwned>30||t.purchasePrice<0||t.columns<1||t.columns>12||t.rows<1||t.rows>32)throw new ArgumentException("진열 종류 크기/ID 오류입니다.");
                 DisplayPartitionRules.Validate(t);
                 types.Add(t.id,t);typeOrder.Add(t.id);
             }
             foreach(var l in database.locations)
             {
                 if(l==null||string.IsNullOrWhiteSpace(l.id)||locations.ContainsKey(l.id)||l.allowedTypeIds==null||l.allowedTypeIds.Length==0
-                    ||l.columnsOverride<0||l.columnsOverride>12||l.rowsOverride<0||l.rowsOverride>10
+                    ||l.columnsOverride<0||l.columnsOverride>12||l.rowsOverride<0||l.rowsOverride>32
                     ||float.IsNaN(l.mapX)||float.IsNaN(l.mapY)||l.mapX<0||l.mapX>1||l.mapY<0||l.mapY>1)throw new ArgumentException("진열 위치 오류입니다.");
                 foreach(string id in l.allowedTypeIds)if(!types.ContainsKey(id))throw new ArgumentException("설치 위치의 종류 ID 오류입니다.");
                 if(!string.IsNullOrEmpty(l.initialTypeId)&&Array.IndexOf(l.allowedTypeIds,l.initialTypeId)<0)throw new ArgumentException("초기 진열 종류를 해당 자리에 설치할 수 없습니다.");

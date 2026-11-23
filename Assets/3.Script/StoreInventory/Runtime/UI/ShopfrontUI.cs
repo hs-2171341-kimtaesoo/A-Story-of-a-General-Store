@@ -63,14 +63,14 @@ namespace GeneralStore.Inventory
         public bool EnterProfile(CustomerDefinition customer,bool showFailure)
         {
             if(!ready)return false;string error;
-            if(!Session.TryEnterShopping(customer,out error)){if(showFailure)panel.ShowMessage(error);return false;}
+            if(!Session.BeginBrowsing(customer,out error)){if(showFailure)panel.ShowMessage(error);return false;}
             if(customerInteraction!=null)customerInteraction.BeginVisit();
-            panel.ShowMessage(customer.displayName+" 방문: 가져온 물건을 확인하세요.");return true;
+            panel.ShowMessage(customer.displayName+" 손님이 진열대를 둘러봅니다.");return true;
         }
         public void BeginTalk()
         {
             if(!ready)return;string error;if(!Session.BeginConversation(out error)){panel.ShowMessage(error);return;}
-            drawer.Open();panel.ShowMessage("물건을 카운터 위로 드래그하세요.");
+            panel.ShowMessage(Session.DialogueText);
         }
         public void LeaveCustomer(){if(!ready)return;Session.Leave();panel.ShowMessage("거래 취소. 손님 선택 물건의 잠금을 해제했습니다.");}
         // 추천은 드롭으로만 호출합니다. 선택한 물건 추천 버튼/메서드는 제거했습니다.

@@ -22,6 +22,7 @@ public static class InventoryAssetTools
     {
         if(runtime.itemJson==null)runtime.itemJson=Json("items");if(runtime.customerJson==null)runtime.customerJson=Json("customers");
         if(runtime.supplierJson==null)runtime.supplierJson=Json("suppliers");if(runtime.displayJson==null)runtime.displayJson=Json("display_fixtures");
+        if(runtime.workshopJson==null)runtime.workshopJson=Json("workshops");
         if(!AssetDatabase.IsValidFolder(Folder))AssetDatabase.CreateFolder("Assets","StoreInventorySettings");
         var legacy=runtime.spriteCatalog!=null?runtime.spriteCatalog:AssetDatabase.LoadAssetAtPath<InventorySpriteCatalog>(Folder+"/InventorySprites.asset");
         var catalog=AssetDatabase.LoadAssetAtPath<InventorySpriteCatalog>(CatalogPath);
@@ -29,12 +30,9 @@ public static class InventoryAssetTools
         if(catalog.itemIcons==null)catalog.itemIcons=new List<InventorySpriteEntry>();
         if(catalog.supplierPortraits==null)catalog.supplierPortraits=new List<InventorySpriteEntry>();
         var items=JsonUtility.FromJson<ItemDatabase>(runtime.itemJson.text);
-        if(runtime.includeWorkshopDemoItems)
-        {
-            var extra=AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Resources/StoreInventory/workshop_demo_items.json");if(extra==null)throw new InvalidOperationException("공방 시험 재료 데이터 누락");
-            items=WorkshopCatalog.MergeDemoItems(items,JsonUtility.FromJson<ItemDatabase>(extra.text));
-        }
         var definitions=new ItemCatalog(items);
+        var validKeys=new HashSet<string>(StringComparer.Ordinal);foreach(var item in items.items)validKeys.Add(definitions.IconKey(item.id));
+        catalog.itemIcons.RemoveAll(row=>row==null||!validKeys.Contains(row.key));
         foreach(var item in items.items)
         {
             string key=definitions.IconKey(item.id);AddKey(catalog.itemIcons,key);
@@ -92,7 +90,8 @@ public static class InventoryAssetTools
     }
     static TextAsset Json(string name)
     {
-        var file=AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Resources/StoreInventory/"+name+".json");
+        string path=name=="display_fixtures"?"Assets/Resources/StoreInventory/display_fixtures.json":ItemTableTools.DataFolder+"/"+name+"_table.json";
+        var file=AssetDatabase.LoadAssetAtPath<TextAsset>(path);
         if(file==null)throw new InvalidOperationException(name+".json이 없습니다.");return file;
     }
     static void AddKey(List<InventorySpriteEntry> entries,string key)
@@ -119,8 +118,9 @@ public static class InventoryAssetTools
             bool resource=path.IndexOf("/Resources/",StringComparison.Ordinal)>=0;
             if(path.StartsWith("Assets/3.Script/StoreInventory/",StringComparison.Ordinal)&&path.EndsWith(".cs",StringComparison.Ordinal))
                 report.AppendLine("SCRIPT\t"+(path.Contains("/Editor/")?"EDITOR ONLY":dependencies.Contains(path)?"SERIALIZED REFERENCE":"NO SCENE/PREFAB DEPENDENCY (not deletion proof)")+"\t"+path);
-            if(!resource||!File.Exists(path))continue;
-            report.AppendLine("RESOURCE\t"+new FileInfo(path).Length+" bytes\t"+(dependencies.Contains(path)?"SERIALIZED REFERENCE":"DYNAMIC/EDITOR/UNRESOLVED")+"\t"+path);
+            bool authoredData=path.StartsWith(ItemTableTools.DataFolder+"/",StringComparison.Ordinal);
+            if((!resource&&!authoredData)||!File.Exists(path))continue;
+            report.AppendLine((authoredData?"ITEM TABLE\t":"RESOURCE\t")+new FileInfo(path).Length+" bytes\t"+(dependencies.Contains(path)?"SERIALIZED REFERENCE":"DYNAMIC/EDITOR/UNRESOLVED")+"\t"+path);
             var importer=AssetImporter.GetAtPath(path) as TextureImporter;
             if(importer!=null)report.AppendLine("  readable="+importer.isReadable+", mipmap="+importer.mipmapEnabled+", max="+importer.maxTextureSize+", compression="+importer.textureCompression);
         }

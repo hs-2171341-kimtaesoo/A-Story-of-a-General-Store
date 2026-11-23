@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace GeneralStore.Inventory
 {
+    [Serializable] public sealed class InventoryInitialItem
+    {public string containerId,itemId,quality;public int amount=1;}
     // JSON 로드와 플레이 상태의 생명주기만 담당합니다. 화면이나 손님 AI를 처리하지 않습니다.
     public sealed class InventoryRuntime : MonoBehaviour
     {
@@ -18,13 +20,15 @@ namespace GeneralStore.Inventory
         void OnDisable(){activeRuntimes.Remove(this);}
         void OnDestroy(){activeRuntimes.Remove(this);}
         public TextAsset itemJson,customerJson,supplierJson,displayJson,workshopJson;
-        public bool includeWorkshopDemoItems;
         public InventorySpriteCatalog spriteCatalog;
-        [Min(0)]public int deliveryCellFee=10;
+        [UnityEngine.Serialization.FormerlySerializedAs("deliveryCellFee")]
+        [Min(0)]public int storageCellFee=10;
+        public int deliveryCellFee{get{return storageCellFee;}set{storageCellFee=value;}}
         public ShopClockSettings clockSettings=new ShopClockSettings();
         public const int WarehouseColumns = 8;
-        public const int WarehouseRows = 5;
-        public bool addDemoItems = true;
+        public const int WarehouseRows = InventoryModel.WarehouseRows;
+        public InventoryInitialItem[] initialItems;
+        public string saveFileName="store-main-items208-v1.json";
         [Range(1,8)]public int initialWarehouseCount=2;
         public string[] initialFurnitureForDemo;
         public bool startAllFurnitureOwnedForTest; // 배치 확인용. 일반 게임에서는 끕니다.
@@ -35,21 +39,17 @@ namespace GeneralStore.Inventory
         public ItemCatalog Catalog { get; private set; }
         public InventoryModel Model { get; private set; }
         public RecommendationSession Sales { get; private set; }
-        public string SavePath { get { return Path.Combine(Application.persistentDataPath, (initialFurnitureForDemo!=null&&initialFurnitureForDemo.Length>0?"store-shop-compact-demo-v18.json":startAllFurnitureOwnedForTest?"store-shop-fixtures12-art-preview-v15.json":"store-shop-fixtures12-art-v15.json")); } }
+        public string SavePath { get { return Path.Combine(Application.persistentDataPath,string.IsNullOrEmpty(saveFileName)?"store-main-items208-v1.json":saveFileName); } }
         void Awake() { if(GetComponent<StorePerformanceSettings>()==null)gameObject.AddComponent<StorePerformanceSettings>(); string error; if (!TryInitialize(out error)) Debug.LogError(error, this); }
         public bool TryInitialize(out string error)
         {
             error = ""; if (Model != null) return true;
             try
             {
-                TextAsset file = itemJson != null ? itemJson : Resources.Load<TextAsset>("StoreInventory/items");
-                if (file == null) throw new InvalidOperationException("Resources/StoreInventory/items.json이 없습니다.");
+                if(!string.IsNullOrEmpty(saveFileName)&&(saveFileName.IndexOfAny(Path.GetInvalidFileNameChars())>=0||saveFileName.Contains("/")||saveFileName.Contains("\\")||saveFileName=="."||saveFileName==".."))throw new InvalidOperationException("저장 파일 이름에는 폴더 경로를 넣지 마세요.");
+                TextAsset file = itemJson;
+                if (file == null) throw new InvalidOperationException("Item Json에 아이템 데이터 파일을 연결하세요.");
                 var itemData=JsonUtility.FromJson<ItemDatabase>(file.text);
-                if(includeWorkshopDemoItems)
-                {
-                    var extra=Resources.Load<TextAsset>("StoreInventory/workshop_demo_items");if(extra==null)throw new InvalidOperationException("공방 시험 재료 데이터가 없습니다.");
-                    itemData=WorkshopCatalog.MergeDemoItems(itemData,JsonUtility.FromJson<ItemDatabase>(extra.text));
-                }
                 var catalog = new ItemCatalog(itemData);
                 var workshopCatalog=workshopJson==null?null:new WorkshopCatalog(JsonUtility.FromJson<WorkshopDatabase>(workshopJson.text),catalog);
                 var save = new InventorySave { gold = initialGold };
@@ -57,39 +57,26 @@ namespace GeneralStore.Inventory
                 save.containers.Add(new ContainerRecord { containerId = "warehouse", columns = WarehouseColumns, rows = WarehouseRows });
                 for(int n=2;n<=initialWarehouseCount;n++)save.containers.Add(new ContainerRecord{containerId="warehouse_"+n,columns=WarehouseColumns,rows=WarehouseRows});
                 // 종류/설치 위치가 정한 고정 크기만 생성합니다. 화면의 탭 수와 독립적입니다.
-                var displayFile=displayJson!=null?displayJson:Resources.Load<TextAsset>("StoreInventory/display_fixtures");
+                var displayFile=displayJson;
                 if(displayFile==null)throw new InvalidOperationException("display_fixtures.json이 없습니다.");
                 var displays=new DisplayCatalog(JsonUtility.FromJson<DisplayDatabase>(displayFile.text));displays.AddInitialContainers(save,startAllFurnitureOwnedForTest,initialFurnitureForDemo);
-                var supplierFile=supplierJson!=null?supplierJson:Resources.Load<TextAsset>("StoreInventory/suppliers");
+                var supplierFile=supplierJson;
                 if(supplierFile==null)throw new InvalidOperationException("suppliers.json이 없습니다.");
                 var supplierCatalog=new SupplierCatalog(JsonUtility.FromJson<SupplierDatabase>(supplierFile.text),catalog);
                 var model = new InventoryModel(catalog, save,supplierCatalog,displays,workshopCatalog);
                 if(!model.RefreshSuppliersForDay(1,out error))throw new InvalidOperationException(error);
-                if (addDemoItems)
+                if(initialItems!=null)foreach(var seed in initialItems)
                 {
-                    // 직사각형8개가 8×5의40칸에 맞도록 큰 물품부터 넣습니다.
-                    Seed(model,"sample_lframe","common",1,50);Seed(model,"sample_cframe","common",1,70);
-                    Seed(model,"sample_bag","common",1,150);Seed(model,"C001","common",1,80);Seed(model,"C001","superior",1,110);
-                    Seed(model,"sample_rope","common",1,40);Seed(model,"sample_sword","common",1,90);Seed(model,"E001","none",1,0);
+                    if(seed==null||!model.TryAdd(seed.containerId,seed.itemId,seed.quality,seed.amount,catalog.ReferencePrice(seed.itemId,seed.quality),out error))
+                        throw new InvalidOperationException("초기 아이템 배치 오류: "+error);
                 }
-                if(includeWorkshopDemoItems&&addDemoItems)
-                {
-                    string box=initialWarehouseCount>=2?"warehouse_2":"warehouse";
-                    foreach(var seed in new[]{new[]{"demo_oak_log","common","3"},new[]{"demo_oak_log","superior","3"},new[]{"demo_herb","common","3"},new[]{"demo_herb","perfect","2"},new[]{"demo_iron_ore","common","5"},new[]{"demo_iron_bar","superior","4"},new[]{"demo_oak_plank","common","2"}})
-                        if(!model.TryAdd(box,seed[0],seed[1],int.Parse(seed[2]),catalog.ReferencePrice(seed[0],seed[1]),out error))Debug.LogWarning(error,this);
-                }
-                var customerFile=customerJson!=null?customerJson:Resources.Load<TextAsset>("StoreInventory/customers");
-                if(customerFile==null)throw new InvalidOperationException("Resources/StoreInventory/customers.json이 없습니다.");
+                var customerFile=customerJson;
+                if(customerFile==null)throw new InvalidOperationException("Customer Json에 손님 데이터 파일을 연결하세요.");
                 var customers=new CustomerCatalog(JsonUtility.FromJson<CustomerDatabase>(customerFile.text));
                 var clock=new ShopClock(clockSettings,new ShopClockState());
-                Catalog = catalog; Model = model; Sales = new RecommendationSession(model);Customers=customers;Clock=clock;return true;
+                Catalog = catalog; Model = model; Sales = new RecommendationSession(model);Customers=customers;Clock=clock;Model.SetWorkshopTime(clock.Phase,clock.Day);return true;
             }
             catch (Exception e) { error = "인벤토리 초기화 실패: " + e.Message; return false; }
-        }
-        void Seed(InventoryModel model, string id, string quality, int amount, int cost)
-        {
-            if (model.Catalog.FindQuality(id, quality) == null) return;
-            string error; if (!model.TryAdd("warehouse", id, quality, amount, cost, out error)) Debug.LogWarning(error, this);
         }
         public bool Save(out string error)
         {
@@ -97,7 +84,7 @@ namespace GeneralStore.Inventory
             try
             {
                 if (!TryInitialize(out error)) return false;
-                AtomicSaveFile.Write(SavePath, JsonUtility.ToJson(new ShopWorldSave{inventory=Model.Snapshot(),clock=Clock.Snapshot()}, true)); return true;
+                AtomicSaveFile.Write(SavePath, JsonUtility.ToJson(new ShopWorldSave{inventory=Model.Snapshot(),clock=Clock.Snapshot(),clockSettings=Clock.Settings}, true)); return true;
             }
             catch (Exception e) { error = e.Message; return false; }
         }
@@ -109,8 +96,10 @@ namespace GeneralStore.Inventory
                 if (!TryInitialize(out error)) return false;
                 if (!File.Exists(SavePath)) { error = "저장 파일이 없습니다."; return false; }
                 ShopWorldSave world=JsonUtility.FromJson<ShopWorldSave>(File.ReadAllText(SavePath));
-                if(world==null||world.format!="general-store-world"||world.version!=4){error="월드 저장 형식이 아닙니다.";return false;}
-                Clock.Validate(world.clock);InventorySave save=world.inventory;
+                if(world==null||world.format!="general-store-world"||(world.version!=4&&world.version!=5)){error="월드 저장 형식이 아닙니다.";return false;}
+                var previousClock=world.version==4?new ShopClockSettings{dawnMinutes=180,dayMinutes=540,nightMinutes=720}:world.clockSettings;
+                if(previousClock==null){error="저장된 단계 길이가 없습니다.";return false;}
+                world.clock=Clock.RemapSavedTime(world.clock,previousClock);InventorySave save=world.inventory;
                 if(save!=null&&save.lastSettledDay>world.clock.day){error="날짜/정산 정보가 맞지 않습니다.";return false;}
                 // UI가 사용하는 보관함/진열장이 없는 저장 파일은 교체 전에 거절합니다.
                 if (save == null || save.containers == null
@@ -121,7 +110,7 @@ namespace GeneralStore.Inventory
                     if(Model.Suppliers.Find(vendor.supplierId)==null||vendor.cycle>Model.Suppliers.Cycle(vendor.supplierId,world.clock.day))
                     {error="거래처의 저장 날짜가 잘못되었습니다.";return false;}
                 bool restored = Model.TryRestore(save, out error);
-                if (restored) {if(save.version<10)Debug.Log("직사각형 점유 전환 완료. 공간이 바뀐 물품은 상자/택배 보관함을 확인하세요.",this);Clock.Restore(world.clock);Model.RefreshSuppliersForDay(world.clock.day,out error);Sales.Leave();if(Loaded!=null)Loaded();}
+                if (restored) {if(save.version<10)Debug.Log("직사각형 점유 전환 완료. 공간이 바뀐 물품은 상자/택배 보관함을 확인하세요.",this);Clock.Restore(world.clock);Model.SetWorkshopTime(Clock.Phase,Clock.Day);Model.RefreshSuppliersForDay(world.clock.day,out error);Sales.Leave();if(Loaded!=null)Loaded();}
                 return restored;
             }
             catch (Exception e) { error = e.Message; return false; }

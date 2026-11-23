@@ -42,7 +42,7 @@ namespace GeneralStore.Inventory
         }
         // Presentation only. Never write this rotation back to ItemRecord.
         public static int PresentationRotation(int rows,bool customerPicked,int sourceRotation)
-        {if(rows<1||sourceRotation<0||sourceRotation>3)throw new ArgumentException("Counter rotation is invalid.");return customerPicked&&rows>=3?(sourceRotation+1)%4:sourceRotation;}
+        {if(rows<1||sourceRotation<0||sourceRotation>3)throw new ArgumentException("Counter rotation is invalid.");return rows>=3?(sourceRotation+1)%4:sourceRotation;}
         public static float SurfaceDepth(float authoredDepth,float height,float lowerPercent,float bottomMargin)
         {
             if(float.IsNaN(authoredDepth)||float.IsInfinity(authoredDepth)||float.IsNaN(height)||float.IsInfinity(height)||float.IsNaN(lowerPercent)||float.IsInfinity(lowerPercent)||float.IsNaN(bottomMargin)||float.IsInfinity(bottomMargin)||authoredDepth<=0||height<=bottomMargin||bottomMargin<0||lowerPercent<0||lowerPercent>100)

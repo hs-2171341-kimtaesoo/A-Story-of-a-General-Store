@@ -13,7 +13,7 @@ namespace GeneralStore.Inventory.Verification
         static InventoryModel Model(long gold=10000)
         {
             var save=new InventorySave{gold=gold};
-            save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=5});
+            save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});
             save.containers.Add(new ContainerRecord{containerId="display_1",columns=8,rows=5});
             return new InventoryModel(InventoryModelChecks.Fixture(),save);
         }
@@ -60,20 +60,20 @@ namespace GeneralStore.Inventory.Verification
             var old=Model().Snapshot();old.version=7;old.containers.RemoveAll(c=>c.containerId==InventoryModel.DeliveryContainerId);
             old.floorItems.Add(new FloorItemRecord{item=new ItemRecord{instanceId="legacy-floor",itemId="C001",quality="common",purchasePrice=17}});
             old.parcels.Add(new ParcelRecord{parcelId="legacy-box",items=new List<ItemRecord>{new ItemRecord{instanceId="legacy-parcel",itemId="E001",quality="none",purchasePrice=19}}});
-            restored=Model();Check(restored.TryRestore(old,out error)&&restored.DeliveryItemCount==2,"v7 바닥/택배를 새 보관함으로 이동");
-            Check(restored.GetItem(InventoryModel.DeliveryContainerId,"legacy-floor").purchasePrice==17&&restored.Snapshot().floorItems.Count==0&&restored.Snapshot().parcels.Count==0,"마이그레이션 UID/비용 유지 및 구형 목록 비움");
+            restored=Model();Check(restored.TryRestore(old,out error)&&restored.TemporaryItemCount==2,"v7 바닥/택배를 새 보관함으로 이동");
+            Check(restored.GetItem(InventoryModel.TemporaryStorageId,"legacy-floor").purchasePrice==17&&restored.Snapshot().floorItems.Count==0&&restored.Snapshot().parcels.Count==0,"마이그레이션 UID/비용 유지 및 구형 목록 비움");
             old.parcels[0].items.Add(old.floorItems[0].item.Copy());revision=restored.Revision;
-            Check(!restored.TryRestore(old,out error)&&restored.Revision==revision&&restored.DeliveryItemCount==2,"중복 UID 구형 저장은 원자적으로 거절");
+            Check(!restored.TryRestore(old,out error)&&restored.Revision==revision&&restored.TemporaryItemCount==2,"중복 UID 구형 저장은 원자적으로 거절");
             // Beyond the old 4096-item/64-row limits. No item/row game cap is applied.
             model=Model(0);
             for(int order=0;order<50;order++)Check(model.TryOrderNextDawn(1,"C001","common",100,0,out error),"연속 주문");
             Check(model.TryBeginDawn(2,0,10,out bill,out error)&&bill.delivered==5000&&model.DeliveryItemCount==5000,"5000개 누적 입고");
-            var container=model.GetContainer(InventoryModel.DeliveryContainerId);Check(container.columns==8&&container.rows>64,"8열 고정·행 자동 증가");
+            var container=model.GetContainer(InventoryModel.DeliveryContainerId);Check(container.columns==16&&container.rows>64,"8열 고정·행 자동 증가");
             var occupied=new HashSet<long>();var ids=new HashSet<string>();
             foreach(var item in container.items)
             {
                 Check(ids.Add(item.instanceId),"대량 배송 UID 중복 없음");
-                foreach(var cell in model.Cells(item))Check(item.x+cell.x<8&&occupied.Add((long)(item.y+cell.y)*8+item.x+cell.x),"대량 점유 겹침 없음");
+                foreach(var cell in model.Cells(item))Check(item.x+cell.x<16&&occupied.Add((long)(item.y+cell.y)*16+item.x+cell.x),"대량 점유 겹침 없음");
             }
             restored=Model();Check(restored.TryRestore(model.Snapshot(),out error)&&restored.DeliveryItemCount==5000,"대량 저장 재검증");
             return count;
@@ -115,7 +115,7 @@ namespace GeneralStore.Inventory.Verification
             var session=new RecommendationSession(model);var profile=Customer();
             Check(new DefaultCustomerPurchasePolicy().SpendingBudget(profile)==200,"소지금의 50퍼센트만 예산");
             Check(session.TryEnterShopping(profile,out error)&&!session.ConversationStarted,"처음 방문은 가져온 물건 화면");
-            Check(!session.TryRecommend("test_storage",items[1].instanceId,out error),"이야기 전 추천 직접 API 차단");
+            Check(session.TryRecommend("test_storage",items[1].instanceId,out error),"대화 전에도 추천 가능");session.Remove(items[1].instanceId);
             Check(session.BeginConversation(out error)&&session.ConversationStarted,"이야기하기 단계 전환");
             Check(session.TryRecommend("test_storage",items[1].instanceId,out error),"이야기 후 추가 추천");
             Check(session.TryRecommend("test_storage",items[2].instanceId,out error),"추가 추천 두 개");
@@ -148,11 +148,11 @@ namespace GeneralStore.Inventory.Verification
             Check(clock.Advance(539).Count==0&&clock.Snapshot().phase==ShopPhase.Day,"낮 판매 시간 경계 전");
             Check(model.Revision==revision,"시계 흐름은 재고 버전을 바꾸지 않음");
             var transitions=clock.Advance(1);Check(transitions.Count==1&&transitions[0].phase==ShopPhase.Night&&clock.Snapshot().day==1,"낮 종료 후 밤 시작");
-            transitions=clock.Advance(720);Check(transitions.Count==1&&clock.Snapshot().phase==ShopPhase.Dawn&&clock.Snapshot().day==2,"밤 종료 후 다음 날 새벽");
+            transitions=clock.Advance(settings.nightMinutes);Check(transitions.Count==1&&clock.Snapshot().phase==ShopPhase.Dawn&&clock.Snapshot().day==2,"밤 종료 후 다음 날 새벽");
             transitions=clock.Advance(180);Check(transitions.Count==1&&clock.Snapshot().phase==ShopPhase.Day,"새벽 종료 후 낮");
             var old=clock.Snapshot();clock.Advance(42);clock.Restore(old);
             Check(clock.Snapshot().elapsedMinutes==0&&clock.Snapshot().day==2,"시계 저장 상태 복원");
-            transitions=clock.Advance(1440);Check(transitions.Count==3&&clock.Snapshot().day==3&&clock.Snapshot().phase==ShopPhase.Day,"여러 단계 건너뛰기 순서");
+            transitions=clock.Advance(settings.dayMinutes+settings.nightMinutes+settings.dawnMinutes);Check(transitions.Count==3&&clock.Snapshot().day==3&&clock.Snapshot().phase==ShopPhase.Day,"여러 단계 건너뛰기 순서");
             threw=false;try{clock.Advance(double.NaN);}catch(ArgumentException){threw=true;}
             Check(threw&&clock.Snapshot().day==3,"비정상 시간 거절 및 상태 유지");
             var wrong=clock.Snapshot();wrong.elapsedMinutes=540;threw=false;
@@ -252,7 +252,7 @@ namespace GeneralStore.Inventory.Verification
                 Check(CounterTableMotion.Advance(bodies,settings,dt)==0,"settled bodies skip integration");
             }
             Check(CounterTableMotion.PresentationRotation(3,true,0)==1&&CounterTableMotion.PresentationRotation(2,true,0)==0,"customer tall item lays sideways");
-            Check(CounterTableMotion.PresentationRotation(4,false,0)==0&&CounterTableMotion.PresentationRotation(3,true,3)==0,"recommendation unchanged and rotations wrap");
+            Check(CounterTableMotion.PresentationRotation(4,false,0)==1&&CounterTableMotion.PresentationRotation(3,true,3)==0,"recommended tall item lays sideways and rotations wrap");
             Check(Math.Abs(CounterTableMotion.SurfaceDepth(1028.5f,1080,0,8)-(985+1072)*.5f)<.01,"landing line midway between old positions");
             var lower=new CounterBodyState{x=960,y=settings.surface+50,halfWidth=50,halfHeight=50,active=true,asleep=true};
             var upper=new CounterBodyState{x=960,y=-700,halfWidth=50,halfHeight=50,active=true};var row=new List<CounterBodyState>{lower,upper};

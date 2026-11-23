@@ -11,12 +11,12 @@ public static class CompactDemoUnityChecks
         var go=new GameObject("Compact Demo Initialization Check");go.SetActive(false);GameObject ui=null,tempEvents=null;
         try
         {
-            var runtime=go.AddComponent<InventoryRuntime>();runtime.initialWarehouseCount=2;runtime.initialGold=10000;
+            var runtime=go.AddComponent<InventoryRuntime>();runtime.initialWarehouseCount=2;runtime.initialGold=10000;ItemTableTools.Configure(runtime);
             runtime.initialFurnitureForDemo=new[]{"mannequin","table","weapon_rack"};string error;
             if(!runtime.TryInitialize(out error))throw new Exception(error);
             var ids=runtime.Model.WarehouseIds();
             if(ids.Count!=2||ids[0]!="warehouse"||ids[1]!="warehouse_2")throw new Exception("초기 상자2개 검사 실패");
-            foreach(string id in ids){var box=runtime.Model.GetContainer(id);if(box.columns!=8||box.rows!=5)throw new Exception("상자8×5 검사 실패");}
+            foreach(string id in ids){var box=runtime.Model.GetContainer(id);if(box.columns!=8||box.rows!=7)throw new Exception("상자8×7 검사 실패");}
             if(runtime.Model.Gold!=10000)throw new Exception("기본 상자 추가로 소지금이 차감되었습니다.");
             if(runtime.Model.DisplayIds().Count!=3)throw new Exception("초기 진열장3개 검사 실패");
             ui=new GameObject("Compact Icon Input Check",typeof(RectTransform),typeof(Canvas));

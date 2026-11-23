@@ -12,7 +12,7 @@ namespace GeneralStore.Inventory
     }
     [Serializable] public sealed class ShopClockSettings
     {
-        public double dawnMinutes=180,dayMinutes=540,nightMinutes=720;
+        public double dawnMinutes=180,dayMinutes=540,nightMinutes=360;
         static bool Valid(double v){return !double.IsNaN(v)&&!double.IsInfinity(v)&&v>=1&&v<=1440;}
         public double Duration(ShopPhase phase){return phase==ShopPhase.Dawn?dawnMinutes:phase==ShopPhase.Day?dayMinutes:nightMinutes;}
         public void Validate()
@@ -39,6 +39,13 @@ namespace GeneralStore.Inventory
         }
         public void ValidateCurrent(){Validate(state);}
         public void Restore(ShopClockState value){Validate(value);state=value.Copy();}
+        public ShopClockState RemapSavedTime(ShopClockState saved,ShopClockSettings previous)
+        {
+            var checkedState=new ShopClock(previous,saved).Snapshot();
+            double duration=Settings.Duration(saved.phase);
+            checkedState.elapsedMinutes=Math.Min(duration-1e-8,saved.elapsedMinutes/previous.Duration(saved.phase)*duration);
+            Validate(checkedState);return checkedState;
+        }
         // 경계 직전까지 흐르게 하여, 호출자가 단계마다 지출/배송을 순서대로 처리할 수 있게 합니다.
         public List<ShopClockState> Advance(double minutes)
         {var output=new List<ShopClockState>();AdvanceInto(minutes,output);return output;}
@@ -64,8 +71,9 @@ namespace GeneralStore.Inventory
     [Serializable] public sealed class ShopWorldSave
     {
         public string format="general-store-world";
-        public int version=4;
+        public int version=5;
         public InventorySave inventory;
         public ShopClockState clock;
+        public ShopClockSettings clockSettings;
     }
 }

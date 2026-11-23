@@ -4,15 +4,15 @@ namespace GeneralStore.Inventory.Verification
 {
     public static class SideMenuFeatureChecks
     {
-        static int count;static void Check(bool value,string rule){count++;if(!value)throw new Exception("고정40칸 검사: "+rule);}
+        static int count;static void Check(bool value,string rule){count++;if(!value)throw new Exception("고정56칸 검사: "+rule);}
         public static int Run()
         {
             count=0;string id,error;
-            var save=new InventorySave{gold=1500};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=5});
+            var save=new InventorySave{gold=1500};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});
             var m=new InventoryModel(InventoryModelChecks.Fixture(),save);long revision=m.Revision;
-            Check(m.GetContainer("warehouse").columns==8&&m.GetContainer("warehouse").rows==5,"8×5 고정 상자");
+            Check(m.GetContainer("warehouse").columns==8&&m.GetContainer("warehouse").rows==7,"8×7 고정 상자");
             Check(!m.TryExpandWarehouse("warehouse",out error)&&m.Revision==revision,"확장 API는 변경 없이 거절");
-            var q=m.QuoteWarehousePurchase(600);Check(q.allowed&&q.addsBox&&q.afterCells==40&&q.goldAfter==900&&m.Revision==revision,"추가 전용 견적은 조회만 함");
+            var q=m.QuoteWarehousePurchase(600);Check(q.allowed&&q.addsBox&&q.afterCells==56&&q.goldAfter==900&&m.Revision==revision,"추가 전용 견적은 조회만 함");
             Check(m.TryPurchaseWarehouse(600,out id,out error)&&id=="warehouse_2"&&m.Gold==900&&m.Revision==revision+1,"비용/새 상자 한 번 확정");
             Check(m.TryPurchaseWarehouse(600,out id,out error)&&id=="warehouse_3"&&m.Gold==300,"앞 상자 확장 없이 다음 상자 추가");
             revision=m.Revision;Check(!m.TryPurchaseWarehouse(600,out id,out error)&&m.Gold==300&&m.WarehouseIds().Count==3&&m.Revision==revision,"잔액 부족은 원본 유지");

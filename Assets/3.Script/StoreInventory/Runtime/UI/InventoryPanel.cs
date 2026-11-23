@@ -21,7 +21,7 @@ namespace GeneralStore.Inventory
         public InventoryDetailsView[] detailViews;
         public ShopfrontUI shop;
         public Text messageLabel;
-        public Font koreanFont;
+        public Font koreanFont;public ItemHoverTooltip tooltip;
         public InventoryModel Model { get { return inventory.Model; } }
         public ItemCatalog Catalog { get { return inventory.Catalog; } }
         public Camera EventCamera { get { return canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera; } }
@@ -34,7 +34,7 @@ namespace GeneralStore.Inventory
         void Start()
         {
             if (inventory == null || canvas == null || drag == null || drag.dragLayer == null || grids == null || grids.Length == 0
-                || shop == null || messageLabel == null || detailViews == null || detailViews.Length == 0)
+                || shop == null || messageLabel == null || detailViews == null)
             { Debug.LogError("InventoryPanel의 Inspector 참조를 확인하세요.", this); enabled = false; return; }
             foreach (InventoryGridView grid in grids)
             {
@@ -90,12 +90,14 @@ namespace GeneralStore.Inventory
             return sprite;
         }
         public void Select(string containerId, string instanceId)
-        { selectedContainer=containerId;selectedInstance=instanceId;Selection.Set(containerId,instanceId);if(initialized){RefreshDetails();RefreshSelectionMarks();} }
+        { selectedContainer=containerId;selectedInstance=instanceId;Selection.Set(containerId,instanceId);if(initialized){RefreshDetails();RefreshSelectionMarks();}if(tooltip!=null)tooltip.SelectionChanged(); }
+        public void ToggleSelection(string containerId,string uid)
+        {if(Selection.Get(containerId)==uid)ClearSelection(containerId);else Select(containerId,uid);if(tooltip!=null)tooltip.SelectionChanged();}
         public void ClearSelection(string id)
-        {Selection.Clear(id);if(selectedContainer==id){selectedContainer=null;selectedInstance=null;}if(initialized){RefreshDetails();RefreshSelectionMarks();}}
-        public void ClearWarehouseSelection(){foreach(string id in Model.WarehouseIds())Selection.Clear(id);if(InventoryModel.IsWarehouse(selectedContainer)){selectedContainer=null;selectedInstance=null;}if(initialized){RefreshDetails();RefreshSelectionMarks();}}
+        {Selection.Clear(id);if(selectedContainer==id){selectedContainer=null;selectedInstance=null;}if(initialized){RefreshDetails();RefreshSelectionMarks();}if(tooltip!=null)tooltip.SelectionChanged();}
+        public void ClearWarehouseSelection(){foreach(string id in Model.WarehouseIds())Selection.Clear(id);if(InventoryModel.IsWarehouse(selectedContainer)){selectedContainer=null;selectedInstance=null;}if(initialized){RefreshDetails();RefreshSelectionMarks();}if(tooltip!=null)tooltip.SelectionChanged();}
         public void RefreshSelectionMarks(){foreach(var grid in grids)if(grid.gameObject.activeInHierarchy)grid.RefreshSelection();}
-        public void UpdateDetails(){if(initialized){RefreshDetails();RefreshSelectionMarks();}}
+        public void UpdateDetails(){if(initialized){RefreshDetails();RefreshSelectionMarks();}if(tooltip!=null)tooltip.SelectionChanged();}
         public void ShowMessage(string message) { if (messageLabel != null) messageLabel.text = message; }
         void RefreshDetails()
         {

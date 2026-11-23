@@ -17,7 +17,10 @@ namespace GeneralStore.Inventory
         }
         public static void Validate(DisplayTypeDefinition definition){if(definition==null)throw new ArgumentNullException("definition");ValidateSize(definition,definition.columns,definition.rows);}
         public static void ValidateSize(DisplayTypeDefinition definition,int columns,int rows)
-        {ValidateBoundaries(definition.verticalDividers,columns);ValidateBoundaries(definition.horizontalDividers,rows);}
+        {
+            ValidateBoundaries(definition.verticalDividers,columns);ValidateBoundaries(definition.horizontalDividers,rows);ValidateBoundaries(definition.lowerVerticalDividers,columns);
+            if(definition.lowerVerticalDividers!=null&&definition.lowerVerticalDividers.Length>0&&(definition.lowerPartitionStartRow<1||definition.lowerPartitionStartRow>=rows))throw new ArgumentException("하부 칸막이 시작 행 오류입니다.");
+        }
         public static bool Fits(DisplayTypeDefinition definition,GridCell[] footprint,int x,int y)
         {
             if(definition==null||footprint==null||footprint.Length==0)return false;
@@ -27,6 +30,7 @@ namespace GeneralStore.Inventory
             {long px=(long)x+cell.x,py=(long)y+cell.y;left=Math.Min(left,px);right=Math.Max(right,px);top=Math.Min(top,py);bottom=Math.Max(bottom,py);}
             if(definition.verticalDividers!=null)foreach(int boundary in definition.verticalDividers)if(left<boundary&&right>=boundary)return false;
             if(definition.horizontalDividers!=null)foreach(int boundary in definition.horizontalDividers)if(top<boundary&&bottom>=boundary)return false;
+            if(bottom>=definition.lowerPartitionStartRow&&definition.lowerVerticalDividers!=null)foreach(int boundary in definition.lowerVerticalDividers)if(left<boundary&&right>=boundary)return false;
             return true;
         }
     }

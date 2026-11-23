@@ -32,7 +32,7 @@ namespace GeneralStore.Inventory
     {
         // 이전 중첩 저장과 혼동하지 않도록 새 포맷을 명시합니다.
         public string format = "general-store-individual";
-        public int version = 10;
+        public int version = 13;
         public List<DisplayInstallation> displays = new List<DisplayInstallation>();
         public List<SupplierState> suppliers = new List<SupplierState>();
         public List<WorkshopState> workshops=new List<WorkshopState>();
