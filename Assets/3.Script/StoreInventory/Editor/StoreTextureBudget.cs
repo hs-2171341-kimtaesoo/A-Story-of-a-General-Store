@@ -34,7 +34,7 @@ public static class StoreTextureBudget
         if(Application.isPlaying){Debug.LogWarning("Stop Play before reimporting textures.");return;}
         EditorPrefs.SetBool(Key,low);
         Furniture13SceneBuilder.PrepareSprites();CustomDisplayArtBuilder.PrepareSprites();
-        CounterDemoSceneBuilder.PrepareSprites();SlidingDemoSceneBuilder.PrepareCustomerSprite();DisplayMenuTextureImporter.PrepareSprites();SideMenuSceneBuilder.PrepareManagementArt();PrepareIconImports();
+        CounterDemoSceneBuilder.PrepareSprites();SlidingDemoSceneBuilder.PrepareCustomerSprite();DisplayMenuTextureImporter.PrepareSprites();SideMenuSceneBuilder.PrepareManagementArt();PurchaseSceneBuilder.PrepareArt();PrepareIconImports();
         Debug.Log("Store texture profile: "+(low?"Low Memory":"Previous Quality")+". Original PNGs and scene transforms preserved. Compare in a fresh Player run; this does not clear Editor memory.");
     }
 }

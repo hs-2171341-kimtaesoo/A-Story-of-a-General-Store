@@ -1,0 +1,60 @@
+{
+  "entries": [
+    {
+      "id": "frame",
+      "spriteKey": "StoreInventory/PurchasePanel/furniture_frame",
+      "sourceWidth": 1000,
+      "sourceHeight": 1550,
+      "maximumTextureSize": 1024
+    },
+    {
+      "id": "normal",
+      "spriteKey": "StoreInventory/PurchasePanel/row_normal",
+      "sourceWidth": 1970,
+      "sourceHeight": 419,
+      "maximumTextureSize": 1024
+    },
+    {
+      "id": "selected",
+      "spriteKey": "StoreInventory/PurchasePanel/row_selected",
+      "sourceWidth": 2044,
+      "sourceHeight": 417,
+      "maximumTextureSize": 1024
+    },
+    {
+      "id": "preview",
+      "spriteKey": "StoreInventory/PurchasePanel/preview_well",
+      "sourceWidth": 1203,
+      "sourceHeight": 1200,
+      "maximumTextureSize": 512
+    },
+    {
+      "id": "price",
+      "spriteKey": "StoreInventory/PurchasePanel/price_well",
+      "sourceWidth": 2048,
+      "sourceHeight": 462,
+      "maximumTextureSize": 512
+    },
+    {
+      "id": "buy",
+      "spriteKey": "StoreInventory/PurchasePanel/button_buy",
+      "sourceWidth": 2019,
+      "sourceHeight": 515,
+      "maximumTextureSize": 512
+    },
+    {
+      "id": "close",
+      "spriteKey": "StoreInventory/PurchasePanel/button_close",
+      "sourceWidth": 2005,
+      "sourceHeight": 530,
+      "maximumTextureSize": 512
+    },
+    {
+      "id": "storage",
+      "spriteKey": "StoreInventory/PurchasePanel/storage_frame",
+      "sourceWidth": 1204,
+      "sourceHeight": 1170,
+      "maximumTextureSize": 1024
+    }
+  ]
+}

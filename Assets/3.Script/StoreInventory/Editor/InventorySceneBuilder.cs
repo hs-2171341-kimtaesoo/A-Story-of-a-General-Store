@@ -84,7 +84,7 @@ public static class InventorySceneBuilder
     public static void CreateLatestDemo()
     {
         if(Application.isPlaying||EditorApplication.isPlayingOrWillChangePlaymode){Debug.LogWarning("Play를 중지한 뒤 실행하세요.");return;}
-        CustomDisplayArtBuilder.ValidateDefinitions();CreateInternal();
+        CustomDisplayArtBuilder.ValidateDefinitions();SideMenuSceneBuilder.ValidateManagementArt();PurchaseSceneBuilder.ValidateArt();CreateInternal();
     }
     // 기존 코드에서 호출해도 같은 최신 데모를 생성합니다. 생성 메뉴는 하나만 노출합니다.
     public static void Create(){CreateLatestDemo();}

@@ -1,0 +1,46 @@
+{
+  "entries": [
+    {
+      "id": "frame",
+      "spriteKey": "StoreInventory/ManagementPanel/parchment",
+      "sourceWidth": 1005,
+      "sourceHeight": 1565,
+      "maximumTextureSize": 1024
+    },
+    {
+      "id": "normal",
+      "spriteKey": "StoreInventory/ManagementPanel/row_normal",
+      "sourceWidth": 2038,
+      "sourceHeight": 398,
+      "maximumTextureSize": 1024
+    },
+    {
+      "id": "selected",
+      "spriteKey": "StoreInventory/ManagementPanel/row_selected",
+      "sourceWidth": 2020,
+      "sourceHeight": 329,
+      "maximumTextureSize": 1024
+    },
+    {
+      "id": "open",
+      "spriteKey": "StoreInventory/ManagementPanel/button_open",
+      "sourceWidth": 2048,
+      "sourceHeight": 483,
+      "maximumTextureSize": 512
+    },
+    {
+      "id": "close",
+      "spriteKey": "StoreInventory/ManagementPanel/button_close",
+      "sourceWidth": 2048,
+      "sourceHeight": 556,
+      "maximumTextureSize": 512
+    },
+    {
+      "id": "well",
+      "spriteKey": "StoreInventory/ManagementPanel/thumbnail_well",
+      "sourceWidth": 1124,
+      "sourceHeight": 1113,
+      "maximumTextureSize": 256
+    }
+  ]
+}

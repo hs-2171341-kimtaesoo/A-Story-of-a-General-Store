@@ -185,22 +185,26 @@ public static class ParchmentManagementChecks
         {
             var ui=root.AddComponent<DisplayManagementUI>();SideMenuSceneBuilder.BuildManagement(root.transform,ui);
             var frame=ui.window.transform.Find("Panel Frame") as RectTransform;var paper=frame.GetComponent<ParchmentPanelGraphic>();
-            if(!ui.parchmentStyle||paper==null||paper.artwork==null||Math.Abs(frame.rect.width/frame.rect.height-1006f/1564)>.0001f)throw new Exception("관리창 원본 비율/공통 Texture 연결 실패");count++;
+            if(!ui.parchmentStyle||paper==null||paper.artwork==null||Math.Abs(frame.rect.width/frame.rect.height-1005f/1565)>.0001f)throw new Exception("관리창 원본 비율/빈 프레임 Texture 연결 실패");count++;
             var displayScroll=DisplayWindowAppearance.FindScrollInParents(ui.displayList);var stockScroll=DisplayWindowAppearance.FindScrollInParents(ui.stockList);
             if(displayScroll==null||stockScroll==null||displayScroll.horizontal||stockScroll.horizontal||!displayScroll.vertical||!stockScroll.vertical)throw new Exception("관리창 독립 세로 스크롤 연결 실패");count++;
             if(Math.Abs(displayScroll.viewport.rect.height-ui.displayRowHeight*3)>.01f||Math.Abs(stockScroll.viewport.rect.height-ui.stockRowHeight*3)>.01f)throw new Exception("목록별 3개 행 표시 영역 실패");count++;
             var row=Object.Instantiate(ui.cardTemplate,ui.displayList);row.gameObject.SetActive(true);
             row.Bind("first",id=>{},"첫 진열장","남은 25칸","",null,false);
-            if(row.selectionArtwork.gameObject.activeSelf)throw new Exception("선택하지 않은 행에 강조가 남았습니다.");count++;
+            if(row.selectionArtwork.gameObject.activeSelf||row.normalArtwork==null||!row.normalArtwork.gameObject.activeSelf)throw new Exception("일반 행 단독 표시 실패");count++;
             row.Bind("first",id=>{},"첫 진열장","남은 25칸","",null,true);
-            if(!row.selectionArtwork.gameObject.activeSelf)throw new Exception("선택 강조가 행에 연결되지 않았습니다.");count++;
+            if(!row.selectionArtwork.gameObject.activeSelf||row.normalArtwork.gameObject.activeSelf||row.normalArtwork.texture==row.selectionArtwork.texture)throw new Exception("분리된 선택 행 단독 표시 실패");count++;
             var next=Object.Instantiate(ui.cardTemplate,ui.displayList);next.gameObject.SetActive(true);
             row.Bind("first",id=>{},"첫 진열장","남은 25칸","",null,false);next.Bind("second",id=>{},"다음 진열장","남은 36칸","",null,true);
-            if(row.selectionArtwork.gameObject.activeSelf||!next.selectionArtwork.gameObject.activeSelf)throw new Exception("선택 행 변경 후 강조 이동 실패");count++;
+            if(row.selectionArtwork.gameObject.activeSelf||!row.normalArtwork.gameObject.activeSelf||!next.selectionArtwork.gameObject.activeSelf||next.normalArtwork.gameObject.activeSelf)throw new Exception("선택 행 변경 후 강조 이동 실패");count++;
+            foreach(var image in frame.GetComponentsInChildren<RawImage>(true))
+                if(image.uvRect!=new Rect(0,0,1,1)||image.color!=Color.white)throw new Exception("분리 Sprite 전체 영역/원본 색 표시 실패");count++;
+            var well=ui.stockTemplate.transform.Find("Thumbnail Well");
+            if(well==null||well.GetComponent<RawImage>()==null||ui.openButton.targetGraphic==null)throw new Exception("썸네일 받침/분리 버튼 연결 실패");count++;
             using(var mesh=new VertexHelper())
             {
                 typeof(ParchmentPanelGraphic).GetMethod("OnPopulateMesh",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(paper,new object[]{mesh});
-                if(mesh.currentVertCount==0||mesh.currentVertCount>100)throw new Exception("관리창 종이 메시가 비었거나 과도합니다.");
+                if(mesh.currentVertCount!=4)throw new Exception("관리창 배경은 분할/반복 없는 사각형 하나여야 합니다.");
                 for(int n=0;n<mesh.currentVertCount;n++)
                 {
                     var vertex=new UIVertex();mesh.PopulateUIVertex(ref vertex,n);
@@ -210,6 +214,50 @@ public static class ParchmentManagementChecks
             }
             if(ui.openButton.onClick.GetPersistentEventCount()!=1||ui.emptyDisplayLabel==null||ui.emptyStockLabel==null)throw new Exception("열기 버튼/빈 목록 연결 실패");count++;
             return count;
+        }
+        finally{Object.DestroyImmediate(root);}
+    }
+}
+
+// PurchasePanelChecks.cs
+public static class PurchasePanelChecks
+{
+    static void Step(UpgradeUI ui){typeof(UpgradeUI).GetMethod("LateUpdate",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(ui,null);}
+    public static int Run()
+    {
+        var root=new GameObject("Purchase UI Check",typeof(RectTransform));int checks=0;
+        try
+        {
+            var runtime=root.AddComponent<InventoryRuntime>();runtime.initialWarehouseCount=2;runtime.initialGold=10000;runtime.initialFurnitureForDemo=new[]{"mannequin","table","weapon_rack"};ItemTableTools.Configure(runtime);
+            string error;if(!runtime.TryInitialize(out error))throw new Exception(error);
+            var panel=root.AddComponent<InventoryPanel>();panel.inventory=runtime;panel.drag=root.AddComponent<InventoryDragHandler>();panel.shop=root.AddComponent<ShopfrontUI>();
+            var ui=root.AddComponent<UpgradeUI>();ui.panel=panel;ui.warehouse=root.AddComponent<WarehouseUI>();ui.warehouse.panel=panel;ui.display=root.AddComponent<DisplayUI>();ui.display.panel=panel;ui.art=root.AddComponent<FurnitureArtCatalog>();ui.art.entries=new FurnitureArt[0];
+            SideMenuSceneBuilder.BuildUpgrades(root.transform,ui);
+            typeof(UpgradeUI).GetMethod("Start",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(ui,null);
+            ui.OpenStorage();Step(ui);
+            if(!ui.storageWindow.activeSelf||!ui.useStorageArtwork||ui.storagePreview!=null||ui.storageNumbers.text!="보유 상자 2개"||ui.storageBeforeLabel.text!="상자 2"||ui.storageAfterLabel.text!="상자 3"||ui.storageCostLabel.text!="600 G")throw new Exception("상자 화면 초기화/실제 개수/가격 연결 실패");checks++;
+            long gold=runtime.Model.Gold;ui.UpgradeStorage();
+            if(runtime.Model.WarehouseIds().Count!=3||runtime.Model.Gold!=gold-600)throw new Exception("상자 구매 UI에서 한 번만 차감/추가 실패");checks++;
+            ui.UpgradeStorage();if(runtime.Model.WarehouseIds().Count!=3||runtime.Model.Gold!=gold-600)throw new Exception("구매 중복 실행 방지 실패");checks++;
+            Step(ui);ui.newBoxCost=650;ui.UpgradeStorage();
+            if(runtime.Model.WarehouseIds().Count!=3)throw new Exception("표시 전 가격 변경으로 구매되었습니다.");Step(ui);
+            if(ui.storageCostLabel.text!="650 G")throw new Exception("변경된 구매 비용 표시 실패");ui.UpgradeStorage();
+            if(runtime.Model.WarehouseIds().Count!=4||runtime.Model.Gold!=gold-1250)throw new Exception("갱신한 구매 비용 적용 실패");checks++;
+            foreach(string id in runtime.Model.WarehouseIds()){var box=runtime.Model.GetContainer(id);if(box.columns!=8||box.rows!=7)throw new Exception("구매 UI에서 상자 크기가 바뀌었습니다.");}checks++;
+            ui.OpenFurniture();Step(ui);var ids=runtime.Model.AvailableFurnitureTypes();var first=runtime.Model.Displays.Type(ids[0]);
+            if(ui.typeLabel.text!=first.title||ui.displayInfo.text!=first.columns+"×"+first.rows+"칸"||ui.furniturePriceLabel.text!=first.purchasePrice+" G"||ui.furniturePageLabel.text!="3 / "+ids.Count)throw new Exception("가구 목록/선택 정보/목록 위치 연결 실패");checks++;
+            string chosen=ids[1];var second=runtime.Model.Displays.Type(chosen);ui.SelectType(chosen);Step(ui);
+            if(ui.typeLabel.text!=second.title||ui.furniturePriceLabel.text!=second.purchasePrice+" G")throw new Exception("가구 선택 변경 실패");
+            int selectedRows=0;foreach(var row in ui.furnitureList.GetComponentsInChildren<FurnitureCardView>(true))if(row.gameObject.activeSelf&&row.selectionArtwork.gameObject.activeSelf){selectedRows++;if(row.normalArtwork.gameObject.activeSelf)throw new Exception("선택/일반 행 중첩");}
+            if(selectedRows!=1)throw new Exception("가구 선택 강조 개수 오류");checks++;
+            ui.AddDisplay();Step(ui);if(runtime.Model.AvailableFurnitureTypes().Contains(chosen)||runtime.Model.OwnedDisplayId(chosen,0)==null)throw new Exception("가구 구매 후 목록/소유 정보 갱신 실패");checks++;
+            foreach(string id in runtime.Model.AvailableFurnitureTypes()){ui.SelectType(id);Step(ui);ui.AddDisplay();}Step(ui);
+            if(runtime.Model.AvailableFurnitureTypes().Count!=0||ui.addDisplayButton.interactable||!ui.furnitureEmptyLabel.gameObject.activeSelf||ui.furniturePageLabel.text!="0 / 0"||ui.furniturePriceLabel.text!="-- G")throw new Exception("모두 구매한 뒤 빈 목록 처리 실패");checks++;
+            var snapshot=runtime.Model.Snapshot();snapshot.gold=0;if(!runtime.Model.TryRestore(snapshot,out error))throw new Exception(error);ui.OpenStorage();Step(ui);
+            if(ui.storageActionButton.interactable||string.IsNullOrEmpty(ui.storageStatusLabel.text))throw new Exception("소지금 부족 안내/구매 차단 실패");
+            ui.UpgradeStorage();if(runtime.Model.Gold!=0||runtime.Model.WarehouseIds().Count!=4)throw new Exception("소지금 부족 상태에서 구매되었습니다.");checks++;
+            if(ui.addDisplayButton.onClick.GetPersistentEventCount()!=1||ui.storageActionButton.onClick.GetPersistentEventCount()!=1)throw new Exception("구매 버튼 연결 누락/중복");checks++;
+            return checks;
         }
         finally{Object.DestroyImmediate(root);}
     }
