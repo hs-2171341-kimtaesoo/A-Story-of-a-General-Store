@@ -24,7 +24,7 @@ namespace GeneralStore.Inventory
 namespace GeneralStore.Inventory
 {
     public struct IconPoint { public float x, y; public IconPoint(float x,float y) { this.x=x; this.y=y; } }
-    public sealed class IconQuad
+    public struct IconQuad
     {
         public float x0,y0,x1,y1;
         public IconPoint topLeft,topRight,bottomRight,bottomLeft;
@@ -33,7 +33,20 @@ namespace GeneralStore.Inventory
     // 좌표는 칸 단위, y는 아래쪽입니다. Unity 좌표/아틀라스 UV 변환은 Graphic이 담당합니다.
     public static class IconMeshGeometry
     {
+        // Padding is in the original sprite's left/bottom/right/top directions.
+        public static void ApplyPadding(ref IconQuad quad,int rotation,float left,float bottom,float right,float top)
+        {
+            float l,t,r,b;
+            if(rotation==0){l=left;t=top;r=right;b=bottom;}
+            else if(rotation==1){l=bottom;t=left;r=top;b=right;}
+            else if(rotation==2){l=right;t=bottom;r=left;b=top;}
+            else{l=top;t=right;r=bottom;b=left;}
+            float width=quad.x1-quad.x0,height=quad.y1-quad.y0;
+            quad.x0+=width*l;quad.x1-=width*r;quad.y0+=height*t;quad.y1-=height*b;
+        }
         public static List<IconQuad> Build(ItemFootprint shape, int rotation, bool hasSprite, float aspect,float cellAspect=1)
+        {return new List<IconQuad>(1){BuildQuad(shape,rotation,hasSprite,aspect,cellAspect)};}
+        public static IconQuad BuildQuad(ItemFootprint shape,int rotation,bool hasSprite,float aspect,float cellAspect=1)
         {
             if (hasSprite && (float.IsNaN(aspect) || float.IsInfinity(aspect) || aspect <= 0)) throw new ArgumentException("아이콘 비율 오류");
             float bw=shape.Width(0),bh=shape.Height(0),rw=shape.Width(rotation),rh=shape.Height(rotation);
@@ -51,11 +64,11 @@ namespace GeneralStore.Inventory
             float left=(rw-rotatedW)*.5f,top=(rh-rotatedH)*.5f;
             // A rectangle uses one quad, regardless of its number of occupied cells.
             float x0=left,y0=top,x1=left+rotatedW,y1=top+rotatedH;
-            var result=new List<IconQuad>(1){new IconQuad{x0=x0,y0=y0,x1=x1,y1=y1,
+            var result=new IconQuad{x0=x0,y0=y0,x1=x1,y1=y1,
                 topLeft=Uv(x0,y0,rotation,bw,bh,offsetX,offsetY,imageW,imageH),
                 topRight=Uv(x1,y0,rotation,bw,bh,offsetX,offsetY,imageW,imageH),
                 bottomRight=Uv(x1,y1,rotation,bw,bh,offsetX,offsetY,imageW,imageH),
-                bottomLeft=Uv(x0,y1,rotation,bw,bh,offsetX,offsetY,imageW,imageH)}};
+                bottomLeft=Uv(x0,y1,rotation,bw,bh,offsetX,offsetY,imageW,imageH)};
             return result;
         }
         static IconPoint Uv(float x,float y,int rotation,float bw,float bh,float ox,float oy,float iw,float ih)

@@ -38,18 +38,24 @@ namespace GeneralStore.Inventory
                 scale=Mathf.Min(scale,displays.WarehouseCellLimit(region)/Mathf.Max(.0001f,cell));
             }
             drawer.window.localScale=new Vector3(scale,scale,1);
-            float x=left+Mathf.Min(leftInset,Mathf.Max(0,size.x-width));
+            var management=managementMenu==null?null:managementMenu.GetComponent<RightSideMenu>();
+            float managementInset=management==null?0:management.ReservedWidth;
+            float x=left+Mathf.Min(Mathf.Max(leftInset,managementInset),Mathf.Max(0,size.x-width));
             drawer.RefreshViewport(region,new Vector2(x,top-size.y*warehouseCenterFraction+drawer.window.rect.height*scale*.5f));
             displays.RefreshViewport(region);if(delivery!=null)delivery.RefreshViewport(region);
-            if(managementMenu!=null){var menu=managementMenu.GetComponent<RightSideMenu>();if(menu!=null)menu.RefreshLayout();}
+            if(management!=null)management.RefreshLayout();
             if(panel.shop.counterTrade!=null)panel.shop.counterTrade.RefreshViewport(region);
             if(displayMenuLayer!=null){displayMenuLayer.anchoredPosition=Vector2.zero;displayMenuLayer.sizeDelta=size;displayMenu.RefreshLayout();}
             if(managementWindows!=null)for(int n=0;n<managementWindows.Length;n++)
             {
                 if(managementWindows[n]==null||managementFrames[n]==null)continue;
                 managementWindows[n].sizeDelta=size;
-                var frame=managementFrames[n];var workshop=GetComponent<WorkshopUI>();if(workshop!=null&&workshop.frame==frame)continue;float f=Mathf.Min(1,Mathf.Min(Mathf.Max(1,size.y-40)/860,Mathf.Max(1,size.x-210)/560));
-                frame.localScale=new Vector3(f,f,1);frame.anchoredPosition=new Vector2(100,-Mathf.Max(20,(size.y-860*f)*.5f));
+                var frame=managementFrames[n];var workshop=GetComponent<WorkshopUI>();if(workshop!=null&&workshop.frame==frame)continue;
+                float frameWidth=Mathf.Max(1,frame.rect.width),frameHeight=Mathf.Max(1,frame.rect.height);
+                float leftEdge=Mathf.Max(100,managementInset),availableWidth=Mathf.Max(1,size.x-leftEdge-24);
+                float f=Mathf.Min(1,Mathf.Min(Mathf.Max(1,size.y-40)/frameHeight,availableWidth/frameWidth));
+                frame.localScale=new Vector3(f,f,1);var target=new Vector2(leftEdge,-Mathf.Max(20,(size.y-frameHeight*f)*.5f));
+                ManagementWindowMotion.Ensure(managementWindows[n].gameObject,frame).SetTarget(target);
             }
         }
     }

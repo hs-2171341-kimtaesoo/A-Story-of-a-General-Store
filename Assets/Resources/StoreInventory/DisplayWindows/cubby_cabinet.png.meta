@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: a17da2634dbe8974689e28c327906867
+guid: 0397bef797d35fd4c8cfa736d583b5c3
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -142,10 +142,10 @@ TextureImporter:
       name: cubby_cabinet_0
       rect:
         serializedVersion: 2
-        x: 34
+        x: 0
         y: 0
-        width: 1469
-        height: 1011
+        width: 1521
+        height: 1034
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

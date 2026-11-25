@@ -11,9 +11,12 @@ namespace GeneralStore.Inventory
             string temp=path+"."+Guid.NewGuid().ToString("N")+".tmp";
             try
             {
-                byte[] bytes=new UTF8Encoding(false).GetBytes(json);
                 using(var stream=new FileStream(temp,FileMode.CreateNew,FileAccess.Write,FileShare.None))
-                {stream.Write(bytes,0,bytes.Length);stream.Flush(true);}
+                {
+                    // Encode in bounded chunks instead of allocating a second full UTF-8 copy of the save.
+                    using(var writer=new StreamWriter(stream,new UTF8Encoding(false),4096,true)){writer.Write(json);writer.Flush();}
+                    stream.Flush(true);
+                }
                 if(File.Exists(path)){if(Directory.Exists(path+".bak"))throw new IOException("백업 경로가 폴더입니다.");File.Copy(path,path+".bak",true);File.Replace(temp,path,null);}
                 else File.Move(temp,path);
             }

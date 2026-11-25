@@ -52,7 +52,6 @@ public static class InventoryAssetTools
         }
         runtime.spriteCatalog=catalog;EditorUtility.SetDirty(catalog);AssetDatabase.SaveAssets();
     }
-    [MenuItem("Store Inventory/Existing Scene Tools/Apply Quality Drawer Update To Selection")]
     public static void UpgradeQualitySelection()
     {
         if(Application.isPlaying){Debug.LogWarning("Stop Play first.");return;}
@@ -64,7 +63,6 @@ public static class InventoryAssetTools
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(selected.scene);
         Debug.Log("Quality/drawer update applied to selection. Furniture transforms and sprite source files preserved. Save scene, then Play.");
     }
-    [MenuItem("Store Inventory/Existing Scene Tools/Apply Counter Motion Update To Selection")]
     public static void UpgradeCounterMotionSelection()
     {
         if(Application.isPlaying){Debug.LogWarning("Stop Play first.");return;}
@@ -77,7 +75,6 @@ public static class InventoryAssetTools
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(selected.scene);
         Debug.Log("카운터 연출/1초 전환/진열 목록 유지 적용. 씬을 저장하세요. 가구 위치와 재고 데이터는 유지했습니다.");
     }
-    [MenuItem("Store Inventory/Existing Scene Tools/Apply Counter Placement Update To Selection")]
     public static void UpgradeCounterFlatSelection()
     {
         if(Application.isPlaying){Debug.LogWarning("Stop Play first.");return;}

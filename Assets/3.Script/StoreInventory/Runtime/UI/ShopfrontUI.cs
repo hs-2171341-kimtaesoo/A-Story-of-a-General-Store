@@ -13,9 +13,9 @@ namespace GeneralStore.Inventory
         public InputField displayPriceInput;
         public Text goldLabel;
         MoveRequest pendingPlacement;
-        public void RefreshDialogue(){MarkDirty();}
+        public void RefreshDialogue(){counterDirty=true;MarkDirty();}
         long shownGold=long.MinValue,shownDebt=long.MinValue;
-        bool ready,dirty;
+        bool ready,dirty,counterDirty=true;
         RecommendationSession Session { get { return panel.inventory.Sales; } }
         public bool HasPendingPlacement { get { return pendingPlacement!=null; } }
         void Start()
@@ -28,7 +28,7 @@ namespace GeneralStore.Inventory
             priceDialog.SetActive(false);Refresh();
         }
         void MarkDirty(){dirty=true;}
-        void SessionChanged(){MarkDirty();if(!panel.drag.IsDragging)CancelDisplayPrice();}
+        void SessionChanged(){counterDirty=true;MarkDirty();if(!panel.drag.IsDragging)CancelDisplayPrice();}
         void LateUpdate(){if(ready&&dirty){dirty=false;Refresh();}}
         void PrepareWindowChange(){panel.drag.Cancel(false);CancelDisplayPrice();}
         public void ToggleWarehouse(){PrepareWindowChange();drawer.Toggle();}
@@ -55,7 +55,7 @@ namespace GeneralStore.Inventory
             if(!int.TryParse(displayPriceInput.text,out price)||price<0){panel.ShowMessage("0 이상의 정수 가격을 입력하세요.");return;}
             MoveRequest request=pendingPlacement;string error;
             bool success=panel.Model.TryListOnDisplay(request,price,out error);CancelDisplayPrice();
-            if(success){panel.Select(request.targetContainer,request.instanceId);panel.ShowMessage("진열 완료");}
+            if(success){panel.ShowMessage("진열 완료");}
             else panel.ShowMessage("진열 실패: "+error);
         }
         public void CancelDisplayPrice(){pendingPlacement=null;if(priceDialog!=null)priceDialog.SetActive(false);}
@@ -92,7 +92,7 @@ namespace GeneralStore.Inventory
         {
             if(shownGold!=panel.Model.Gold||shownDebt!=panel.Model.UnpaidCosts)
             {shownGold=panel.Model.Gold;shownDebt=panel.Model.UnpaidCosts;goldLabel.text=shownGold.ToString("N0")+" G"+(shownDebt>0?" / 미납 "+shownDebt:"");}
-            using(StoreProfiler.CounterRefresh.Auto())counterTrade.Render();
+            if(counterDirty){counterDirty=false;using(StoreProfiler.CounterRefresh.Auto())counterTrade.Render();}
         }
         void OnDestroy()
         {if(ready&&panel!=null&&panel.inventory!=null&&panel.inventory.Model!=null){panel.Model.Changed-=MarkDirty;Session.Changed-=SessionChanged;}}

@@ -219,3 +219,57 @@ namespace GeneralStore.Inventory.Verification
         }
     }
 }
+
+namespace GeneralStore.Inventory.Verification
+{
+    public static class OptimizationFeatureChecks
+    {
+        static int checks;
+        static void Check(bool pass,string reason){checks++;if(!pass)throw new Exception("최적화 회귀 검사: "+reason);}
+        public static int Run()
+        {
+            checks=0;var catalog=InventoryModelChecks.Fixture();var save=new InventorySave{gold=1000};
+            save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});save.containers.Add(new ContainerRecord{containerId="display_preview",columns=8,rows=7});
+            var model=new InventoryModel(catalog,save);string error;long warehouse=model.ContainerVersion("warehouse"),display=model.ContainerVersion("display_preview"),layout=model.LayoutVersion;
+            Check(model.TryAdd("warehouse","C001","common",1,50,out error),error);Check(model.ContainerVersion("warehouse")!=warehouse&&model.ContainerVersion("display_preview")==display,"변경된 공간만 버전 증가");
+            var buffer=new ContainerRecord();Check(model.CopyContainerInto("warehouse",buffer),"복사 버퍼 준비");var record=buffer.items[0];string uid=record.instanceId;warehouse=model.ContainerVersion("warehouse");
+            Check(model.TryAddDebugGold(1,out error)&&model.ContainerVersion("warehouse")==warehouse&&model.LayoutVersion==layout,"돈 변경은 격자/탭 재생성 없음");
+            Check(model.TryMove(new MoveRequest{sourceContainer="warehouse",targetContainer="warehouse",instanceId=uid,x=4,y=3,expectedRevision=model.Revision},out error),error);
+            Check(model.CopyContainerInto("warehouse",buffer)&&object.ReferenceEquals(record,buffer.items[0])&&record.x==4&&record.y==3,"읽기 버퍼의 레코드 재사용/좌표 갱신");
+            record.purchasePrice=999;Check(model.GetItem("warehouse",uid).purchasePrice==50,"읽기 버퍼 수정은 실제 물품에 전파되지 않음");
+            warehouse=model.ContainerVersion("warehouse");Check(model.TryRestore(model.Snapshot(),out error)&&model.ContainerVersion("warehouse")!=warehouse,"동일 저장 복원도 읽기 캐시 무효화");
+            var table=UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>(ItemTableTools.DataFolder+"/items_table.json");
+            var recipes=UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>(ItemTableTools.DataFolder+"/workshops_table.json");
+            var items=new ItemCatalog(UnityEngine.JsonUtility.FromJson<ItemDatabase>(table.text));var workshop=new WorkshopCatalog(UnityEngine.JsonUtility.FromJson<WorkshopDatabase>(recipes.text),items);
+            foreach(var recipe in workshop.Data.recipes)
+            {
+                var materials=new List<WorkshopMaterial>();foreach(var ingredient in recipe.ingredients)for(int n=0;n<ingredient.count;n++)materials.Add(new WorkshopMaterial{item=new ItemRecord{itemId=ingredient.itemId}});
+                Check(workshop.IsMatch(recipe.workshopId,materials,recipe.id),"정상 조합의 값 형식 키 일치");materials.Reverse();
+                Check(workshop.IsMatch(recipe.workshopId,materials,recipe.id)&&workshop.Match(recipe.workshopId,materials).Exists(r=>r.id==recipe.id),"재료 순서/같은 재료 중복/결과 후보 호환");
+                materials[0].item.itemId="unknown";Check(!workshop.IsMatch(recipe.workshopId,materials,recipe.id),"잘못된 재료 거절");
+            }
+            CheckPacking(catalog);return checks;
+        }
+        static void CheckPacking(ItemCatalog catalog)
+        {
+            var random=new System.Random(7341);string[] ids={"E001","C001","sample_rope","sample_sword","sample_bag"};
+            for(int run=0;run<40;run++)
+            {
+                var save=new InventorySave();save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});var model=new InventoryModel(catalog,save);var occupied=new bool[56];
+                for(int n=0;n<25;n++)
+                {
+                    string id=ids[random.Next(ids.Length)],quality=id=="E001"?"none":"common";var shape=catalog.Shape(id);int px=-1,py=-1,rotation=-1;
+                    for(int r=0;r<4&&px<0;r++)for(int y=0;y<7&&px<0;y++)for(int x=0;x<8&&px<0;x++)
+                    {
+                        int w=shape.Width(r),h=shape.Height(r);if(x+w>8||y+h>7)continue;bool free=true;
+                        for(int dy=0;dy<h;dy++)for(int dx=0;dx<w;dx++)if(occupied[(y+dy)*8+x+dx])free=false;
+                        if(free){px=x;py=y;rotation=r;}
+                    }
+                    string error;bool actual=model.TryAdd("warehouse",id,quality,1,1,out error);Check(actual==(px>=0),"독립 점유 배열과 자동 배치 성공 여부 일치");if(!actual)continue;
+                    var box=model.GetContainer("warehouse");var placed=box.items[box.items.Count-1];Check(placed.x==px&&placed.y==py&&placed.rotation==rotation,"회전/탐색 순서 유지");
+                    for(int dy=0;dy<shape.Height(rotation);dy++)for(int dx=0;dx<shape.Width(rotation);dx++)occupied[(py+dy)*8+px+dx]=true;
+                }
+            }
+        }
+    }
+}

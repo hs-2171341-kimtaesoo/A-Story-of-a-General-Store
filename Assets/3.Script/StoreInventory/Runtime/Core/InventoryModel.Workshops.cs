@@ -9,6 +9,8 @@ namespace GeneralStore.Inventory
         ShopPhase workshopPhase=ShopPhase.Day;int workshopDay=1;
         void NotifyWorkshops(){var e=WorkshopsChanged;if(e!=null)e();}
         public int SuccessfulCustomerSales{get{return state.successfulCustomerSales;}}
+        public bool IsWorkshopUnlocked(string id){var w=Station(state,id);return w!=null&&w.unlocked;}
+        public bool HasUnlockedWorkshop{get{foreach(var w in state.workshops)if(w.unlocked)return true;return false;}}
         public void SetWorkshopTime(ShopPhase phase,int day)
         {if(workshopPhase==phase&&workshopDay==day)return;workshopPhase=phase;workshopDay=day;NotifyWorkshops();}
         public bool WorkshopCanOperate(string id)
@@ -49,16 +51,35 @@ namespace GeneralStore.Inventory
                     }
                 }
                 while(w.jobs.Count<definition.queueCapacity)w.jobs.Add(NewWorkshopDraft());
+                if(save.successfulCustomerSales>=definition.unlockSales)w.unlocked=true;
+                HireUnlockedWorkshop(save,w);
             }
         }
         static WorkshopJob NewWorkshopDraft(){return new WorkshopJob{id=Guid.NewGuid().ToString("N"),recipeId=""};}
         void UnlockEarnedWorkshops(InventorySave save)
-        {if(Workshops!=null)foreach(var w in save.workshops)if(save.successfulCustomerSales>=Workshops.Find(w.id).unlockSales)w.unlocked=true;}
+        {if(Workshops!=null)foreach(var w in save.workshops)if(save.successfulCustomerSales>=Workshops.Find(w.id).unlockSales){w.unlocked=true;HireUnlockedWorkshop(save,w);}}
+        void HireUnlockedWorkshop(InventorySave save,WorkshopState w)
+        {
+            if(!w.unlocked||w.hired)return;
+            w.hired=true;
+            if(w.wageDay!=save.lastSettledDay)
+            {w.wageDue=checked(w.wageDue+Workshops.Find(w.id).dailyWage);w.wageDay=save.lastSettledDay;}
+        }
         public WorkshopState GetWorkshop(string id){var w=Station(state,id);return w==null?null:w.Copy();}
         public long WorkshopDue(){long value=0;foreach(var w in state.workshops)value=checked(value+w.wageDue+w.extraDue);return value;}
         void BeginWorkshopDay(InventorySave save,int day)
         {foreach(var w in save.workshops){w.wageDue=w.extraDue=0;if(w.hired){w.wageDue=Workshops.Find(w.id).dailyWage;w.wageDay=day;}}}
-        WorkshopState Station(InventorySave save,string id){return save.workshops.Find(w=>w!=null&&w.id==id);}
+        WorkshopState Station(InventorySave save,string id){foreach(var w in save.workshops)if(w!=null&&w.id==id)return w;return null;}
+        static WorkshopJob ReadJob(WorkshopState w,string id){if(w!=null)foreach(var job in w.jobs)if(job.id==id)return job;return null;}
+        public WorkshopProgress ReadWorkshopProgress(string station,string id=null)
+        {
+            var w=Station(state,station);if(w==null)return new WorkshopProgress();
+            var p=new WorkshopProgress{exists=true,hired=w.hired,unlocked=w.unlocked,nightPaid=w.nightWorkDay==workshopDay,resultCount=WorkshopResultCount(station)};
+            var j=ReadJob(w,id);if(j==null)return p;var recipe=Workshops.Recipe(j.recipeId);
+            p.started=j.started;p.hasRecipe=recipe!=null;p.showTime=recipe!=null&&(j.started||j.inputs.Count>0);p.completed=j.completed;p.repeatMode=j.repeatMode;
+            p.ratio=recipe==null?0:j.started?(float)(j.elapsed/recipe.Duration):j.results.Count>0?1:0;
+            p.remaining=WorkshopRemaining(j);p.status=WorkshopJobStatus(station,j);p.canRush=j.started&&!j.rushed&&WorkshopCanOperate("alchemy");return p;
+        }
         bool CommandStation(string id,out WorkshopState station,out string error)
         {station=Station(state,id);error="";if(station==null||!station.unlocked){error="손님과의 거래로 공방을 먼저 해금하세요.";return false;}return true;}
         bool FindJob(string station,string id,out WorkshopState owner,out WorkshopJob job,out string error)
@@ -77,7 +98,7 @@ namespace GeneralStore.Inventory
                     if(j==null||string.IsNullOrWhiteSpace(j.id)||!jobs.Add(j.id)||j.inputs==null||j.inputs.Count>5||j.results==null||j.usedSlots==null||j.usedSlots.Count>5||j.repeatMode<0||j.repeatMode>2||j.cycles<1||j.completed<0||j.completed>j.cycles||!WorkshopCatalog.Finite(j.elapsed)||j.elapsed<0)throw new ArgumentException("공방 작업 저장 오류");
                     var recipe=Workshops.Recipe(j.recipeId);
                     if(!string.IsNullOrEmpty(j.recipeId)&&(recipe==null||recipe.workshopId!=w.id))throw new ArgumentException("공방 조합 참조 오류");
-                    if(j.started&&(recipe==null||j.completed>=j.cycles||j.elapsed>=recipe.Duration||j.usedSlots.Count==0||!Workshops.Match(w.id,j.inputs).Exists(r=>r.id==j.recipeId)))throw new ArgumentException("제작 중 재료/진행도 오류");
+                    if(j.started&&(recipe==null||j.completed>=j.cycles||j.elapsed>=recipe.Duration||j.usedSlots.Count==0||!Workshops.IsMatch(w.id,j.inputs,j.recipeId)))throw new ArgumentException("제작 중 재료/진행도 오류");
                     if(!j.started&&(j.elapsed!=0||j.usedSlots.Count!=0)||j.rushed&&w.id!="alchemy")throw new ArgumentException("대기 작업 진행도 오류");
                     var slots=new HashSet<int>();foreach(var input in j.inputs){if(input==null||input.slot<0||input.slot>4||!slots.Add(input.slot))throw new ArgumentException("재료 슬롯 중복");ValidateWorkshopItem(input.item,ids);}
                     var used=new HashSet<int>();foreach(int slot in j.usedSlots)if(!used.Add(slot)||!slots.Contains(slot))throw new ArgumentException("가공 중 재료 잠금 오류");
@@ -91,14 +112,27 @@ namespace GeneralStore.Inventory
         {
             WorkshopState w;if(!CommandStation(id,out w,out error))return false;
             if(day!=state.lastSettledDay){error="현재 정산 날짜와 다릅니다.";return false;}
-            var next=state.Copy();w=Station(next,id);w.hired=hire;
-            try{if(hire&&w.wageDay!=day){w.wageDue=checked(w.wageDue+Workshops.Find(id).dailyWage);w.wageDay=day;}}catch(OverflowException){error="일급 범위 초과";return false;}
+            if(!hire){error="해금된 공방은 자동 고용 상태로 유지됩니다.";return false;}
+            if(w.hired)return true; // Compatibility with existing tests and event bindings.
+            var next=state.Copy();w=Station(next,id);
+            try{HireUnlockedWorkshop(next,w);}catch(OverflowException){error="일급 범위 초과";return false;}
             Commit(next);return true;
         }
         public bool TryUnlockWorkshop(string id,out string error)
-        {error="";if(Workshops==null||Workshops.Find(id)==null){error="공방 ID가 없습니다.";return false;}var next=state.Copy();Station(next,id).unlocked=true;Commit(next);return true;}
+        {
+            error="";if(Workshops==null||Workshops.Find(id)==null){error="공방 ID가 없습니다.";return false;}
+            if(IsWorkshopUnlocked(id))return true;
+            var next=state.Copy();var w=Station(next,id);w.unlocked=true;
+            try{HireUnlockedWorkshop(next,w);}catch(OverflowException){error="일급 범위 초과";return false;}
+            Commit(next);return true;
+        }
         public bool TryUnlockAllWorkshopsForDemo(out string error)
-        {error="";if(Workshops==null){error="공방 데이터 없음";return false;}var next=state.Copy();foreach(var w in next.workshops)w.unlocked=true;Commit(next);return true;}
+        {
+            error="";if(Workshops==null){error="공방 데이터 없음";return false;}var next=state.Copy();
+            try{foreach(var w in next.workshops){w.unlocked=true;HireUnlockedWorkshop(next,w);}}
+            catch(OverflowException){error="일급 범위 초과";return false;}
+            Commit(next);return true;
+        }
         public List<WorkshopRecipe> MatchWorkshopRecipes(string station,string jobId)
         {var w=Station(state,station);var j=w==null?null:w.jobs.Find(job=>job.id==jobId);return j==null?new List<WorkshopRecipe>():Workshops.Match(station,j.inputs);}
         void RefreshWorkshopRecipe(WorkshopJob j,string station)
@@ -140,7 +174,7 @@ namespace GeneralStore.Inventory
         public bool CanStartWorkshopJob(string station,string id)
         {
             var w=Station(state,station);var j=w==null?null:w.jobs.Find(v=>v.id==id);
-            return w!=null&&w.unlocked&&w.hired&&j!=null&&!j.started&&Workshops.Match(station,j.inputs).Exists(r=>r.id==j.recipeId);
+            return w!=null&&w.unlocked&&w.hired&&j!=null&&!j.started&&Workshops.IsMatch(station,j.inputs,j.recipeId);
         }
         public bool TryStartWorkshopJob(string station,string id,out string error)
         {
@@ -241,9 +275,9 @@ namespace GeneralStore.Inventory
         public string WorkshopJobStatus(string station,WorkshopJob j)
         {
             if(j.exhausted)return "재료 소진 · 반복 종료";
-            if(!j.started)return j.results.Count>0?"완성품 수령 대기":Workshops.Match(station,j.inputs).Count==0?"재료 조합 대기":"제작 준비";
+            if(!j.started)return j.results.Count>0?"완성품 수령 대기":!Workshops.HasMatch(station,j.inputs)?"재료 조합 대기":"제작 준비";
             var w=Station(state,station);if(!w.hired)return "고용 중지";if(!WorkshopCanOperate(station))return workshopPhase==ShopPhase.Night?"야간 휴무":"새벽 휴무";
-            if(ActiveWorkshopJob(w)!=w.jobs.Find(v=>v.id==j.id))return "순서 대기";return j.rushed?"긴급 제작 중":"제작 중";
+            if(ActiveWorkshopJob(w)!=ReadJob(w,j.id))return "순서 대기";return j.rushed?"긴급 제작 중":"제작 중";
         }
         public List<ItemRecord> WorkshopBatchMaterials(WorkshopJob job)
         {var result=new List<ItemRecord>();foreach(var input in job.inputs)result.Add(input.item.Copy());return result;}

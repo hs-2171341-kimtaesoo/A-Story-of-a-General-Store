@@ -6,10 +6,10 @@ namespace GeneralStore.Inventory
     {
         public Text title,status,time,candidateLabel;public RectTransform fill;public WorkshopSlotView[] inputs;public WorkshopSlotView output;
         public Button start,cancel,up,down,instant,focus,candidate;
-        WorkshopUI owner;public string JobId{get;private set;}Vector2 target;bool positionReady;
+        bool listenersReady;WorkshopUI owner;public string JobId{get;private set;}Vector2 target;bool positionReady;
         public void Initialize(WorkshopUI ui)
         {
-            owner=ui;start.onClick.AddListener(()=>owner.StartJob(JobId));cancel.onClick.AddListener(()=>owner.CancelJob(JobId));up.onClick.AddListener(()=>owner.MoveJob(JobId,-1));down.onClick.AddListener(()=>owner.MoveJob(JobId,1));instant.onClick.AddListener(()=>owner.Instant(JobId));focus.onClick.AddListener(()=>owner.SelectJob(JobId));candidate.onClick.AddListener(()=>owner.CycleCandidate(JobId));
+            owner=ui;if(listenersReady)return;listenersReady=true;start.onClick.AddListener(()=>owner.StartJob(JobId));cancel.onClick.AddListener(()=>owner.CancelJob(JobId));up.onClick.AddListener(()=>owner.MoveJob(JobId,-1));down.onClick.AddListener(()=>owner.MoveJob(JobId,1));instant.onClick.AddListener(()=>owner.Instant(JobId));focus.onClick.AddListener(()=>owner.SelectJob(JobId));candidate.onClick.AddListener(()=>owner.CycleCandidate(JobId));
         }
         public void SetOrder(int index,bool snap)
         {target=new Vector2(0,-index*144);if(snap||!positionReady){((RectTransform)transform).anchoredPosition=target;positionReady=true;}}
@@ -30,12 +30,18 @@ namespace GeneralStore.Inventory
             up.gameObject.SetActive(ui.StationId=="smith");down.gameObject.SetActive(ui.StationId=="smith");up.interactable=index>0;down.interactable=index<count-1;
             instant.gameObject.SetActive(ui.StationId=="alchemy");RefreshProgress(ui,job);
         }
-        public void RefreshProgress(WorkshopUI ui,WorkshopJob job)
+        long shownSeconds=long.MinValue;int shownCompleted=-1,shownRepeat=-1;bool shownStarted,shownTime;
+        public void RefreshProgress(WorkshopUI ui,WorkshopJob job){RefreshProgress(ui,ui.Model.ReadWorkshopProgress(ui.StationId,job.id));}
+        public void RefreshProgress(WorkshopUI ui,WorkshopProgress progress)
         {
-            var recipe=ui.Model.Workshops.Recipe(job.recipeId);float ratio=recipe==null?0:job.started?(float)(job.elapsed/recipe.Duration):job.results.Count>0?1:0;
-            fill.sizeDelta=new Vector2(200*ratio,12);status.text=ui.Model.WorkshopJobStatus(ui.StationId,job);
-            time.text=recipe==null||!job.started&&job.inputs.Count==0?"":FormatSeconds(ui.Model.WorkshopRemaining(job))+(job.started?" 남음":" / 1회")+(job.repeatMode!=0?" · "+job.completed+"회 완료":"");
-            instant.interactable=job.started&&!job.rushed&&ui.Model.WorkshopCanOperate("alchemy");
+            var size=new Vector2(200*progress.ratio,12);if(fill.sizeDelta!=size)fill.sizeDelta=size;status.text=progress.status??"";
+            long seconds=(long)System.Math.Ceiling(progress.remaining);
+            if(shownSeconds!=seconds||shownCompleted!=progress.completed||shownRepeat!=progress.repeatMode||shownStarted!=progress.started||shownTime!=progress.showTime)
+            {
+                shownSeconds=seconds;shownCompleted=progress.completed;shownRepeat=progress.repeatMode;shownStarted=progress.started;shownTime=progress.showTime;
+                time.text=!progress.showTime?"":FormatSeconds(seconds)+(progress.started?" 남음":" / 1회")+(progress.repeatMode!=0?" · "+progress.completed+"회 완료":"");
+            }
+            instant.interactable=progress.canRush;
         }
         public static string FormatSeconds(double seconds){long total=(long)System.Math.Ceiling(seconds);return total/60+"분 "+(total%60).ToString("00")+"초";}
     }

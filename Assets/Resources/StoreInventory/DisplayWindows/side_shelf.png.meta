@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 93b1a16a9bee9f5438612285026a6fbe
+guid: 7e6107ca9c6c0b84c9001a5308370967
 TextureImporter:
   internalIDToNameTable:
   - first:
       213: 3385848213981073406
     second: side_shelf_0
-  - first:
-      213: 7333326662081752376
-    second: side_shelf_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -146,9 +143,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 12
-        width: 1437
-        height: 1072
+        y: 0
+        width: 1458
+        height: 1079
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -159,28 +156,6 @@ TextureImporter:
       bones: []
       spriteID: eff8bb9f203fcfe20800000000000000
       internalID: 3385848213981073406
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: side_shelf_1
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 234
-        width: 6
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 83da84bdeb535c560800000000000000
-      internalID: 7333326662081752376
       vertices: []
       indices: 
       edges: []
@@ -200,7 +175,6 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       side_shelf_0: 3385848213981073406
-      side_shelf_1: 7333326662081752376
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

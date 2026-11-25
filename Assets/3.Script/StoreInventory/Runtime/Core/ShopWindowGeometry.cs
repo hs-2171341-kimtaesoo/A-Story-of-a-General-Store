@@ -7,7 +7,8 @@ namespace GeneralStore.Inventory
     public static class DrawerGeometry
     {
         public static float ClosedY(float screen,float peek){return -screen+peek;}
-        public static bool ShouldClose(float y,float height,float screen,float hidden){return screen+y<=height*(1-hidden);}
+        public static bool ShouldClose(float y,float height,float screen,float hidden)
+        {return (double)height-screen-y+.001 >= (double)height*hidden;}
         // 양옆과 위는 화면 안. 아래는 서랍을 닫기 위해 화면 밖으로 나갈 수 있습니다.
         public static WindowPoint ClampFree(float x,float y,float width,float screenWidth,float screenHeight,float peek)
         {

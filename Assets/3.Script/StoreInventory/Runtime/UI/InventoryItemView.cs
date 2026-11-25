@@ -23,7 +23,7 @@ namespace GeneralStore.Inventory
             if(Panel==panel&&Grid==grid&&Record!=null&&Record.instanceId==record.instanceId&&Record.itemId==record.itemId&&Record.quality==record.quality
                 &&Record.x==record.x&&Record.y==record.y&&visualRotation==record.rotation&&Record.rotation==record.rotation&&Record.purchasePrice==record.purchasePrice&&previousLocked==locked
                 &&visualCellSize.x==grid.cellWidth&&visualCellSize.y==grid.cellHeight){Rect.anchoredPosition=new Vector2((record.x-grid.startColumn)*grid.cellWidth,-(record.y-grid.startRow)*grid.cellHeight);return;}
-            Panel=panel;Grid=grid;Record=record;previousLocked=locked;
+            Panel=panel;Grid=grid;if(Record==null)Record=record.Copy();else Record.CopyFrom(record);previousLocked=locked;
             sprite=panel.FindItemIcon(record.itemId);
             var hitArea=GetComponent<global::UnityEngine.UI.Image>();
             hitArea.color=new Color(1,1,1,0);hitArea.sprite=null;hitArea.raycastTarget=false;
@@ -56,6 +56,7 @@ namespace GeneralStore.Inventory
         }
         public void SetDragVisual(bool dragging)
         { CanvasGroup group=GetComponent<CanvasGroup>();group.alpha=dragging?.3f:1;group.blocksRaycasts=!dragging; }
+        public void ReleaseVisual(){Record=null;sprite=null;visualRotation=-1;icon.Configure(null,null,0,1);nameLabel.text="";}
         // 상위 창의 배경 PointerDown이 아이템 클릭을 가로채지 않게 같은 오브젝트에서 받습니다.
         public void OnPointerEnter(PointerEventData e){if(Panel?.tooltip!=null)Panel.tooltip.Enter(this);}
         public void OnPointerExit(PointerEventData e){if(Panel?.tooltip!=null)Panel.tooltip.Exit(this);}
@@ -64,8 +65,7 @@ namespace GeneralStore.Inventory
         public void OnPointerUp(PointerEventData e){}
         public void OnPointerClick(PointerEventData e)
         {
-            if(e.button!=PointerEventData.InputButton.Left||Panel.IsWindowDragging)return;Panel.ToggleSelection(Grid.containerId,Record.instanceId);
-            if(Panel.Model.IsReserved(Record.instanceId))Panel.ShowMessage("손님 선택 상품입니다. 정보만 확인할 수 있습니다.");
+            // Consume the click without creating a persistent selection.
         }
         public void OnBeginDrag(PointerEventData e) { if(Panel.IsWindowDragging)return;if(Panel.Model.IsReserved(Record.instanceId)){Panel.ShowMessage("손님 선택 상품은 이동할 수 없습니다.");return;} if(e.button==PointerEventData.InputButton.Left)Panel.drag.Begin(this,e); }
         public void OnDrag(PointerEventData e) { Panel.drag.MovePointer(e.position); }

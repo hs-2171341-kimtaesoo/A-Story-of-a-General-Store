@@ -98,6 +98,6 @@ namespace GeneralStore.Inventory
             if(e.button==PointerEventData.InputButton.Right&&!picked)owner.shop.RemoveOffer(uid);
             else if(e.button==PointerEventData.InputButton.Left){transform.SetAsLastSibling();owner.ShowItem(containerId,uid);}
         }
-        public void Release(){if(owner!=null&&Body.dragged)owner.EndCounterDrag(this);Body.active=false;Body.asleep=true;Body.dragged=false;suppressClick=false;owner=null;uid=containerId=null;if(image!=null)image.sprite=null;gameObject.SetActive(false);}
+        public void Release(){if(owner!=null&&Body.dragged)owner.EndCounterDrag(this);Body.active=false;Body.asleep=true;Body.dragged=false;suppressClick=false;owner=null;uid=containerId=null;if(fit!=null)fit.SetSprite(null);else if(image!=null)image.sprite=null;gameObject.SetActive(false);}
     }
 }

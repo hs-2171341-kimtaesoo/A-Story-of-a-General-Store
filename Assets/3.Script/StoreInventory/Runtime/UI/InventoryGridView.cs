@@ -8,7 +8,8 @@ namespace GeneralStore.Inventory
     // 여러 칸을 차지하므로 GridLayoutGroup이 아니라 좌표로 카드를 배치합니다.
     public sealed class InventoryGridView : MonoBehaviour, IDropHandler
     {
-        public bool acceptsDrop=true,recycleItems;
+        public bool acceptsDrop=true,recycleItems=true;
+        [Range(0,128)]public int maximumPooledItems=32;
         readonly Stack<InventoryItemView> itemPool=new Stack<InventoryItemView>();
         public string containerId = "warehouse";
         [Min(16)] public float cellWidth = 78;
@@ -31,12 +32,11 @@ namespace GeneralStore.Inventory
         readonly List<string> removed = new List<string>();
         float renderedWidth,renderedHeight,renderedGap=-1;bool previousRenderCells;
         int columns, rows;
-        public Color selectionColor=new Color(1,.75f,.15f,1);
-        [Min(1)]public float selectionThickness=3;
-        ItemSelectionGraphic selectionGraphic;
         PlacementPreviewGraphic previewGraphic;
         DisplayPartitionGraphic partitionGraphic;ReservedSlotGraphic reservedGraphic;
         readonly List<ItemRecord> reservedItems=new List<ItemRecord>();
+        long shownVersion=-2;string shownContainer;bool shownCounter;
+        int shownStartColumn=-1,shownStartRow=-1,shownViewColumns=-1,shownViewRows=-1;
         public Color dividerColor=new Color(.5f,.29f,.1f,1);
         [Range(2,16)]public float dividerThickness=8;
         public bool externalRefresh;
@@ -52,7 +52,9 @@ namespace GeneralStore.Inventory
         public void Refresh(){Refresh(null);}
         public void Refresh(ContainerRecord snapshot)
         {
-            ContainerRecord container = snapshot??Panel.Model.GetContainer(containerId);
+            long version=Panel.Model.ContainerVersion(containerId);bool counter=Panel.inventory.Sales.CounterPresented;
+            if(snapshot==null&&shownVersion==version&&shownContainer==containerId&&shownCounter==counter&&shownStartColumn==startColumn&&shownStartRow==startRow&&shownViewColumns==viewColumns&&shownViewRows==viewRows&&renderedWidth==cellWidth&&renderedHeight==(squareCells?cellWidth:cellHeight)&&renderedGap==cellGap&&previousRenderCells==renderCells)return;
+            ContainerRecord container = snapshot??Panel.GridData(containerId);
             if (container == null) { Debug.LogError("없는 컨테이너: " + containerId, this); return; }
                         // 1:1 고정 칸. 바깥 테두리도 타일 사이와 같은 간격입니다.
             if(squareCells)cellHeight=cellWidth;
@@ -96,8 +98,9 @@ namespace GeneralStore.Inventory
                 view.Bind(Panel,this,record);
             }
             removed.Clear();foreach(var pair in itemObjects)if(!seen.Contains(pair.Key))removed.Add(pair.Key);
-            foreach(var id in removed){var view=itemObjects[id];view.gameObject.SetActive(false);if(recycleItems&&itemPool.Count<128)itemPool.Push(view);else Destroy(view.gameObject);itemObjects.Remove(id);}
-            RefreshReservations();RefreshPartitions();HidePreview();RefreshSelection();
+            foreach(var id in removed){var view=itemObjects[id];view.gameObject.SetActive(false);if(recycleItems&&itemPool.Count<maximumPooledItems){view.ReleaseVisual();itemPool.Push(view);}else Destroy(view.gameObject);itemObjects.Remove(id);}
+            RefreshReservations();RefreshPartitions();HidePreview();
+            shownVersion=version;shownContainer=containerId;shownCounter=counter;shownStartColumn=startColumn;shownStartRow=startRow;shownViewColumns=viewColumns;shownViewRows=viewRows;
         }
         void RefreshReservations()
         {
@@ -120,20 +123,6 @@ namespace GeneralStore.Inventory
             partitionGraphic.gameObject.SetActive(true);
             partitionGraphic.rectTransform.sizeDelta=LogicalSize;partitionGraphic.rectTransform.anchoredPosition=new Vector2(ContentOrigin,-ContentOrigin);
             partitionGraphic.Configure(definition,CellSize,dividerThickness,dividerColor);partitionGraphic.transform.SetAsLastSibling();
-        }
-        public void RefreshSelection()
-        {
-            if(Panel==null)return;var item=Panel.Model.GetItem(containerId,Panel.Selection.Get(containerId));
-            if(item!=null&&!IsVisible(item))item=null;
-            if(item==null&&selectionGraphic==null)return;
-            if(selectionGraphic==null)
-            {
-                var go=new GameObject("Selected Item Outline",typeof(RectTransform),typeof(CanvasRenderer));go.transform.SetParent(transform,false);
-                TopLeft(go);selectionGraphic=go.AddComponent<ItemSelectionGraphic>();selectionGraphic.raycastTarget=false;
-            }
-            selectionGraphic.rectTransform.sizeDelta=LogicalSize;selectionGraphic.rectTransform.anchoredPosition=new Vector2(ContentOrigin,-ContentOrigin);selectionGraphic.color=selectionColor;
-            var selected=item;if(selected!=null&&(startColumn!=0||startRow!=0)){selected=selected.Copy();selected.x-=startColumn;selected.y-=startRow;}
-            selectionGraphic.Show(selected,item==null?null:Panel.Catalog.Shape(item.itemId),CellSize,selectionThickness);selectionGraphic.transform.SetAsLastSibling();
         }
         public bool PointerCell(Vector2 screen, out int x, out int y)
         {

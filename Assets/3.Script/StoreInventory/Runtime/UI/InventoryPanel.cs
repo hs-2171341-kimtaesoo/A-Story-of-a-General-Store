@@ -26,11 +26,15 @@ namespace GeneralStore.Inventory
         public ItemCatalog Catalog { get { return inventory.Catalog; } }
         public Camera EventCamera { get { return canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera; } }
         readonly Dictionary<string, Sprite> icons = new Dictionary<string, Sprite>();
-        public readonly ItemSelectionState Selection=new ItemSelectionState();
+        sealed class GridSnapshot{public long version=-1;public readonly ContainerRecord data=new ContainerRecord();}
+        readonly Dictionary<string,GridSnapshot> snapshots=new Dictionary<string,GridSnapshot>();
+        internal ContainerRecord GridData(string id)
+        {
+            if(Model.ContainerVersion(id)<0)return null;
+            GridSnapshot snapshot;if(!snapshots.TryGetValue(id,out snapshot)){snapshot=new GridSnapshot();snapshots.Add(id,snapshot);}
+            long version=Model.ContainerVersion(id);if(snapshot.version!=version){if(!Model.CopyContainerInto(id,snapshot.data))return null;snapshot.version=version;}return snapshot.data;
+        }
         bool initialized, dirty;
-        string selectedContainer, selectedInstance;
-        public string SelectedContainerId { get { return selectedContainer; } }
-        public string SelectedInstanceId { get { return selectedInstance; } }
         void Start()
         {
             if (inventory == null || canvas == null || drag == null || drag.dragLayer == null || grids == null || grids.Length == 0
@@ -54,10 +58,11 @@ namespace GeneralStore.Inventory
                 foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = koreanFont;
             drag.Initialize(this);
             foreach (InventoryGridView grid in grids) grid.Initialize(this);
-            initialized = true; Model.Changed += MarkDirty;inventory.Sales.Changed+=MarkDirty;
+            initialized = true; Model.Changed += MarkDirty;inventory.Sales.Changed+=MarkDirty;inventory.Loaded+=ResetSnapshots;
             RefreshDetails(); ShowMessage("드래그: 물건 1개 이동 / R: 회전 / Esc: 취소 / 빈 배경에 놓으면 취소");
         }
         void MarkDirty() { dirty = true; }
+        void ResetSnapshots(){snapshots.Clear();dirty=true;}
         void LateUpdate()
         {
             if (!initialized || !dirty) return; dirty = false;
@@ -89,20 +94,11 @@ namespace GeneralStore.Inventory
             }
             return sprite;
         }
-        public void Select(string containerId, string instanceId)
-        { selectedContainer=containerId;selectedInstance=instanceId;Selection.Set(containerId,instanceId);if(initialized){RefreshDetails();RefreshSelectionMarks();}if(tooltip!=null)tooltip.SelectionChanged(); }
-        public void ToggleSelection(string containerId,string uid)
-        {if(Selection.Get(containerId)==uid)ClearSelection(containerId);else Select(containerId,uid);if(tooltip!=null)tooltip.SelectionChanged();}
-        public void ClearSelection(string id)
-        {Selection.Clear(id);if(selectedContainer==id){selectedContainer=null;selectedInstance=null;}if(initialized){RefreshDetails();RefreshSelectionMarks();}if(tooltip!=null)tooltip.SelectionChanged();}
-        public void ClearWarehouseSelection(){foreach(string id in Model.WarehouseIds())Selection.Clear(id);if(InventoryModel.IsWarehouse(selectedContainer)){selectedContainer=null;selectedInstance=null;}if(initialized){RefreshDetails();RefreshSelectionMarks();}if(tooltip!=null)tooltip.SelectionChanged();}
-        public void RefreshSelectionMarks(){foreach(var grid in grids)if(grid.gameObject.activeInHierarchy)grid.RefreshSelection();}
-        public void UpdateDetails(){if(initialized){RefreshDetails();RefreshSelectionMarks();}if(tooltip!=null)tooltip.SelectionChanged();}
+        public void UpdateDetails(){if(tooltip!=null)tooltip.InvalidateContent();}
         public void ShowMessage(string message) { if (messageLabel != null) messageLabel.text = message; }
         void RefreshDetails()
         {
-            ItemRecord item = Model.GetItem(selectedContainer, selectedInstance);
-            foreach (InventoryDetailsView detail in detailViews) detail.Render(this, item);
+            foreach (InventoryDetailsView detail in detailViews) detail.Render(this, null);
 
         }
         public void HandleDrop(MoveRequest request)
@@ -113,7 +109,7 @@ namespace GeneralStore.Inventory
             if (InventoryModel.IsDisplay(request.targetContainer) && request.sourceContainer != request.targetContainer)
             { shop.RequestDisplayPlacement(request); return; }
             string error;
-            if (Model.TryMove(request, out error)) { Select(request.targetContainer, request.instanceId); ShowMessage("물건을 옮겼습니다."); }
+            if (Model.TryMove(request, out error)) { ShowMessage("물건을 옮겼습니다."); }
             else ShowMessage(error);
         }
         public void SaveInventory()
@@ -125,10 +121,9 @@ namespace GeneralStore.Inventory
         public void LoadInventory()
         {
             if (!initialized) return; drag.Cancel(false); shop.CancelDisplayPrice();
-            Selection.ClearAll();selectedContainer=null;selectedInstance=null;
             string error; ShowMessage(inventory.Load(out error) ? "불러오기 완료" : "불러오기 실패: " + error);
         }
         void OnDisable() { if (drag != null) drag.Cancel(false); }
-        void OnDestroy() { if(windowInput!=null)windowInput.Changed-=OnWindowDragChanged; if (initialized && inventory != null && inventory.Model != null) {inventory.Model.Changed -= MarkDirty;inventory.Sales.Changed-=MarkDirty;} }
+        void OnDestroy() { if(windowInput!=null)windowInput.Changed-=OnWindowDragChanged; if (initialized && inventory != null && inventory.Model != null) {inventory.Model.Changed -= MarkDirty;inventory.Sales.Changed-=MarkDirty;inventory.Loaded-=ResetSnapshots;} }
     }
 }

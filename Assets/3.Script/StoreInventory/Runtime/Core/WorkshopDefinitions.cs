@@ -18,19 +18,32 @@ namespace GeneralStore.Inventory
     {
         public string id,recipeId;public bool started,rushed,exhausted;public int repeatMode,cycles=1,completed;public double elapsed;
         public List<WorkshopMaterial> inputs=new List<WorkshopMaterial>();public List<int> usedSlots=new List<int>();public List<ItemRecord> results=new List<ItemRecord>();
-        public WorkshopJob Copy(){var j=new WorkshopJob{id=id,recipeId=recipeId,started=started,rushed=rushed,exhausted=exhausted,repeatMode=repeatMode,cycles=cycles,completed=completed,elapsed=elapsed};foreach(var i in inputs)j.inputs.Add(i==null?null:i.Copy());j.usedSlots.AddRange(usedSlots);foreach(var i in results)j.results.Add(i==null?null:i.Copy());return j;}
+        public WorkshopJob Copy(){var j=new WorkshopJob{id=id,recipeId=recipeId,started=started,rushed=rushed,exhausted=exhausted,repeatMode=repeatMode,cycles=cycles,completed=completed,elapsed=elapsed};j.inputs.Capacity=inputs.Count;j.results.Capacity=results.Count;j.usedSlots.Capacity=usedSlots.Count;foreach(var i in inputs)j.inputs.Add(i==null?null:i.Copy());j.usedSlots.AddRange(usedSlots);foreach(var i in results)j.results.Add(i==null?null:i.Copy());return j;}
     }
     [Serializable]public sealed class WorkshopState
     {
         public string id;public bool unlocked,hired;public long wageDue,extraDue;public int wageDay,nightWorkDay;
         public List<WorkshopJob> jobs=new List<WorkshopJob>();
-        public WorkshopState Copy(){var s=new WorkshopState{id=id,unlocked=unlocked,hired=hired,wageDue=wageDue,extraDue=extraDue,wageDay=wageDay,nightWorkDay=nightWorkDay};foreach(var j in jobs)s.jobs.Add(j==null?null:j.Copy());return s;}
+        public WorkshopState Copy(){var s=new WorkshopState{id=id,unlocked=unlocked,hired=hired,wageDue=wageDue,extraDue=extraDue,wageDay=wageDay,nightWorkDay=nightWorkDay};s.jobs.Capacity=jobs.Count;foreach(var j in jobs)s.jobs.Add(j==null?null:j.Copy());return s;}
     }
+    public struct WorkshopProgress
+    {public bool exists,hired,unlocked,nightPaid,started,hasRecipe,showTime,canRush;public int resultCount,completed,repeatMode;public float ratio;public double remaining;public string status;}
     public sealed class WorkshopCatalog
     {
         public readonly WorkshopDatabase Data;
         readonly Dictionary<string,WorkshopDefinition> workshops=new Dictionary<string,WorkshopDefinition>(StringComparer.Ordinal);
-        readonly Dictionary<string,List<WorkshopRecipe>> combinations=new Dictionary<string,List<WorkshopRecipe>>(StringComparer.Ordinal);
+        readonly Dictionary<Combination,List<WorkshopRecipe>> combinations=new Dictionary<Combination,List<WorkshopRecipe>>();
+        // At most five physical inputs: sort references inside a value type, without strings/arrays/dictionaries per query.
+        struct Combination:IEquatable<Combination>
+        {
+            public string station;string a,b,c,d,e;int count;
+            string Get(int n){switch(n){case 0:return a;case 1:return b;case 2:return c;case 3:return d;default:return e;}}
+            void Set(int n,string value){switch(n){case 0:a=value;break;case 1:b=value;break;case 2:c=value;break;case 3:d=value;break;default:e=value;break;}}
+            public void Add(string id){int at=count++;while(at>0&&string.CompareOrdinal(Get(at-1),id)>0){Set(at,Get(at-1));at--;}Set(at,id);}
+            public bool Equals(Combination x){return station==x.station&&count==x.count&&a==x.a&&b==x.b&&c==x.c&&d==x.d&&e==x.e;}
+            public override bool Equals(object x){return x is Combination&&Equals((Combination)x);}
+            public override int GetHashCode(){unchecked{int h=station==null?0:station.GetHashCode();for(int n=0;n<count;n++)h=h*31+(Get(n)==null?0:Get(n).GetHashCode());return h;}}
+        }
         readonly Dictionary<string,WorkshopRecipe> recipes=new Dictionary<string,WorkshopRecipe>(StringComparer.Ordinal);
         public WorkshopCatalog(WorkshopDatabase data,ItemCatalog items)
         {
@@ -47,18 +60,23 @@ namespace GeneralStore.Inventory
             foreach(var r in data.recipes)
             {
                 if(r==null||string.IsNullOrWhiteSpace(r.id)||recipes.ContainsKey(r.id)||!workshops.ContainsKey(r.workshopId)||items.Find(r.outputItemId)==null||r.outputCount!=1||!Finite(r.workSeconds)||r.workSeconds<0||r.workSeconds>604800||!Finite(r.Duration)||r.Duration<=0||(r.workSeconds==0&&r.minutes>10080)||r.ingredients==null||r.ingredients.Length<1||r.ingredients.Length>5)throw new ArgumentException("제작 조합 오류");
-                int count=0;var ids=new HashSet<string>();foreach(var i in r.ingredients){if(i==null||items.Find(i.itemId)==null||!ids.Add(i.itemId)||i.count<1||i.count>5)throw new ArgumentException("제작 재료 오류");count+=i.count;}if(count>5)throw new ArgumentException("한 회차 재료는 총5개 이하입니다.");recipes.Add(r.id,r);string key=CombinationKey(r.workshopId,r.ingredients);List<WorkshopRecipe> values;if(!combinations.TryGetValue(key,out values)){values=new List<WorkshopRecipe>();combinations.Add(key,values);}values.Add(r);
+                int count=0;var ids=new HashSet<string>();foreach(var i in r.ingredients){if(i==null||items.Find(i.itemId)==null||!ids.Add(i.itemId)||i.count<1||i.count>5)throw new ArgumentException("제작 재료 오류");count+=i.count;}if(count>5)throw new ArgumentException("한 회차 재료는 총5개 이하입니다.");recipes.Add(r.id,r);var key=CombinationKey(r.workshopId,r.ingredients);List<WorkshopRecipe> values;if(!combinations.TryGetValue(key,out values)){values=new List<WorkshopRecipe>();combinations.Add(key,values);}values.Add(r);
             }
         }
-        static string CombinationKey(string station,WorkshopIngredient[] ingredients)
-        {var parts=new List<string>();foreach(var ingredient in ingredients)parts.Add(ingredient.itemId+":"+ingredient.count);parts.Sort(StringComparer.Ordinal);return station+"|"+string.Join(";",parts);}
-        public List<WorkshopRecipe> Match(string station,IList<WorkshopMaterial> materials)
+        static Combination CombinationKey(string station,WorkshopIngredient[] ingredients)
+        {var key=new Combination{station=station};foreach(var ingredient in ingredients)for(int n=0;n<ingredient.count;n++)key.Add(ingredient.itemId);return key;}
+        bool TryMatch(string station,IList<WorkshopMaterial> materials,out List<WorkshopRecipe> matches)
         {
-            var counts=new Dictionary<string,int>(StringComparer.Ordinal);
-            foreach(var material in materials){if(material==null||material.item==null)return new List<WorkshopRecipe>();int n;counts.TryGetValue(material.item.itemId,out n);counts[material.item.itemId]=n+1;}
-            var ingredients=new List<WorkshopIngredient>();foreach(var pair in counts)ingredients.Add(new WorkshopIngredient{itemId=pair.Key,count=pair.Value});
-            List<WorkshopRecipe> matches;return combinations.TryGetValue(CombinationKey(station,ingredients.ToArray()),out matches)?new List<WorkshopRecipe>(matches):new List<WorkshopRecipe>();
+            matches=null;if(materials==null||materials.Count>5)return false;var key=new Combination{station=station};
+            for(int n=0;n<materials.Count;n++){var m=materials[n];if(m==null||m.item==null)return false;key.Add(m.item.itemId);}
+            return combinations.TryGetValue(key,out matches);
         }
+        public List<WorkshopRecipe> Match(string station,IList<WorkshopMaterial> materials)
+        {List<WorkshopRecipe> matches;return TryMatch(station,materials,out matches)?new List<WorkshopRecipe>(matches):new List<WorkshopRecipe>();}
+        public bool IsMatch(string station,IList<WorkshopMaterial> materials,string recipeId)
+        {List<WorkshopRecipe> matches;if(!TryMatch(station,materials,out matches))return false;for(int n=0;n<matches.Count;n++)if(matches[n].id==recipeId)return true;return false;}
+        public bool HasMatch(string station,IList<WorkshopMaterial> materials)
+        {List<WorkshopRecipe> matches;return TryMatch(station,materials,out matches)&&matches.Count>0;}
         public static bool Finite(double n){return !double.IsNaN(n)&&!double.IsInfinity(n);}
         public WorkshopDefinition Find(string id){WorkshopDefinition d;return id!=null&&workshops.TryGetValue(id,out d)?d:null;}
         public WorkshopRecipe Recipe(string id){WorkshopRecipe r;return id!=null&&recipes.TryGetValue(id,out r)?r:null;}

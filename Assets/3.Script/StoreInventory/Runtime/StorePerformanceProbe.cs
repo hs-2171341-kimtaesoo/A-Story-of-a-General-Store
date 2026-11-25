@@ -3,13 +3,35 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Profiling;
+using Unity.Profiling;
 namespace GeneralStore.Inventory
 {
-    // Explicit capture only. No Update, forced GC or automatic unload.
+    // Explicit capture only. Idle frames do not collect metrics; never forces GC or resource unloading.
     public sealed class StorePerformanceProbe:MonoBehaviour
     {
         public InventoryPanel panel;public CounterTradeUI counter;
         bool previous;long previousAllocated,previousTextures,previousRenderTextures;
+        ProfilerRecorder allocationRecorder;bool sampling;float sampleStarted;int sampleFrames,warmupFrames,gc0,gc1,gc2;long allocationSum,allocationPeak;double frameSeconds;
+        [ContextMenu("Start 30 Second GC Sample")]
+        public void StartGcSample()
+        {
+            if(!Application.isPlaying||!isActiveAndEnabled||sampling)return;
+            allocationRecorder=ProfilerRecorder.StartNew(ProfilerCategory.Memory,"GC Allocated In Frame",1);
+            if(!allocationRecorder.Valid){allocationRecorder.Dispose();Debug.LogWarning("이 빌드에서는 프레임 GC 카운터를 사용할 수 없습니다. Development Build의 Profiler에서 확인하세요.",this);return;}
+            sampling=true;sampleStarted=Time.unscaledTime;sampleFrames=0;warmupFrames=3;allocationSum=allocationPeak=0;frameSeconds=0;
+            gc0=GC.CollectionCount(0);gc1=GC.CollectionCount(1);gc2=GC.CollectionCount(2);
+        }
+        void Update()
+        {
+            if(!sampling)return;if(warmupFrames>0){warmupFrames--;return;}
+            long bytes=allocationRecorder.LastValue;allocationSum+=bytes;allocationPeak=Math.Max(allocationPeak,bytes);frameSeconds+=Time.unscaledDeltaTime;sampleFrames++;
+            if(Time.unscaledTime-sampleStarted<30)return;
+            allocationRecorder.Dispose();sampling=false;
+            Debug.Log("30초 성능 측정 ("+(Application.isEditor?"Editor 전체, 에디터 할당 포함":"Player 전체")+") · 프레임 "+sampleFrames+" · 평균 "+(frameSeconds*1000/Math.Max(1,sampleFrames)).ToString("F2")+" ms · GC 할당 평균 "+(allocationSum/(double)Math.Max(1,sampleFrames)).ToString("F1")+" B/frame / 최고 "+allocationPeak+" B · GC 수집 "+(GC.CollectionCount(0)-gc0)+"/"+(GC.CollectionCount(1)-gc1)+"/"+(GC.CollectionCount(2)-gc2)+". 씬을 유지한 채 같은 동작을 반복해 비교하세요.",this);
+        }
+        void OnDisable(){StopSampling();}
+        void OnDestroy(){StopSampling();}
+        void StopSampling(){if(sampling){allocationRecorder.Dispose();sampling=false;}}
         public void Report()
         {
             if(panel==null||panel.inventory==null||panel.inventory.Model==null)return;

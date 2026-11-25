@@ -15,6 +15,10 @@ namespace GeneralStore.Inventory
         public int rotation;
         public int purchasePrice;
         public ItemRecord Copy() { return (ItemRecord)MemberwiseClone(); }
+        public void CopyFrom(ItemRecord source)
+        {instanceId=source.instanceId;itemId=source.itemId;quality=source.quality;x=source.x;y=source.y;rotation=source.rotation;purchasePrice=source.purchasePrice;}
+        internal bool SameContents(ItemRecord other)
+        {return other!=null&&instanceId==other.instanceId&&itemId==other.itemId&&quality==other.quality&&x==other.x&&y==other.y&&rotation==other.rotation&&purchasePrice==other.purchasePrice;}
     }
     [Serializable] public sealed class ContainerRecord
     {
@@ -23,7 +27,7 @@ namespace GeneralStore.Inventory
         public List<ItemRecord> items = new List<ItemRecord>();
         public ContainerRecord Copy()
         {
-            var result = new ContainerRecord { containerId = containerId, columns = columns, rows = rows };
+            var result = new ContainerRecord { containerId = containerId, columns = columns, rows = rows };result.items.Capacity=items.Count;
             foreach (ItemRecord item in items) result.items.Add(item == null ? null : item.Copy());
             return result;
         }
@@ -49,6 +53,8 @@ namespace GeneralStore.Inventory
         {
             var result = new InventorySave { format = format, version = version, gold = gold, unpaidCosts = unpaidCosts, lastSettledDay = lastSettledDay };
             result.successfulCustomerSales=successfulCustomerSales;result.workshopRandom=workshopRandom;
+            result.displays.Capacity=displays.Count;result.suppliers.Capacity=suppliers.Count;result.containers.Capacity=containers.Count;result.listings.Capacity=listings.Count;
+            result.floorItems.Capacity=floorItems.Count;result.parcels.Capacity=parcels.Count;result.deliveries.Capacity=deliveries.Count;if(workshops!=null)result.workshops.Capacity=workshops.Count;
             if(workshops!=null)foreach(var workshop in workshops)result.workshops.Add(workshop==null?null:workshop.Copy());
             foreach(var display in displays)result.displays.Add(display==null?null:display.Copy());
             foreach(var supplier in suppliers)result.suppliers.Add(supplier==null?null:supplier.Copy());

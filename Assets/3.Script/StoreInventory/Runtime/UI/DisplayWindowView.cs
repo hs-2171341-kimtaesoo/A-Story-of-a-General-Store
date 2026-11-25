@@ -21,8 +21,7 @@ namespace GeneralStore.Inventory
             appearance.Apply(install.typeId,columns,rows);
         }
         public void Open(){gameObject.SetActive(true);transform.SetAsLastSibling();grid.Refresh();if(extraGrids!=null)foreach(var extra in extraGrids)if(extra!=null)extra.Refresh();Refresh();}
-        void OnDisable(){if(panel!=null)panel.ClearSelection(ContainerId);}
         public void UnregisterGrids(){panel.UnregisterWindowGrid(grid,details);if(extraGrids!=null)foreach(var extra in extraGrids)if(extra!=null)panel.UnregisterWindowGrid(extra,null);}
-        public void Close(){if(owner!=null){owner.Close(ContainerId);return;}panel.ClearSelection(ContainerId);gameObject.SetActive(false);}
+        public void Close(){if(owner!=null){owner.Close(ContainerId);return;}gameObject.SetActive(false);}
     }
 }

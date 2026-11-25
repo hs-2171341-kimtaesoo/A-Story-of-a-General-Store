@@ -16,10 +16,11 @@ namespace GeneralStore.Inventory
         {
             string error;hitImage=furnitureImage;
             if(panel==null||displays==null||furnitureImage==null||hitImage==null||!panel.inventory.TryInitialize(out error)){enabled=false;return;}
-            panel.Model.Changed+=Refresh;panel.inventory.Loaded+=Refresh;panel.inventory.Sales.Changed+=Refresh;
+            panel.Model.Changed+=ModelChanged;panel.inventory.Loaded+=Refresh;panel.inventory.Sales.Changed+=Refresh;
             if(panel.drag!=null)panel.drag.DraggingChanged+=OnDraggingChanged;panel.WindowDragStateChanged+=OnDraggingChanged;
-            ready=true;Refresh();
+            ready=true;knownLayout=panel.Model.LayoutVersion;Refresh();
         }
+        long knownLayout=-1;void ModelChanged(){if(knownLayout==panel.Model.LayoutVersion)return;knownLayout=panel.Model.LayoutVersion;Refresh();}
         void OnDraggingChanged(bool held){hover=false;Refresh();}
         void Refresh()
         {
@@ -38,7 +39,7 @@ namespace GeneralStore.Inventory
         {
             if(!ready||panel==null)return;
             if(panel.drag!=null)panel.drag.DraggingChanged-=OnDraggingChanged;panel.WindowDragStateChanged-=OnDraggingChanged;
-            if(panel.inventory!=null&&panel.inventory.Model!=null){panel.Model.Changed-=Refresh;panel.inventory.Loaded-=Refresh;panel.inventory.Sales.Changed-=Refresh;}
+            if(panel.inventory!=null&&panel.inventory.Model!=null){panel.Model.Changed-=ModelChanged;panel.inventory.Loaded-=Refresh;panel.inventory.Sales.Changed-=Refresh;}
         }
     }
 }

@@ -15,6 +15,7 @@ namespace GeneralStore.Inventory
         static void ResetMaterial(){ReleaseSharedMaterial(false);}
         public static void ReleaseSharedMaterial(bool immediate)
         {
+            if(sharedMaterial==null){warned=false;return;}
             foreach(var effect in Object.FindObjectsByType<QualityOutlineEffect>(FindObjectsInactive.Include,FindObjectsSortMode.None))
                 if(effect.graphic!=null){effect.graphic.material=null;effect.graphic.SetVerticesDirty();}
             if(sharedMaterial!=null){if(immediate)Object.DestroyImmediate(sharedMaterial);else Object.Destroy(sharedMaterial);}

@@ -17,10 +17,12 @@ namespace GeneralStore.Inventory
         [Min(.05f)]public float doorDropSeconds=.42f;
         Vector2 doorHome;float doorAnimation;int previousDoorCount,lastFee=-1;
         public int RenderedItemCount{get{return grid==null?0:grid.LiveItemViewCount;}}
-        readonly Dictionary<int,List<ItemRecord>> byRow=new Dictionary<int,List<ItemRecord>>();
-        readonly HashSet<string> visibleIds=new HashSet<string>();
-        ContainerRecord snapshot;
+        readonly List<ItemRecord> orderedItems=new List<ItemRecord>();
+        readonly ContainerRecord snapshot=new ContainerRecord(),visible=new ContainerRecord();
+        long snapshotVersion=-1,shownDeliveryVersion=-1;int shownFee=-1;
+        static int CompareRows(ItemRecord a,ItemRecord b){return a.y.CompareTo(b.y);}
         bool ready,dirty=true;
+        ManagementWindowMotion motion;
         int maximumItemHeight=1,previousStart=-1,previousRows=-1;
         public void RefreshViewport(Rect region)
         {
@@ -30,7 +32,8 @@ namespace GeneralStore.Inventory
             float unit=cellReference.cellWidth*Mathf.Abs(cellReference.transform.lossyScale.x)/Mathf.Max(.0001f,Mathf.Abs(parent.lossyScale.x));
             float scale=Mathf.Min(unit/grid.cellWidth,Mathf.Min(Mathf.Max(1,region.width-viewportMargin*2)/window.rect.width,Mathf.Max(1,region.height-viewportMargin*2)/window.rect.height));
             window.localScale=new Vector3(scale,scale,1);
-            window.anchoredPosition=new Vector2(region.xMin+(region.width-window.rect.width*scale)*.5f,region.yMax-(region.height-window.rect.height*scale)*.5f);
+            var target=new Vector2(region.xMin+(region.width-window.rect.width*scale)*.5f,region.yMax-(region.height-window.rect.height*scale)*.5f);
+            if(motion==null)motion=ManagementWindowMotion.Ensure(window.gameObject,window);motion.SetTarget(target);
         }
         void Start()
         {
@@ -42,7 +45,7 @@ namespace GeneralStore.Inventory
             ready=true;doorHome=((RectTransform)doorButton.transform).anchoredPosition;window.gameObject.SetActive(false);Synchronize();
         }
         void MarkDirty(){dirty=true;}
-        void OnLoaded(){panel.drag.Cancel(false);window.gameObject.SetActive(false);content.anchoredPosition=Vector2.zero;MarkDirty();}
+        void OnLoaded(){panel.drag.Cancel(false);window.gameObject.SetActive(false);content.anchoredPosition=Vector2.zero;snapshotVersion=-1;MarkDirty();}
         void OnScrolled(Vector2 value){if(ready&&window.gameObject.activeSelf)RenderVisible();}
         void LateUpdate()
         {
@@ -63,35 +66,41 @@ namespace GeneralStore.Inventory
         {
             int count=panel.Model.DeliveryItemCount;bool present=count>0;
             if(doorButton.gameObject.activeSelf!=present)doorButton.gameObject.SetActive(present);
-            badge.text="택배 "+count;if(count>previousDoorCount)doorAnimation=doorDropSeconds;previousDoorCount=count;
+            if(badge.text.Length==0||count!=previousDoorCount)badge.text="택배 "+count;if(count>previousDoorCount)doorAnimation=doorDropSeconds;previousDoorCount=count;
             if(!window.gameObject.activeSelf)return;
-            snapshot=panel.Model.GetContainer(InventoryModel.TemporaryStorageId);byRow.Clear();maximumItemHeight=1;
-            foreach(var item in snapshot.items)
+            long version=panel.Model.ContainerVersion(InventoryModel.TemporaryStorageId),deliveryVersion=panel.Model.ContainerVersion(InventoryModel.DeliveryContainerId);
+            bool changed=version!=snapshotVersion;
+            if(changed)
             {
-                int height=panel.Model.Height(item);maximumItemHeight=Mathf.Max(maximumItemHeight,height);
-                for(int row=item.y;row<item.y+height;row++)
-                {List<ItemRecord> items;if(!byRow.TryGetValue(row,out items)){items=new List<ItemRecord>();byRow.Add(row,items);}items.Add(item);}
+                panel.Model.CopyContainerInto(InventoryModel.TemporaryStorageId,snapshot);snapshotVersion=version;orderedItems.Clear();maximumItemHeight=1;
+                foreach(var item in snapshot.items){maximumItemHeight=Mathf.Max(maximumItemHeight,panel.Model.Height(item));orderedItems.Add(item);}
+                orderedItems.Sort(CompareRows);
             }
             content.sizeDelta=new Vector2(snapshot.columns*grid.cellWidth+grid.cellGap,snapshot.rows*grid.cellHeight+grid.cellGap);
             float max=Mathf.Max(0,content.rect.height-scroll.viewport.rect.height);
             content.anchoredPosition=new Vector2(0,Mathf.Clamp(content.anchoredPosition.y,0,max));
-            long cells=panel.Model.TemporaryOccupiedCells;
-            feeLabel.text="임시 저장 "+cells+"칸 + 미수령 택배 "+panel.Model.DeliveryOccupiedCells+"칸 · 다음 새벽 칸당 "+panel.inventory.storageCellFee+" G";
-            previousStart=previousRows=-1;RenderVisible();
+            if(changed||shownDeliveryVersion!=deliveryVersion||shownFee!=panel.inventory.storageCellFee)
+            {
+                long cells=panel.Model.TemporaryOccupiedCells;
+                feeLabel.text="임시 저장 "+cells+"칸 + 미수령 택배 "+panel.Model.DeliveryOccupiedCells+"칸 · 다음 새벽 칸당 "+panel.inventory.storageCellFee+" G";
+                shownDeliveryVersion=deliveryVersion;shownFee=panel.inventory.storageCellFee;
+            }
+            if(changed)previousStart=previousRows=-1;RenderVisible();
         }
+        int LowerBound(int row)
+        {int lo=0,hi=orderedItems.Count;while(lo<hi){int mid=lo+(hi-lo)/2;if(orderedItems[mid].y<row)lo=mid+1;else hi=mid;}return lo;}
+
         void RenderVisible()
         {
-            if(snapshot==null)return;
+            if(snapshotVersion<0)return;
             int first=Mathf.FloorToInt(Mathf.Max(0,content.anchoredPosition.y)/grid.cellHeight);
             int start=Mathf.Clamp(first-maximumItemHeight+1,0,snapshot.rows-1);
             int rows=Mathf.Min(snapshot.rows-start,Mathf.CeilToInt(scroll.viewport.rect.height/grid.cellHeight)+maximumItemHeight*2+2);
             if(start==previousStart&&rows==previousRows)return;previousStart=start;previousRows=rows;
-            var visible=new ContainerRecord{containerId=snapshot.containerId,columns=snapshot.columns,rows=snapshot.rows};visibleIds.Clear();
-            for(int row=start;row<start+rows;row++)
-            {
-                List<ItemRecord> items;if(!byRow.TryGetValue(row,out items))continue;
-                foreach(var item in items)if(visibleIds.Add(item.instanceId))visible.items.Add(item);
-            }
+            visible.containerId=snapshot.containerId;visible.columns=snapshot.columns;visible.rows=snapshot.rows;visible.items.Clear();
+            // Index by item origin, not every occupied row. Tall items do not multiply bookkeeping memory.
+            for(int n=LowerBound(start);n<orderedItems.Count;n++)
+            {var item=orderedItems[n];if(item.y>=start+rows)break;visible.items.Add(item);}
             grid.startRow=start;grid.viewRows=rows;grid.Rect.anchoredPosition=new Vector2(0,-start*grid.cellHeight);grid.Refresh(visible);
         }
         void OnDestroy()

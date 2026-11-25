@@ -263,33 +263,27 @@
     {
       "typeId": "side_shelf",
       "spriteKey": "StoreInventory/DisplayWindows/side_shelf",
-      "sourceWidth": 1448,
-      "sourceHeight": 1086,
+      "sourceWidth": 1458,
+      "sourceHeight": 1079,
       "displayHeight": 900,
       "scrolling": true,
       "sections": [],
       "viewport": {
-        "x": 238,
-        "y": 202,
-        "width": 1000,
-        "height": 688
-      },
-      "scrollbar": {
-        "x": 1261,
-        "y": 313,
-        "width": 33,
-        "height": 419
+        "x": 223,
+        "y": 183,
+        "width": 1034,
+        "height": 708
       },
       "floors": [
         {
           "spriteKey": "StoreInventory/DisplayWindows/side_shelf",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 1458,
+          "sourceHeight": 1079,
           "art": {
-            "x": 238,
-            "y": 202,
-            "width": 1000,
-            "height": 232
+            "x": 223,
+            "y": 183,
+            "width": 1034,
+            "height": 244
           },
           "sections": [
             {
@@ -298,23 +292,23 @@
               "columns": 8,
               "rows": 2,
               "rect": {
-                "x": 240,
-                "y": 204,
-                "width": 996,
-                "height": 207
+                "x": 226,
+                "y": 186,
+                "width": 1026,
+                "height": 212
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/side_shelf",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 1458,
+          "sourceHeight": 1079,
           "art": {
-            "x": 238,
-            "y": 202,
-            "width": 1000,
-            "height": 232
+            "x": 223,
+            "y": 183,
+            "width": 1034,
+            "height": 244
           },
           "sections": [
             {
@@ -323,23 +317,23 @@
               "columns": 8,
               "rows": 2,
               "rect": {
-                "x": 240,
-                "y": 204,
-                "width": 996,
-                "height": 207
+                "x": 226,
+                "y": 186,
+                "width": 1026,
+                "height": 212
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/side_shelf",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 1458,
+          "sourceHeight": 1079,
           "art": {
-            "x": 238,
-            "y": 202,
-            "width": 1000,
-            "height": 232
+            "x": 223,
+            "y": 183,
+            "width": 1034,
+            "height": 244
           },
           "sections": [
             {
@@ -348,23 +342,23 @@
               "columns": 8,
               "rows": 2,
               "rect": {
-                "x": 240,
-                "y": 204,
-                "width": 996,
-                "height": 207
+                "x": 226,
+                "y": 186,
+                "width": 1026,
+                "height": 212
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/side_shelf",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 1458,
+          "sourceHeight": 1079,
           "art": {
-            "x": 238,
-            "y": 202,
-            "width": 1000,
-            "height": 232
+            "x": 223,
+            "y": 183,
+            "width": 1034,
+            "height": 244
           },
           "sections": [
             {
@@ -373,23 +367,23 @@
               "columns": 8,
               "rows": 2,
               "rect": {
-                "x": 240,
-                "y": 204,
-                "width": 996,
-                "height": 207
+                "x": 226,
+                "y": 186,
+                "width": 1026,
+                "height": 212
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/side_shelf",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 1458,
+          "sourceHeight": 1079,
           "art": {
-            "x": 238,
-            "y": 202,
-            "width": 1000,
-            "height": 232
+            "x": 223,
+            "y": 183,
+            "width": 1034,
+            "height": 244
           },
           "sections": [
             {
@@ -398,10 +392,10 @@
               "columns": 8,
               "rows": 2,
               "rect": {
-                "x": 240,
-                "y": 204,
-                "width": 996,
-                "height": 207
+                "x": 226,
+                "y": 186,
+                "width": 1026,
+                "height": 212
               }
             }
           ]
@@ -411,32 +405,26 @@
     {
       "typeId": "shelf",
       "spriteKey": "StoreInventory/DisplayWindows/shelf",
-      "sourceWidth": 1536,
-      "sourceHeight": 1024,
+      "sourceWidth": 1265,
+      "sourceHeight": 990,
       "displayHeight": 900,
       "scrolling": true,
       "sections": [],
       "viewport": {
-        "x": 286,
-        "y": 183,
-        "width": 937,
-        "height": 622
-      },
-      "scrollbar": {
-        "x": 1240,
-        "y": 184,
-        "width": 22,
-        "height": 612
+        "x": 151,
+        "y": 173,
+        "width": 940,
+        "height": 617
       },
       "floors": [
         {
           "spriteKey": "StoreInventory/DisplayWindows/shelf",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1265,
+          "sourceHeight": 990,
           "art": {
-            "x": 286,
-            "y": 183,
-            "width": 937,
+            "x": 151,
+            "y": 173,
+            "width": 940,
             "height": 227
           },
           "sections": [
@@ -446,22 +434,22 @@
               "columns": 10,
               "rows": 2,
               "rect": {
-                "x": 287,
-                "y": 185,
-                "width": 934,
-                "height": 158
+                "x": 154,
+                "y": 176,
+                "width": 931,
+                "height": 154
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/shelf",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1265,
+          "sourceHeight": 990,
           "art": {
-            "x": 286,
-            "y": 183,
-            "width": 937,
+            "x": 151,
+            "y": 173,
+            "width": 940,
             "height": 227
           },
           "sections": [
@@ -471,22 +459,22 @@
               "columns": 10,
               "rows": 2,
               "rect": {
-                "x": 287,
-                "y": 185,
-                "width": 934,
-                "height": 158
+                "x": 154,
+                "y": 176,
+                "width": 931,
+                "height": 154
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/shelf",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1265,
+          "sourceHeight": 990,
           "art": {
-            "x": 286,
-            "y": 183,
-            "width": 937,
+            "x": 151,
+            "y": 173,
+            "width": 940,
             "height": 227
           },
           "sections": [
@@ -496,22 +484,22 @@
               "columns": 10,
               "rows": 2,
               "rect": {
-                "x": 287,
-                "y": 185,
-                "width": 934,
-                "height": 158
+                "x": 154,
+                "y": 176,
+                "width": 931,
+                "height": 154
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/shelf",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1265,
+          "sourceHeight": 990,
           "art": {
-            "x": 286,
-            "y": 183,
-            "width": 937,
+            "x": 151,
+            "y": 173,
+            "width": 940,
             "height": 227
           },
           "sections": [
@@ -521,22 +509,22 @@
               "columns": 10,
               "rows": 2,
               "rect": {
-                "x": 287,
-                "y": 185,
-                "width": 934,
-                "height": 158
+                "x": 154,
+                "y": 176,
+                "width": 931,
+                "height": 154
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/shelf",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1265,
+          "sourceHeight": 990,
           "art": {
-            "x": 286,
-            "y": 183,
-            "width": 937,
+            "x": 151,
+            "y": 173,
+            "width": 940,
             "height": 227
           },
           "sections": [
@@ -546,10 +534,10 @@
               "columns": 10,
               "rows": 2,
               "rect": {
-                "x": 287,
-                "y": 185,
-                "width": 934,
-                "height": 158
+                "x": 154,
+                "y": 176,
+                "width": 931,
+                "height": 154
               }
             }
           ]
@@ -559,33 +547,27 @@
     {
       "typeId": "cubby_cabinet",
       "spriteKey": "StoreInventory/DisplayWindows/cubby_cabinet",
-      "sourceWidth": 1536,
-      "sourceHeight": 1024,
+      "sourceWidth": 1521,
+      "sourceHeight": 1034,
       "displayHeight": 900,
       "scrolling": true,
       "sections": [],
       "viewport": {
-        "x": 251,
-        "y": 223,
-        "width": 1045,
-        "height": 687
-      },
-      "scrollbar": {
-        "x": 1381,
-        "y": 307,
-        "width": 25,
-        "height": 535
+        "x": 220,
+        "y": 211,
+        "width": 1092,
+        "height": 699
       },
       "floors": [
         {
           "spriteKey": "StoreInventory/DisplayWindows/cubby_cabinet",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1521,
+          "sourceHeight": 1034,
           "art": {
-            "x": 251,
-            "y": 223,
-            "width": 1045,
-            "height": 235
+            "x": 220,
+            "y": 211,
+            "width": 1092,
+            "height": 250
           },
           "sections": [
             {
@@ -594,10 +576,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 255,
-                "y": 226,
-                "width": 196,
-                "height": 188
+                "x": 224,
+                "y": 216,
+                "width": 202,
+                "height": 194
               }
             },
             {
@@ -606,10 +588,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 535,
-                "y": 226,
-                "width": 197,
-                "height": 188
+                "x": 520,
+                "y": 216,
+                "width": 201,
+                "height": 194
               }
             },
             {
@@ -618,10 +600,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 824,
-                "y": 226,
+                "x": 819,
+                "y": 216,
                 "width": 193,
-                "height": 188
+                "height": 194
               }
             },
             {
@@ -630,23 +612,23 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 1098,
-                "y": 226,
-                "width": 194,
-                "height": 188
+                "x": 1115,
+                "y": 216,
+                "width": 189,
+                "height": 194
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/cubby_cabinet",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1521,
+          "sourceHeight": 1034,
           "art": {
-            "x": 251,
-            "y": 223,
-            "width": 1045,
-            "height": 235
+            "x": 220,
+            "y": 211,
+            "width": 1092,
+            "height": 250
           },
           "sections": [
             {
@@ -655,10 +637,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 255,
-                "y": 226,
-                "width": 196,
-                "height": 188
+                "x": 224,
+                "y": 216,
+                "width": 202,
+                "height": 194
               }
             },
             {
@@ -667,10 +649,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 535,
-                "y": 226,
-                "width": 197,
-                "height": 188
+                "x": 520,
+                "y": 216,
+                "width": 201,
+                "height": 194
               }
             },
             {
@@ -679,10 +661,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 824,
-                "y": 226,
+                "x": 819,
+                "y": 216,
                 "width": 193,
-                "height": 188
+                "height": 194
               }
             },
             {
@@ -691,23 +673,23 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 1098,
-                "y": 226,
-                "width": 194,
-                "height": 188
+                "x": 1115,
+                "y": 216,
+                "width": 189,
+                "height": 194
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/cubby_cabinet",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1521,
+          "sourceHeight": 1034,
           "art": {
-            "x": 251,
-            "y": 223,
-            "width": 1045,
-            "height": 235
+            "x": 220,
+            "y": 211,
+            "width": 1092,
+            "height": 250
           },
           "sections": [
             {
@@ -716,10 +698,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 255,
-                "y": 226,
-                "width": 196,
-                "height": 188
+                "x": 224,
+                "y": 216,
+                "width": 202,
+                "height": 194
               }
             },
             {
@@ -728,10 +710,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 535,
-                "y": 226,
-                "width": 197,
-                "height": 188
+                "x": 520,
+                "y": 216,
+                "width": 201,
+                "height": 194
               }
             },
             {
@@ -740,10 +722,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 824,
-                "y": 226,
+                "x": 819,
+                "y": 216,
                 "width": 193,
-                "height": 188
+                "height": 194
               }
             },
             {
@@ -752,23 +734,23 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 1098,
-                "y": 226,
-                "width": 194,
-                "height": 188
+                "x": 1115,
+                "y": 216,
+                "width": 189,
+                "height": 194
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/cubby_cabinet",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1521,
+          "sourceHeight": 1034,
           "art": {
-            "x": 251,
-            "y": 223,
-            "width": 1045,
-            "height": 235
+            "x": 220,
+            "y": 211,
+            "width": 1092,
+            "height": 250
           },
           "sections": [
             {
@@ -777,10 +759,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 255,
-                "y": 226,
-                "width": 196,
-                "height": 188
+                "x": 224,
+                "y": 216,
+                "width": 202,
+                "height": 194
               }
             },
             {
@@ -789,10 +771,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 535,
-                "y": 226,
-                "width": 197,
-                "height": 188
+                "x": 520,
+                "y": 216,
+                "width": 201,
+                "height": 194
               }
             },
             {
@@ -801,10 +783,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 824,
-                "y": 226,
+                "x": 819,
+                "y": 216,
                 "width": 193,
-                "height": 188
+                "height": 194
               }
             },
             {
@@ -813,23 +795,23 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 1098,
-                "y": 226,
-                "width": 194,
-                "height": 188
+                "x": 1115,
+                "y": 216,
+                "width": 189,
+                "height": 194
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/cubby_cabinet",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1521,
+          "sourceHeight": 1034,
           "art": {
-            "x": 251,
-            "y": 223,
-            "width": 1045,
-            "height": 235
+            "x": 220,
+            "y": 211,
+            "width": 1092,
+            "height": 250
           },
           "sections": [
             {
@@ -838,10 +820,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 255,
-                "y": 226,
-                "width": 196,
-                "height": 188
+                "x": 224,
+                "y": 216,
+                "width": 202,
+                "height": 194
               }
             },
             {
@@ -850,10 +832,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 535,
-                "y": 226,
-                "width": 197,
-                "height": 188
+                "x": 520,
+                "y": 216,
+                "width": 201,
+                "height": 194
               }
             },
             {
@@ -862,10 +844,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 824,
-                "y": 226,
+                "x": 819,
+                "y": 216,
                 "width": 193,
-                "height": 188
+                "height": 194
               }
             },
             {
@@ -874,23 +856,23 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 1098,
-                "y": 226,
-                "width": 194,
-                "height": 188
+                "x": 1115,
+                "y": 216,
+                "width": 189,
+                "height": 194
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/cubby_cabinet",
-          "sourceWidth": 1536,
-          "sourceHeight": 1024,
+          "sourceWidth": 1521,
+          "sourceHeight": 1034,
           "art": {
-            "x": 251,
-            "y": 223,
-            "width": 1045,
-            "height": 235
+            "x": 220,
+            "y": 211,
+            "width": 1092,
+            "height": 250
           },
           "sections": [
             {
@@ -899,10 +881,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 255,
-                "y": 226,
-                "width": 196,
-                "height": 188
+                "x": 224,
+                "y": 216,
+                "width": 202,
+                "height": 194
               }
             },
             {
@@ -911,10 +893,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 535,
-                "y": 226,
-                "width": 197,
-                "height": 188
+                "x": 520,
+                "y": 216,
+                "width": 201,
+                "height": 194
               }
             },
             {
@@ -923,10 +905,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 824,
-                "y": 226,
+                "x": 819,
+                "y": 216,
                 "width": 193,
-                "height": 188
+                "height": 194
               }
             },
             {
@@ -935,10 +917,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 1098,
-                "y": 226,
-                "width": 194,
-                "height": 188
+                "x": 1115,
+                "y": 216,
+                "width": 189,
+                "height": 194
               }
             }
           ]
@@ -948,33 +930,27 @@
     {
       "typeId": "drawer_cabinet",
       "spriteKey": "StoreInventory/DisplayWindows/drawer_cabinet",
-      "sourceWidth": 1448,
-      "sourceHeight": 1086,
+      "sourceWidth": 992,
+      "sourceHeight": 1585,
       "displayHeight": 900,
       "scrolling": true,
       "sections": [],
       "viewport": {
-        "x": 239,
-        "y": 223,
-        "width": 998,
-        "height": 690
-      },
-      "scrollbar": {
-        "x": 1254,
-        "y": 253,
-        "width": 46,
-        "height": 591
+        "x": 125,
+        "y": 191,
+        "width": 740,
+        "height": 617
       },
       "floors": [
         {
           "spriteKey": "StoreInventory/DisplayWindows/drawer_cabinet",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 992,
+          "sourceHeight": 1585,
           "art": {
-            "x": 239,
-            "y": 223,
-            "width": 998,
-            "height": 245
+            "x": 125,
+            "y": 191,
+            "width": 740,
+            "height": 201
           },
           "sections": [
             {
@@ -983,23 +959,23 @@
               "columns": 8,
               "rows": 2,
               "rect": {
-                "x": 241,
-                "y": 225,
-                "width": 994,
-                "height": 214
+                "x": 146,
+                "y": 197,
+                "width": 698,
+                "height": 168
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/drawer_cabinet",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 992,
+          "sourceHeight": 1585,
           "art": {
-            "x": 239,
-            "y": 223,
-            "width": 998,
-            "height": 245
+            "x": 125,
+            "y": 392,
+            "width": 740,
+            "height": 199
           },
           "sections": [
             {
@@ -1008,23 +984,23 @@
               "columns": 8,
               "rows": 2,
               "rect": {
-                "x": 241,
-                "y": 225,
-                "width": 994,
-                "height": 214
+                "x": 146,
+                "y": 399,
+                "width": 698,
+                "height": 168
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/drawer_cabinet",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 992,
+          "sourceHeight": 1585,
           "art": {
-            "x": 239,
-            "y": 223,
-            "width": 998,
-            "height": 245
+            "x": 125,
+            "y": 591,
+            "width": 740,
+            "height": 217
           },
           "sections": [
             {
@@ -1033,23 +1009,23 @@
               "columns": 8,
               "rows": 2,
               "rect": {
-                "x": 241,
-                "y": 225,
-                "width": 994,
-                "height": 214
+                "x": 146,
+                "y": 599,
+                "width": 698,
+                "height": 168
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/drawer_cabinet",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 992,
+          "sourceHeight": 1585,
           "art": {
-            "x": 239,
-            "y": 223,
-            "width": 998,
-            "height": 245
+            "x": 125,
+            "y": 808,
+            "width": 740,
+            "height": 228
           },
           "sections": [
             {
@@ -1058,10 +1034,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 241.0,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 136,
+                "y": 823,
+                "width": 160,
+                "height": 160
               }
             },
             {
@@ -1070,10 +1046,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 489.5,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 324,
+                "y": 823,
+                "width": 160,
+                "height": 160
               }
             },
             {
@@ -1082,10 +1058,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 738.0,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 511,
+                "y": 823,
+                "width": 160,
+                "height": 160
               }
             },
             {
@@ -1094,23 +1070,23 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 986.5,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 699,
+                "y": 823,
+                "width": 160,
+                "height": 160
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/drawer_cabinet",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 992,
+          "sourceHeight": 1585,
           "art": {
-            "x": 239,
-            "y": 223,
-            "width": 998,
-            "height": 245
+            "x": 125,
+            "y": 1036,
+            "width": 740,
+            "height": 226
           },
           "sections": [
             {
@@ -1119,10 +1095,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 241.0,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 136,
+                "y": 1052,
+                "width": 160,
+                "height": 160
               }
             },
             {
@@ -1131,10 +1107,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 489.5,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 324,
+                "y": 1052,
+                "width": 160,
+                "height": 160
               }
             },
             {
@@ -1143,10 +1119,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 738.0,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 511,
+                "y": 1052,
+                "width": 160,
+                "height": 160
               }
             },
             {
@@ -1155,23 +1131,23 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 986.5,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 699,
+                "y": 1052,
+                "width": 160,
+                "height": 160
               }
             }
           ]
         },
         {
           "spriteKey": "StoreInventory/DisplayWindows/drawer_cabinet",
-          "sourceWidth": 1448,
-          "sourceHeight": 1086,
+          "sourceWidth": 992,
+          "sourceHeight": 1585,
           "art": {
-            "x": 239,
-            "y": 223,
-            "width": 998,
-            "height": 245
+            "x": 125,
+            "y": 1262,
+            "width": 740,
+            "height": 238
           },
           "sections": [
             {
@@ -1180,10 +1156,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 241.0,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 136,
+                "y": 1278,
+                "width": 160,
+                "height": 160
               }
             },
             {
@@ -1192,10 +1168,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 489.5,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 324,
+                "y": 1278,
+                "width": 160,
+                "height": 160
               }
             },
             {
@@ -1204,10 +1180,10 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 738.0,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 511,
+                "y": 1278,
+                "width": 160,
+                "height": 160
               }
             },
             {
@@ -1216,13 +1192,34 @@
               "columns": 2,
               "rows": 2,
               "rect": {
-                "x": 986.5,
-                "y": 225,
-                "width": 248.5,
-                "height": 214
+                "x": 699,
+                "y": 1278,
+                "width": 160,
+                "height": 160
               }
             }
           ]
+        }
+      ],
+      "layoutHeight": 893,
+      "frameSlices": [
+        {
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 992,
+            "height": 808
+          },
+          "y": 0
+        },
+        {
+          "rect": {
+            "x": 0,
+            "y": 1500,
+            "width": 992,
+            "height": 85
+          },
+          "y": 808
         }
       ]
     }

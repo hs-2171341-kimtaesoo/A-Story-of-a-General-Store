@@ -32,7 +32,7 @@ namespace GeneralStore.Inventory
             string error;if(panel==null||windowTemplate==null||windowLayer==null||!panel.inventory.TryInitialize(out error))
             {Debug.LogError("슬라이드 진열장 참조를 확인하세요.",this);enabled=false;return;}
             var ids=panel.Model.DisplayIds();selectedId=ids.Count>0?ids[0]:null;
-            panel.Model.Changed+=MarkDirty;panel.inventory.Loaded+=ResetWindows;panel.WindowDragStateChanged+=OnWindowDrag;windowTemplate.gameObject.SetActive(false);ready=true;
+            panel.Model.Changed+=ModelChanged;panel.inventory.Loaded+=ResetWindows;panel.WindowDragStateChanged+=OnWindowDrag;windowTemplate.gameObject.SetActive(false);ready=true;knownLayout=panel.Model.LayoutVersion;
         }
         void OnWindowDrag(bool active)
         {
@@ -41,6 +41,8 @@ namespace GeneralStore.Inventory
             movingGroup.blocksRaycasts=!active&&currentId==requestedId&&movingRect.anchoredPosition.x==OpenX(view);
         }
         void MarkDirty(){dirty=true;}
+        long knownLayout=-1;
+        void ModelChanged(){if(knownLayout==panel.Model.LayoutVersion)return;knownLayout=panel.Model.LayoutVersion;MarkDirty();}
         void Changed(){if(SelectionChanged!=null)SelectionChanged();}
         void ResetWindows()
         {
@@ -152,7 +154,7 @@ namespace GeneralStore.Inventory
             if(opening&&x==target)moving=false;
             if(!opening&&x==target)
             {
-                panel.ClearSelection(currentId);v.gameObject.SetActive(false);currentId=null;moving=false;StartRequested();TrimWindows();
+                v.gameObject.SetActive(false);currentId=null;moving=false;StartRequested();TrimWindows();
             }
         }
         void LateUpdate()
@@ -178,6 +180,6 @@ namespace GeneralStore.Inventory
                 var view=windows[oldest];view.UnregisterGrids();windows.Remove(oldest);lastUse.Remove(oldest);Destroy(view.gameObject);
             }
         }
-        void OnDestroy(){if(ready&&panel!=null&&panel.inventory.Model!=null){panel.Model.Changed-=MarkDirty;panel.inventory.Loaded-=ResetWindows;panel.WindowDragStateChanged-=OnWindowDrag;}}
+        void OnDestroy(){if(ready&&panel!=null&&panel.inventory.Model!=null){panel.Model.Changed-=ModelChanged;panel.inventory.Loaded-=ResetWindows;panel.WindowDragStateChanged-=OnWindowDrag;}}
     }
 }

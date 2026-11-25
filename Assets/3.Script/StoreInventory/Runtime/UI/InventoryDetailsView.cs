@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace GeneralStore.Inventory
 {
-    // 보관함/진열장 각 창의 상세 UI에 같은 선택 정보를 표시합니다.
+    // Legacy detail frames remain available for older scene references.
     public sealed class InventoryDetailsView : MonoBehaviour
     {
         [Min(1)]public float preferredIconSize=96;
@@ -31,15 +31,14 @@ namespace GeneralStore.Inventory
         }
         public void Render(InventoryPanel panel,ItemRecord item)
         {
-            if(!string.IsNullOrEmpty(containerFilter))item=panel.Model.GetItem(containerFilter,panel.Selection.Get(containerFilter));
-            icon.sprite=null;icon.enabled=false;nameLabel.text="물건을 선택하세요.";bodyLabel.text="";
+            icon.sprite=null;icon.enabled=false;nameLabel.text="마우스를 올려 물품 정보를 확인하세요.";bodyLabel.text="";
             if(qualitySizeLabel!=null)qualitySizeLabel.text="";if(priceLabel!=null)priceLabel.text="";
             if(item==null)return;QualityDefinition quality=panel.Catalog.FindQuality(item.itemId,item.quality);
             var sprite=panel.FindItemIcon(item.itemId);
             if(iconFit!=null)iconFit.SetSprite(sprite);else{icon.sprite=sprite;icon.enabled=sprite!=null;icon.preserveAspect=true;}
             panel.ApplyQuality(icon,item.quality);nameLabel.text=quality.name;
             string qualityText=QualityLabels.Title(item.quality);
-            bool display=compactDisplay||InventoryModel.IsDisplay(string.IsNullOrEmpty(containerFilter)?panel.SelectedContainerId:containerFilter);
+            bool display=compactDisplay||InventoryModel.IsDisplay(containerFilter);
             // 진열장은 아이콘/이름/품질만 표시합니다. 기존 씬의 불필요한 라벨도 비웁니다.
             if(display)
             {

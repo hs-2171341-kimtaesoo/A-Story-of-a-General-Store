@@ -16,9 +16,11 @@ namespace GeneralStore.Inventory
             string error;if(panel==null||grid==null||tabs==null||!panel.inventory.TryInitialize(out error))
             {Debug.LogError("WarehouseUI 참조를 확인하세요.",this);enabled=false;return;}
             if(pageLabel!=null)pageLabel.text=""; // 이전 씬의 선택 사항. Text 오브젝트는 삭제해도 됩니다.
-            panel.Model.Changed+=MarkDirty;panel.inventory.Loaded+=ResetPage;ready=true;dirty=true;
+            panel.Model.Changed+=ModelChanged;panel.inventory.Loaded+=ResetPage;ready=true;knownLayout=panel.Model.LayoutVersion;dirty=true;
         }
         void MarkDirty(){dirty=true;}
+        long knownLayout=-1;
+        void ModelChanged(){if(knownLayout==panel.Model.LayoutVersion)return;knownLayout=panel.Model.LayoutVersion;MarkDirty();}
         void ResetPage(){index=0;grid.containerId="warehouse";foreach(var detail in panel.detailViews)if(InventoryModel.IsWarehouse(detail.containerFilter))detail.containerFilter="warehouse";panel.UpdateDetails();dirty=true;if(SelectionChanged!=null)SelectionChanged();}
         public void Previous(){Switch(-1);}public void Next(){Switch(1);}
         void Switch(int delta)
@@ -41,6 +43,6 @@ namespace GeneralStore.Inventory
             if(!ready||!dirty)return;dirty=false;var ids=panel.Model.WarehouseIds();if(index>=ids.Count)index=0;grid.containerId=ids[index];
             tabs.Sync(ids,grid.containerId,Caption,Select);
         }
-        void OnDestroy(){if(ready&&panel!=null&&panel.inventory.Model!=null){panel.Model.Changed-=MarkDirty;panel.inventory.Loaded-=ResetPage;}}
+        void OnDestroy(){if(ready&&panel!=null&&panel.inventory.Model!=null){panel.Model.Changed-=ModelChanged;panel.inventory.Loaded-=ResetPage;}}
     }
 }

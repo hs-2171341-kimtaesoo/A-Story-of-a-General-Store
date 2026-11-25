@@ -106,7 +106,7 @@ public static class CounterDemoSceneBuilder
     }
     public static void BuildTooltip(InventoryPanel panel)
     {
-        if(panel.tooltip!=null){var updated=panel.GetComponentInChildren<DeliveryUI>(true);if(updated!=null)panel.tooltip.temporaryWindow=updated.window;return;}var ui=panel.gameObject.AddComponent<ItemHoverTooltip>();panel.tooltip=ui;ui.panel=panel;
+        if(panel.tooltip!=null)return;var ui=panel.gameObject.AddComponent<ItemHoverTooltip>();panel.tooltip=ui;ui.panel=panel;
         var frame=UI.Box("Shared Item Tooltip",panel.drag.dragLayer,0,0,460,460*1024f/1536,Color.white);frame.sprite=Resources.Load<Sprite>("StoreInventory/CounterDemo/item_tooltip");ui.window=frame.rectTransform;
         var group=frame.gameObject.AddComponent<CanvasGroup>();group.blocksRaycasts=false;frame.raycastTarget=false;
         float s=460f/1536;
@@ -118,7 +118,6 @@ public static class CounterDemoSceneBuilder
         ui.descriptionLabel=UI.Label("Description",frame.transform,530*s,490*s,810*s,150*s,"",18);
         ui.nameLabel.resizeTextForBestFit=true;ui.nameLabel.resizeTextMinSize=14;ui.nameLabel.resizeTextMaxSize=27;
         ui.priceLabel=UI.Label("Base Price",frame.transform,530*s,700*s,820*s,110*s,"",22);ui.priceLabel.color=new Color(1,.78f,.24f);
-        var storage=panel.GetComponentInChildren<DeliveryUI>(true);if(storage!=null)ui.temporaryWindow=storage.window;
         frame.gameObject.SetActive(false);EditorUtility.SetDirty(panel);
     }
     static void ApplyBackground(SceneCounterOcclusion counter,InventoryPanel panel)

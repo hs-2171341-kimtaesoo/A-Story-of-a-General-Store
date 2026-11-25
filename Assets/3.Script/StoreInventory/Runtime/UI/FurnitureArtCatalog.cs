@@ -9,4 +9,10 @@ namespace GeneralStore.Inventory
         public FurnitureArt[] entries;
         public FurnitureArt Find(string id){if(entries!=null)foreach(var a in entries)if(a!=null&&a.typeId==id)return a;return null;}
     }
+    public static class DisplayMenuOrder
+    {
+        static readonly string[] ids={"single_stand","weapon_rack","aisle_left","aisle_right","wall_shelf_lower","wall_shelf","mannequin","drawer_cabinet","cubby_cabinet","table","shelf","side_shelf"};
+        public static int Rank(string typeId)
+        {for(int n=0;n<ids.Length;n++)if(ids[n]==typeId)return n;return ids.Length;}
+    }
 }

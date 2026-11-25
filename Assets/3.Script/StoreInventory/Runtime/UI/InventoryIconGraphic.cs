@@ -18,7 +18,6 @@ namespace GeneralStore.Inventory
             base.OnEnable();
         }
 
-        public bool preserveSpriteAspect = true;
         public Color missingIconColor = new Color(.62f,.68f,.75f,.85f);
         Sprite iconSprite;
         ItemFootprint shape;
@@ -40,7 +39,15 @@ namespace GeneralStore.Inventory
             Vector4 uv=hasSprite?DataUtility.GetOuterUV(iconSprite):new Vector4(0,0,1,1);
             float sx=rect.width/shape.Width(rotation),sy=rect.height/shape.Height(rotation);
             Color tint=hasSprite?color:missingIconColor;
-            foreach(IconQuad quad in IconMeshGeometry.Build(shape,rotation,hasSprite && preserveSpriteAspect,aspect,cellAspect))
+            var quad=IconMeshGeometry.BuildQuad(shape,rotation,hasSprite,aspect,cellAspect);
+            if(hasSprite)
+            {
+                // OuterUV can refer to a trimmed sprite rectangle. Keep its transparent
+                // margins in the original frame instead of stretching the trimmed image.
+                Vector4 padding=DataUtility.GetPadding(iconSprite);
+                IconMeshGeometry.ApplyPadding(ref quad,rotation,padding.x/iconSprite.rect.width,
+                    padding.y/iconSprite.rect.height,padding.z/iconSprite.rect.width,padding.w/iconSprite.rect.height);
+            }
             {
                 int start=helper.currentVertCount;
                 Add(helper,rect.xMin+quad.x0*sx,rect.yMax-quad.y0*sy,quad.topLeft,uv,tint);

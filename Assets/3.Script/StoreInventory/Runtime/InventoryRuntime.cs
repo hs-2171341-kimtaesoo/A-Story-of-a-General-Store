@@ -18,7 +18,8 @@ namespace GeneralStore.Inventory
             if(activeRuntimes.Count>1)Debug.LogWarning("InventoryRuntime가 여러 개 실행 중입니다. 이전 데모의 Data/Canvas 또는 중복 로드된 씬을 확인하고 하나만 켠 뒤 재생하세요.",this);
         }
         void OnDisable(){activeRuntimes.Remove(this);}
-        void OnDestroy(){activeRuntimes.Remove(this);}
+        void OnDestroy(){activeRuntimes.Remove(this);if(Application.isPlaying&&activeRuntimes.Count==0){SpriteIconFit.ResetCache();QualityOutlineEffect.ReleaseSharedMaterial(false);}}
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]static void ResetActiveRuntimes(){activeRuntimes.Clear();}
         public TextAsset itemJson,customerJson,supplierJson,displayJson,workshopJson;
         public InventorySpriteCatalog spriteCatalog;
         [UnityEngine.Serialization.FormerlySerializedAs("deliveryCellFee")]
@@ -29,6 +30,8 @@ namespace GeneralStore.Inventory
         public const int WarehouseRows = InventoryModel.WarehouseRows;
         public InventoryInitialItem[] initialItems;
         public string saveFileName="store-main-items208-v1.json";
+        [Tooltip("Enable only for manual JSON inspection. Compact saves use less disk space and fewer encoding buffers.")]
+        public bool prettyPrintSave;
         [Range(1,8)]public int initialWarehouseCount=2;
         public string[] initialFurnitureForDemo;
         public bool startAllFurnitureOwnedForTest; // 배치 확인용. 일반 게임에서는 끕니다.
@@ -84,7 +87,7 @@ namespace GeneralStore.Inventory
             try
             {
                 if (!TryInitialize(out error)) return false;
-                AtomicSaveFile.Write(SavePath, JsonUtility.ToJson(new ShopWorldSave{inventory=Model.Snapshot(),clock=Clock.Snapshot(),clockSettings=Clock.Settings}, true)); return true;
+                AtomicSaveFile.Write(SavePath, JsonUtility.ToJson(new ShopWorldSave{inventory=Model.Snapshot(),clock=Clock.Snapshot(),clockSettings=Clock.Settings}, prettyPrintSave)); return true;
             }
             catch (Exception e) { error = e.Message; return false; }
         }

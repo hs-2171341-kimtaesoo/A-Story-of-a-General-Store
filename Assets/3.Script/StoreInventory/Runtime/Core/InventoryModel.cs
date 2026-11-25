@@ -8,6 +8,33 @@ namespace GeneralStore.Inventory
     {
         public readonly ItemCatalog Catalog;
         InventorySave state;
+        readonly Dictionary<string,long> containerVersions=new Dictionary<string,long>(StringComparer.Ordinal);
+        long contentVersion;
+        public long LayoutVersion{get;private set;}
+        public long ContainerVersion(string id){long value;return id!=null&&containerVersions.TryGetValue(id,out value)?value:-1;}
+        void TouchContainer(string id){if(id!=null)containerVersions[id]=++contentVersion;}
+        void TouchReservedItem(string uid)
+        {foreach(var box in state.containers)foreach(var item in box.items)if(item.instanceId==uid){TouchContainer(box.containerId);return;}}
+        static bool SameContainer(ContainerRecord a,ContainerRecord b)
+        {if(a==null||a.columns!=b.columns||a.rows!=b.rows||a.items.Count!=b.items.Count)return false;for(int n=0;n<a.items.Count;n++)if(!a.items[n].SameContents(b.items[n]))return false;return true;}
+        void TrackContents(InventorySave next,bool force=false)
+        {
+            bool layout=force||state==null||state.containers.Count!=next.containers.Count||state.displays.Count!=next.displays.Count;
+            foreach(var box in next.containers)
+            {var old=state==null?null:Find(state,box.containerId);if(force||!SameContainer(old,box))TouchContainer(box.containerId);if(old==null||old.columns!=box.columns||old.rows!=box.rows)layout=true;}
+            if(!layout&&state!=null)for(int n=0;n<state.displays.Count;n++)
+            {var a=state.displays[n];var b=next.displays[n];if(a.containerId!=b.containerId||a.typeId!=b.typeId||a.locationId!=b.locationId){layout=true;break;}}
+            if(state!=null)foreach(var old in state.containers)if(Find(next,old.containerId)==null)containerVersions.Remove(old.containerId);
+            if(layout)LayoutVersion++;
+        }
+        // Reusable caller-owned snapshots. The mutable live inventory never escapes the model.
+        public bool CopyContainerInto(string id,ContainerRecord destination)
+        {
+            if(destination==null)throw new ArgumentNullException("destination");var source=Find(state,id);if(source==null){destination.items.Clear();return false;}
+            destination.containerId=id;destination.columns=source.columns;destination.rows=source.rows;
+            for(int n=0;n<source.items.Count;n++){if(n==destination.items.Count)destination.items.Add(new ItemRecord());destination.items[n].CopyFrom(source.items[n]);}
+            if(destination.items.Count>source.items.Count)destination.items.RemoveRange(source.items.Count,destination.items.Count-source.items.Count);return true;
+        }
         // 예약은 임시 상태입니다. 실제 물건은 원래 진열 칸에 그대로 남습니다.
         readonly HashSet<string> reserved = new HashSet<string>(StringComparer.Ordinal);
         public bool IsReserved(string instanceId) { return instanceId != null && reserved.Contains(instanceId); }
@@ -21,7 +48,7 @@ namespace GeneralStore.Inventory
                     || !TryGetOfferPrice(pick.containerId,pick.instanceId,out price) || price != pick.price)
                 { error = "손님 선택 상품을 예약할 수 없습니다."; return false; }
             }
-            foreach (PendingOffer pick in picks) reserved.Add(pick.instanceId);
+            foreach (PendingOffer pick in picks){reserved.Add(pick.instanceId);TouchContainer(pick.containerId);}
             Revision++; if (Changed != null) Changed(); return true;
         }
         internal bool TryReserveCounterOffers(IList<PendingOffer> lines,out string error)
@@ -33,14 +60,14 @@ namespace GeneralStore.Inventory
                     ||!TryGetOfferPrice(line.containerId,line.instanceId,out price)||price!=line.price)
                 {error="추가 추천 물건이 이동했거나 가격이 바뀌었습니다.";return false;}
             }
-            if(ids.Count==0)return true;foreach(string id in ids)reserved.Add(id);Revision++;if(Changed!=null)Changed();return true;
+            if(ids.Count==0)return true;foreach(var line in lines){reserved.Add(line.instanceId);TouchContainer(line.containerId);}Revision++;if(Changed!=null)Changed();return true;
         }
         internal void ReleaseCounterOffer(string uid)
-        {if(!reserved.Remove(uid))return;Revision++;if(Changed!=null)Changed();}
+        {if(!reserved.Remove(uid))return;TouchReservedItem(uid);Revision++;if(Changed!=null)Changed();}
         internal void ReleaseReservations()
         {
             if (reserved.Count == 0) return;
-            reserved.Clear(); Revision++; if (Changed != null) Changed();
+            foreach(string uid in reserved)TouchReservedItem(uid);reserved.Clear(); Revision++; if (Changed != null) Changed();
         }
         public long Revision { get; private set; }
         public int DisplayListingCount {get{return state.listings.Count;}}
@@ -51,11 +78,11 @@ namespace GeneralStore.Inventory
         public InventoryModel(ItemCatalog catalog, InventorySave initial,SupplierCatalog suppliers=null,DisplayCatalog displays=null,WorkshopCatalog workshops=null)
         {
             Catalog = catalog ?? throw new ArgumentNullException("catalog");
-            Suppliers=suppliers;Displays=displays;Workshops=workshops;state=PrepareSave(initial);Validate(state);
+            Suppliers=suppliers;Displays=displays;Workshops=workshops;state=PrepareSave(initial);Validate(state);TrackContents(state,true);
         }
         static ContainerRecord Find(InventorySave save, string id)
         {
-            return save.containers.Find(c => c.containerId == id);
+            for(int n=0;n<save.containers.Count;n++)if(save.containers[n].containerId==id)return save.containers[n];return null;
         }
         void RemoveItem(InventorySave save,string containerId,string instanceId)
         {
@@ -65,8 +92,7 @@ namespace GeneralStore.Inventory
         public ContainerRecord GetContainer(string id) { ContainerRecord c = Find(state, id); return c == null ? null : c.Copy(); }
         public ItemRecord GetItem(string containerId, string instanceId)
         {
-            ContainerRecord c = Find(state, containerId); ItemRecord item = c == null ? null : c.items.Find(i => i.instanceId == instanceId);
-            return item == null ? null : item.Copy();
+            if(instanceId==null)return null;var c=Find(state,containerId);if(c!=null)for(int n=0;n<c.items.Count;n++)if(c.items[n].instanceId==instanceId)return c.items[n].Copy();return null;
         }
         public InventorySave Snapshot() { return state.Copy(); }
         public int Width(ItemRecord item) { return Catalog.Shape(item.itemId).Width(item.rotation); }
@@ -199,12 +225,20 @@ namespace GeneralStore.Inventory
                 for(int y=0;y<container.rows;y++)for(int x=0;x<container.columns;x++)
                 {
                     item.x=x;item.y=y;
-                    if(InspectPlacement(save,container,item,null).allowed){container.items.Add(item);return true;}
+                    if(FitsRectangle(save,container,item)){container.items.Add(item);return true;}
                 }
             }
             return false;
         }
-        void Commit(InventorySave next) { state = next; Revision++; if (Changed != null) Changed(); }
+        // Automatic packing needs only a yes/no answer, never a preview mesh or occupied-cell set.
+        bool FitsRectangle(InventorySave save,ContainerRecord box,ItemRecord item)
+        {
+            int w=Width(item),h=Height(item);if(item.x<0||item.y<0||(long)item.x+w>box.columns||(long)item.y+h>box.rows)return false;
+            foreach(var other in box.items)if(item.x<(long)other.x+Width(other)&&(long)item.x+w>other.x&&item.y<(long)other.y+Height(other)&&(long)item.y+h>other.y)return false;
+            DisplayInstallation installation=null;foreach(var d in save.displays)if(d.containerId==box.containerId){installation=d;break;}var type=installation==null||Displays==null?null:Displays.Type(installation.typeId);
+            return type==null||DisplayPartitionRules.Fits(type,Catalog.Shape(item.itemId).InternalCells(item.rotation),item.x,item.y);
+        }
+        void Commit(InventorySave next,bool forceReadRefresh=false) { TrackContents(next,forceReadRefresh);state = next; Revision++; if (Changed != null) Changed(); }
         public bool TryAdd(string containerId, string itemId, string quality, int amount, int unitCost, out string error)
         {
             error = ""; ItemDefinition def = Catalog.Find(itemId);
@@ -224,7 +258,7 @@ namespace GeneralStore.Inventory
                 {
                     item.rotation = rotation;
                     for (int y = 0; y < target.rows && !placed; y++) for (int x = 0; x < target.columns && !placed; x++)
-                    { item.x = x; item.y = y; placed = InspectPlacement(trial,target, item, null).allowed; }
+                    { item.x = x; item.y = y; placed = FitsRectangle(trial,target,item); }
                 }
                 if (!placed) { error = "모든 물건을 놓을 수 없어 이번 입고 전체를 취소했습니다."; return false; }
                 target.items.Add(item);
@@ -283,7 +317,7 @@ namespace GeneralStore.Inventory
             RemoveItem(next,source.containerId,item.instanceId);target.items.Add(moved);if(IsDynamicStorage(target.containerId))TrimDynamic(next,target.containerId);
             next.listings.RemoveAll(line=>line.instanceId==item.instanceId);
             if(IsDisplay(target.containerId))next.listings.Add(new DisplayListing{instanceId=item.instanceId,price=displayPrice});
-            Validate(next);reserved.Remove(item.instanceId);Commit(next);return true;
+            Validate(next);reserved.Remove(item.instanceId);TouchContainer(source.containerId);TouchContainer(target.containerId);Commit(next);return true;
         }
         public bool TryRemove(string containerId, string instanceId, out string error)
         {
@@ -360,15 +394,16 @@ namespace GeneralStore.Inventory
                 RemoveItem(trial,line.containerId,line.instanceId);
                 trial.listings.RemoveAll(l => l.instanceId == line.instanceId);
             }
+            try{if(customerIds!=null&&customerIds.Count>0){trial.successfulCustomerSales=Math.Min(1000000000,trial.successfulCustomerSales+1);UnlockEarnedWorkshops(trial);}}
+            catch(OverflowException){error="공방 일급 범위를 초과했습니다.";return false;}
             foreach (SaleLine line in lines) reserved.Remove(line.instanceId);
-            if(customerIds!=null&&customerIds.Count>0){trial.successfulCustomerSales=Math.Min(1000000000,trial.successfulCustomerSales+1);UnlockEarnedWorkshops(trial);}
             trial.gold = nextGold; Commit(trial); revenue = total; return true;
         }
         public bool TryRestore(InventorySave save, out string error)
         {
             error = ""; InventorySave next;
             try { next=PrepareSave(save);Validate(next); } catch (Exception e) { error = e.Message; return false; }
-            reserved.Clear(); Commit(next); return true;
+            reserved.Clear();Commit(next,true); return true;
         }
     }
 }

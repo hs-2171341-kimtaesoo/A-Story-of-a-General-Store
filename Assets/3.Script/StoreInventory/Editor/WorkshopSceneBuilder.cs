@@ -17,10 +17,10 @@ public static class WorkshopSceneBuilder
     {
         panel.shop.simulation.wages=0;var ui=layout.gameObject.AddComponent<WorkshopUI>();ui.panel=panel;
         ui.frame=SideMenuSceneBuilder.Panel(layout,"Workshop Window","",out ui.window);ui.frame.sizeDelta=new Vector2(860,664);ui.frame.GetComponent<global::UnityEngine.UI.Image>().color=new Color(.91f,.78f,.57f,.99f);
+        ManagementWindowMotion.Ensure(ui.window,ui.frame,true);
         var oldTitle=ui.frame.Find("Title");if(oldTitle!=null)Object.DestroyImmediate(oldTitle.gameObject);
         ui.titleLabel=Dark("Workshop Title",ui.frame,24,14,260,36,"가공소",29);
         UI.ButtonBox("임시 저장고",ui.frame,298,14,182,36,ui.OpenTemporaryStorage);
-        var hire=UI.ButtonBox("고용 시작",ui.frame,492,14,152,36,ui.Hire);ui.hireLabel=hire.GetComponentInChildren<Text>(true);
         ui.nightButton=UI.ButtonBox("야간 작업",ui.frame,654,14,182,36,ui.PayNightWork);ui.nightLabel=ui.nightButton.GetComponentInChildren<Text>(true);ui.nightLabel.fontSize=16;
         ui.account=Dark("Daily Wages",ui.frame,24,56,812,28,"",17);
         ui.content=UI.Rect("Workshop Cards",ui.frame,24,92,812,432);ui.rows=new WorkshopJobView[3];
@@ -51,7 +51,7 @@ public static class WorkshopSceneBuilder
         ui.collectButton=UI.ButtonBox("완성품 받기 0",ui.frame,24,564,530,42,ui.CollectAll);ui.collectLabel=ui.collectButton.GetComponentInChildren<Text>(true);
         UI.ButtonBox("닫기",ui.frame,572,564,264,42,ui.Close);
         UI.ButtonBox("가공소",ui.frame,24,616,260,38,ui.Processing);UI.ButtonBox("대장간",ui.frame,300,616,260,38,ui.Smith);UI.ButtonBox("연금술공방",ui.frame,576,616,260,38,ui.Alchemy);
-        var menu=layout.GetComponentInChildren<RightSideMenu>(true);var entry=new ShopMenuEntry{id="workshops",title="제작 의뢰",window=ui.window};UnityEditor.Events.UnityEventTools.AddPersistentListener(entry.onOpen,ui.Open);menu.AddEntry(entry);ui.window.SetActive(false);
+        var menu=layout.GetComponentInChildren<RightSideMenu>(true);var entry=new ShopMenuEntry{id="workshops",title="제작 의뢰",window=ui.window,unlocked=false};UnityEditor.Events.UnityEventTools.AddPersistentListener(entry.onOpen,ui.Open);menu.AddEntry(entry);ui.window.SetActive(false);
         var debug=layout.Find("Debug Controls") as RectTransform;if(debug!=null)
         {int count=debug.GetComponentsInChildren<Button>(true).Length;UI.ButtonBox("공방 전체 해금",debug,14+(count%2)*208,14+(count/2)*84,194,68,ui.UnlockAllForDemo);debug.sizeDelta=new Vector2(430,Mathf.Max(debug.sizeDelta.y,28+(count/2+1)*84));}
     }

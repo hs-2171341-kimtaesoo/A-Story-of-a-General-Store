@@ -81,16 +81,20 @@ public static class InventorySceneBuilder
         Box("Gold Separator",background.transform,0,0,width,2,new Color(.8f,.6f,.15f)).raycastTarget=false;return details;
     }
     [MenuItem("Store Inventory/Create Latest Demo")]
-    public static void CreateLatestDemo(){CreateInternal();}
+    public static void CreateLatestDemo()
+    {
+        if(Application.isPlaying||EditorApplication.isPlayingOrWillChangePlaymode){Debug.LogWarning("Play를 중지한 뒤 실행하세요.");return;}
+        CustomDisplayArtBuilder.ValidateDefinitions();CreateInternal();
+    }
     // 기존 코드에서 호출해도 같은 최신 데모를 생성합니다. 생성 메뉴는 하나만 노출합니다.
     public static void Create(){CreateLatestDemo();}
     public static void CreateAllFurnitureTest(){CreateLatestDemo();}
     static void CreateInternal()
     {
-        if(!LatestDemoSetup.CanCreate())return;
+        if(!LatestDemoSetup.BeginNewScene())return;
         font=LatestDemoSetup.FindKoreanFont();bool hasKoreanFont=font!=null;
         if(font==null)font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        Furniture13SceneBuilder.PrepareSprites();CustomDisplayArtBuilder.PrepareSprites();SlidingDemoSceneBuilder.PrepareCustomerSprite();CounterDemoSceneBuilder.PrepareSprites();
+        Furniture13SceneBuilder.PrepareSprites();CustomDisplayArtBuilder.PrepareSprites();SlidingDemoSceneBuilder.PrepareCustomerSprite();CounterDemoSceneBuilder.PrepareSprites();StoreTextureBudget.PrepareIconImports();
         PlayerSettings.defaultScreenWidth=1920;PlayerSettings.defaultScreenHeight=1080;
         var data=new GameObject("Store Inventory Data");Undo.RegisterCreatedObjectUndo(data,"Create Store Data");var runtime=data.AddComponent<InventoryRuntime>();runtime.startAllFurnitureOwnedForTest=false;runtime.initialFurnitureForDemo=new[]{"mannequin","table","weapon_rack"};runtime.initialGold=10000;runtime.initialWarehouseCount=2;ItemTableTools.Configure(runtime);InventoryAssetTools.Connect(runtime);data.AddComponent<StorePerformanceSettings>();
         var sceneRoot=new GameObject("Store Scene");data.transform.SetParent(sceneRoot.transform,false);Undo.RegisterCreatedObjectUndo(sceneRoot,"Create Store Layers");
@@ -217,7 +221,7 @@ public static class InventorySceneBuilder
         DrawerSceneBuilder.EnsureItemIdGrant(layout,simulation);
         ItemTableTools.ConnectIcons(runtime,false);
         Selection.activeGameObject=sceneRoot;UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(go.scene);
-        Debug.Log("최신 통합 데모 생성 완료: 중앙 높이로 열리는 왼쪽 하단 상자2개 / 정보창을 분리한 진열 Sprite 창12종(휠 스크롤4종) / 8×7 상자 / 반환 예약 칸 표시 / 공통 아이템 툴팁 / 오른쪽 세로 거래창 / 방문 후 탐색 / 문 앞 택배 자동 수령 / 16열 임시 저장고 / 새벽 보관료 / 가구3개. 씬을 저장하고 Play하세요. 208개 아이템 표 적용. 공방3곳/제작121개, 낮9분·밤6분·새벽3분, 실제 작업 초·휴무 이월·야간 수당 적용. 왼쪽 제작 의뢰 또는 테스트 전체 해금 버튼으로 확인하세요. 추가 적용 메뉴는 필요 없습니다.");
+        Debug.Log("새 씬에 최신 통합 데모를 생성했습니다. 화면 끝의 작은 목록(관리 왼쪽/진열 오른쪽), 관리 창 퇴장 후 교체, 드래그 스크롤 진열창과 실제 하부 서랍을 모두 적용했습니다. 새 이름으로 씬을 저장하고 Play하세요. 추가 적용 메뉴는 필요 없습니다.");
         if(!hasKoreanFont)Debug.LogWarning("프로젝트에서 알려진 한국어 Font를 찾지 못해 기본 폰트를 사용했습니다. 글자가 네모로 보이면 Store UI Canvas의 InventoryPanel > Korean Font에 한국어 Font를 연결하세요.");
     }
 }

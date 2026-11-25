@@ -15,418 +15,627 @@ MonoBehaviour:
   itemIcons:
   - key: E001
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E002
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E003
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E004
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E005
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E006
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E007
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E008
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E009
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E010
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E011
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E012
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E013
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E014
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E015
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E016
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E017
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E018
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E019
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E020
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E021
     sprite: {fileID: 0}
+    resourcePath: 
   - key: E022
     sprite: {fileID: 0}
+    resourcePath: 
   - key: M001
-    sprite: {fileID: 21300000, guid: 6c10356f03a1fe643a96cb42c6d1e923, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M001
   - key: M002
-    sprite: {fileID: 21300000, guid: 5b0394e66a4a09a44b7c1bea02b335ec, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M002
   - key: M003
-    sprite: {fileID: 21300000, guid: dc89a481b47254142b8b754c0ddd545e, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M003
   - key: M004
-    sprite: {fileID: 21300000, guid: b938928397e48ea4fb876086b6d80d57, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M004
   - key: M005
-    sprite: {fileID: 21300000, guid: 06f9746762af3df40aac9fc6adb202ce, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M005
   - key: M006
-    sprite: {fileID: 21300000, guid: e6da88338c5c3574890d0a69c68f7e12, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M006
   - key: M007
-    sprite: {fileID: 21300000, guid: ef1152c1c97531b478bc14d5c8dfd0e3, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M007
   - key: M009
-    sprite: {fileID: 21300000, guid: 846003e8d65aa4d4b9e570c55dee19a9, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M009
   - key: M010
-    sprite: {fileID: 21300000, guid: d23ce2b876eb86645871f46d6fda4cc3, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M010
   - key: M011
-    sprite: {fileID: 21300000, guid: 41504610f5c1ac0478c9ae92fc77cb68, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M011
   - key: M012
-    sprite: {fileID: 21300000, guid: abd373500d00afe4bb3275361acb424c, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M012
   - key: M013
-    sprite: {fileID: 21300000, guid: 88614939f65ad4946a068c0178ad44ad, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M013
   - key: M014
-    sprite: {fileID: 21300000, guid: a44f2e27fd8ded24f9c73991691878fe, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M014
   - key: M015
-    sprite: {fileID: 21300000, guid: 1d8b6105690d927418442b34a52959b8, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M015
   - key: M016
-    sprite: {fileID: 21300000, guid: 42aeae08615dd9d4db912d72f2ea4d0f, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M016
   - key: M017
-    sprite: {fileID: 21300000, guid: 79bfbe1ab1e9a784aa8c904ae51a901e, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M017
   - key: M018
-    sprite: {fileID: 21300000, guid: a471bf3bb3b85b348aef6d969e8e146a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M018
   - key: M019
-    sprite: {fileID: 21300000, guid: 8c4a5e79cddb91549a8d1812a13eb139, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M019
   - key: M020
-    sprite: {fileID: 21300000, guid: d96d1c838f4456e418804af5a0b3de3a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M020
   - key: M021
-    sprite: {fileID: 21300000, guid: 1eb95af46e1c20645b4c44155799bd0d, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M021
   - key: M022
-    sprite: {fileID: 21300000, guid: 36264b2bfd26dbd44b2823c2c71a55fe, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M022
   - key: M023
-    sprite: {fileID: 21300000, guid: 04d48852daa9bbd42bbcfe3af129da7f, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M023
   - key: M024
-    sprite: {fileID: 21300000, guid: a5ea75e67726eac4498770be4f20eba0, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M024
   - key: M025
-    sprite: {fileID: 21300000, guid: 7dfedc9c68a5277408efdb479d777df0, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M025
   - key: M027
-    sprite: {fileID: 21300000, guid: 45ff7c9db17c9a24c9c5a0b53ef3c274, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M027
   - key: M028
-    sprite: {fileID: 21300000, guid: 6d54e330858c2364983b44ce57c71944, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M028
   - key: M029
-    sprite: {fileID: 21300000, guid: 81917b0c6fb55aa4eb448a95016205df, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M029
   - key: M030
-    sprite: {fileID: 21300000, guid: 16003589684241a4da10417797d5da71, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M030
   - key: M031
-    sprite: {fileID: 21300000, guid: d243a351f19f8e44989101a22294b81e, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/M031
   - key: M032
     sprite: {fileID: 0}
+    resourcePath: 
   - key: M033
     sprite: {fileID: 0}
+    resourcePath: 
   - key: P001
-    sprite: {fileID: 21300000, guid: d383a592063d0e646b875eb92b475e2c, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P001
   - key: P002
-    sprite: {fileID: 21300000, guid: 632a7205c589804478b19e996da70440, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P002
   - key: P003
-    sprite: {fileID: 21300000, guid: f4de4775f3ab3184d8b1a5cb917a0c36, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P003
   - key: P004
-    sprite: {fileID: 21300000, guid: e813476c4f78cdf4fad6fd7f762d9270, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P004
   - key: P005
-    sprite: {fileID: 21300000, guid: 3f7e2e78e744b6c4d8d5ef7b93e9c500, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P005
   - key: P006
-    sprite: {fileID: 21300000, guid: 12a2b44eca0e8e7479b98ec9ffeb0143, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P006
   - key: P007
-    sprite: {fileID: 21300000, guid: d70eaa15ff31df54b9538f5c88921640, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P007
   - key: P008
-    sprite: {fileID: 21300000, guid: 9501e03b128038f4ba9ec6fdebd8be50, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P008
   - key: P009
-    sprite: {fileID: 21300000, guid: 86bbe8fe91451684bb9eb58423f452e5, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P009
   - key: P010
-    sprite: {fileID: 21300000, guid: 8a152c12e67e3b34abc99e267cd3b81b, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P010
   - key: P012
-    sprite: {fileID: 21300000, guid: aaab7755b8c4a3642ae7b226da35b0eb, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P012
   - key: P013
-    sprite: {fileID: 21300000, guid: c99bcc12a43a51c40bc81965c414cbbf, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P013
   - key: P014
-    sprite: {fileID: 21300000, guid: 24c84c4c3e615004aa92a249fd7c77ed, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P014
   - key: P015
-    sprite: {fileID: 21300000, guid: 8e39a6d8c42de924eb32000590324a77, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P015
   - key: P017
-    sprite: {fileID: 21300000, guid: 8470bc7fd5795c64c80ce4dec8301ca5, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P017
   - key: P018
-    sprite: {fileID: 21300000, guid: f0d12d13a6e9c0b4f9240c2643da0b61, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P018
   - key: P019
-    sprite: {fileID: 21300000, guid: 7b3e61c48373a3b4da868e9b08f6532d, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P019
   - key: P020
-    sprite: {fileID: 21300000, guid: 11dda044da80e1841b41cb6116ef0ebc, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/P020
   - key: P021
     sprite: {fileID: 0}
+    resourcePath: 
   - key: P022
     sprite: {fileID: 0}
+    resourcePath: 
   - key: R001
-    sprite: {fileID: 21300000, guid: b4a963ebbf5dbbb41b11d8ffdf528b52, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R001
   - key: R002
-    sprite: {fileID: 21300000, guid: 9e796edabe5dc2e4dbae9b7f92e47f94, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R002
   - key: R003
-    sprite: {fileID: 21300000, guid: bbcc341431298084e8647ebee042123b, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R003
   - key: R004
-    sprite: {fileID: 21300000, guid: 1c065e5c3f38cbf4c96e7e2017f74641, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R004
   - key: R005
-    sprite: {fileID: 21300000, guid: 4665e62ec54eb5d43ab258c08658fc53, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R005
   - key: R006
-    sprite: {fileID: 21300000, guid: 7139e4e942f07ed4e82daaae19bcd091, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R006
   - key: R007
-    sprite: {fileID: 21300000, guid: f3ba46650dd51924f901c7851f4da2af, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R007
   - key: R008
-    sprite: {fileID: 21300000, guid: 5f7ce288cf99af744a1a3c00ec3e29c4, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R008
   - key: R009
-    sprite: {fileID: 21300000, guid: a659bd41b12103e43bf48e4c1404e364, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R009
   - key: R010
     sprite: {fileID: 0}
+    resourcePath: 
   - key: R011
-    sprite: {fileID: 21300000, guid: 6d6143f9f4d707746b8597f120576cf3, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R011
   - key: R012
-    sprite: {fileID: 21300000, guid: 993f9772b7fb645428fbfcbb40aad8b7, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R012
   - key: R013
-    sprite: {fileID: 21300000, guid: 86bcd3912e56f70458f4728375c1b1ad, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R013
   - key: R014
-    sprite: {fileID: 21300000, guid: ecd16f22f93418949bb65856bf5864b7, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R014
   - key: R015
-    sprite: {fileID: 21300000, guid: 31aa1af8f6c2faf459bfa1449885df6a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R015
   - key: R016
-    sprite: {fileID: 21300000, guid: c0a98836df143ac4ebe03d754026c778, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R016
   - key: R017
-    sprite: {fileID: 21300000, guid: dcff9371444cc7c4c943dddbd2b66bf5, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R017
   - key: R018
-    sprite: {fileID: 21300000, guid: b26eafbe189a64c48952d385b90b27d8, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R018
   - key: R019
-    sprite: {fileID: 21300000, guid: 377a6babd7304044bb3f4a361d16339e, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R019
   - key: R020
-    sprite: {fileID: 21300000, guid: e275a20433bff8745affb2ee229522ee, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R020
   - key: R021
-    sprite: {fileID: 21300000, guid: 97f0fb2b0bd82ee4b9eb7737be71fd11, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R021
   - key: R022
-    sprite: {fileID: 21300000, guid: 0c3dad8f5cbaa15459e60c19f0bb7b52, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R022
   - key: R024
-    sprite: {fileID: 21300000, guid: 72daad58732d3d048a4c7fcd25aed68f, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R024
   - key: R025
-    sprite: {fileID: 21300000, guid: be3faa525bc1c1d4184de26478e13bbc, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R025
   - key: R026
-    sprite: {fileID: 21300000, guid: 8ccfac69643794b4e89902d47d01f90f, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R026
   - key: R027
-    sprite: {fileID: 21300000, guid: 264ba028463cc97489fd5feaf15d1f78, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R027
   - key: R028
-    sprite: {fileID: 21300000, guid: c986b100f271fbd4c9336bdb06ece274, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R028
   - key: R029
-    sprite: {fileID: 21300000, guid: e225f460a92b094479513590a6202c0a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R029
   - key: R030
-    sprite: {fileID: 21300000, guid: 48bd7a816d206bb4c8b7894984517845, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R030
   - key: R031
-    sprite: {fileID: 21300000, guid: 1d02f24f9b881664ba5c74f4fffe561e, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R031
   - key: R032
-    sprite: {fileID: 21300000, guid: e3efc56e5d8ed4946ad320fd2d96f029, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R032
   - key: R033
-    sprite: {fileID: 21300000, guid: 2f7e124ce1338f14f8498c65ef22b2a7, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R033
   - key: R034
-    sprite: {fileID: 21300000, guid: c312db3469cf3574394ab33081ab10dc, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R034
   - key: R035
-    sprite: {fileID: 21300000, guid: 23756445abad6f64bb51d9e68859d5e1, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R035
   - key: R036
-    sprite: {fileID: 21300000, guid: a4e2cfad51688504497e1631706e1eb0, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R036
   - key: R037
-    sprite: {fileID: 21300000, guid: cf9e53cbd079f4a47a884d024d07575d, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R037
   - key: R038
-    sprite: {fileID: 21300000, guid: 8485048557af53b4182c8a2cf75c8431, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R038
   - key: R039
-    sprite: {fileID: 21300000, guid: 0b0b6457f1c36404fbc53fce794539f6, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R039
   - key: R040
-    sprite: {fileID: 21300000, guid: 4fd32a274ccdac34a9b4681829f1bfe5, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R040
   - key: R041
-    sprite: {fileID: 21300000, guid: dd9f40ed8f02ba74d967dc987285bcf7, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R041
   - key: R042
-    sprite: {fileID: 21300000, guid: e099e105fd8913a49954ca2925603808, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R042
   - key: R043
-    sprite: {fileID: 21300000, guid: 70fd410e57ad3af489fe8150adc417df, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R043
   - key: R044
-    sprite: {fileID: 21300000, guid: 93346ef5784079d4e8c69e428b9dcd99, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R044
   - key: R045
-    sprite: {fileID: 21300000, guid: 10a8c9ab10a477d448f867e10873a1a5, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R045
   - key: R046
-    sprite: {fileID: 21300000, guid: 7062c1160c033494c970fbfc033d6d04, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R046
   - key: R047
-    sprite: {fileID: 21300000, guid: d5ee6d8c8a063634bae7d2743facafe2, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R047
   - key: R048
-    sprite: {fileID: 21300000, guid: f7875163a0a28d942b5ed6b249516363, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R048
   - key: R049
-    sprite: {fileID: 21300000, guid: e8c5e9500131bf146ad4412784d93b79, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R049
   - key: R050
-    sprite: {fileID: 21300000, guid: b36206f35bea8dc47a3f03368fdc503a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R050
   - key: R051
-    sprite: {fileID: 21300000, guid: f89728981c9d0084a9d428cc165eaeb1, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R051
   - key: R052
-    sprite: {fileID: 21300000, guid: 6b594e61b645d074e8c6a20be36b6194, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R052
   - key: R053
-    sprite: {fileID: 21300000, guid: ebf959c782cdd4545b41ef4f14a83c17, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R053
   - key: R054
-    sprite: {fileID: 21300000, guid: b637185af838eb542894e27f08350709, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R054
   - key: R055
-    sprite: {fileID: 21300000, guid: f34c4bbeef246b1439c29ddf819933db, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R055
   - key: R056
-    sprite: {fileID: 21300000, guid: dcef8f1710534b14094fcecd1b36709f, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R056
   - key: R057
-    sprite: {fileID: 21300000, guid: 856c4c3923393a943a79eba523fbaf0c, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/R057
   - key: R058
     sprite: {fileID: 0}
+    resourcePath: 
   - key: R059
     sprite: {fileID: 0}
+    resourcePath: 
   - key: R060
     sprite: {fileID: 0}
+    resourcePath: 
   - key: S001
-    sprite: {fileID: 21300000, guid: 5f4264d6728916748bd5b9746a26e133, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S001
   - key: S002
-    sprite: {fileID: 21300000, guid: 6fea0f69f53792b49ad7fe41e3e86b00, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S002
   - key: S003
-    sprite: {fileID: 21300000, guid: 34e1d64ce9128e843be180f2f2271658, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S003
   - key: S004
-    sprite: {fileID: 21300000, guid: 4c9f7114150d19640b5085f04e2b6be7, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S004
   - key: S005
-    sprite: {fileID: 21300000, guid: 0c3e18b708d723043bcd81c028996f8f, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S005
   - key: S006
-    sprite: {fileID: 21300000, guid: 904ddc704f79c4e4c842d1ab84c8029b, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S006
   - key: S007
-    sprite: {fileID: 21300000, guid: 8de8f40aa9bb9b04f9a6538e2b6428e8, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S007
   - key: S008
-    sprite: {fileID: 21300000, guid: e2fadc24732ca7846892c1b6a260cb5e, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S008
   - key: S009
-    sprite: {fileID: 21300000, guid: 0eef6207f1cfce044a326864222dcf6c, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S009
   - key: S010
-    sprite: {fileID: 21300000, guid: 654e06a4d230a52458a80d148c4fbade, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S010
   - key: S011
-    sprite: {fileID: 21300000, guid: 68db1662732f7ae49b349b0762ee48fe, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S011
   - key: S012
-    sprite: {fileID: 21300000, guid: e402fe61429e6024fa7afd9866bafcd8, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/S012
   - key: T002
-    sprite: {fileID: 21300000, guid: 3aefe8d3b7154854b81a43d3f9444dfc, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T002
   - key: T003
-    sprite: {fileID: 21300000, guid: e1147181976209446b79bf1851270ed4, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T003
   - key: T004
-    sprite: {fileID: 21300000, guid: 63504838eb64d0d499c5b81a6fb369c3, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T004
   - key: T005
-    sprite: {fileID: 21300000, guid: 7cde64ff2bb1a4244abe22a84449b61e, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T005
   - key: T006
-    sprite: {fileID: 21300000, guid: 0c8dbbaeb7edda3418ab9202269a73cc, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T006
   - key: T007
-    sprite: {fileID: 21300000, guid: d88b80b773e9ae141a161d0a2a354212, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T007
   - key: T008
-    sprite: {fileID: 21300000, guid: d92ffa15d64fb0945bb25a5f0e575261, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T008
   - key: T009
-    sprite: {fileID: 21300000, guid: 52d30b2ab47f4a54eb76b529c0f21357, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T009
   - key: T010
-    sprite: {fileID: 21300000, guid: 941a59c28715b9947984d1cdee79104d, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T010
   - key: T011
-    sprite: {fileID: 21300000, guid: 7835be4552b123442a39d7b70744f53a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T011
   - key: T012
-    sprite: {fileID: 21300000, guid: 89e9ac2c39ac0ac4282ad1770987f233, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T012
   - key: T013
-    sprite: {fileID: 21300000, guid: f7c594dcf76c1c14f8b832343de09b6b, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T013
   - key: T014
-    sprite: {fileID: 21300000, guid: fc84537f8f88ec540bea2e19164b66e1, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T014
   - key: T015
-    sprite: {fileID: 21300000, guid: a7651d3cb6d06e0488e572e84be6ed63, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T015
   - key: T016
-    sprite: {fileID: 21300000, guid: 2eb6ae1a5b2346e4fb3e5c45fe13f0b9, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T016
   - key: T017
-    sprite: {fileID: 21300000, guid: 6f17adfa22fc12d418f627f9b50a2c1f, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T017
   - key: T018
-    sprite: {fileID: 21300000, guid: 3a1f0537b2c8b5143b07c173faa33ecc, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T018
   - key: T019
-    sprite: {fileID: 21300000, guid: 86acfb96b6468c04c856cacb3ba6a798, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T019
   - key: T020
-    sprite: {fileID: 21300000, guid: d7d1ee96d750e3d46a3513769dfdd4ab, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T020
   - key: T021
-    sprite: {fileID: 21300000, guid: b63affe68958385478d9dc23a4cbc81b, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T021
   - key: T022
-    sprite: {fileID: 21300000, guid: a308e97ffb5361e4ea029e650f5aa2c2, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T022
   - key: T023
-    sprite: {fileID: 21300000, guid: 2f2e942302e5aaf46badd0112e83785b, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T023
   - key: T024
-    sprite: {fileID: 21300000, guid: 73698b6d18d5fa24aa22043858a8fdd6, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/T024
   - key: T025
     sprite: {fileID: 0}
+    resourcePath: 
   - key: V001
-    sprite: {fileID: 21300000, guid: ce1ff78f1d9cb4f4289a44d32c6af33b, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V001
   - key: V002
-    sprite: {fileID: 21300000, guid: 29d267f6cbec0dd4c841bd33d413a648, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V002
   - key: V003
-    sprite: {fileID: 21300000, guid: e53f8b79cfde4804187841791f7e2a77, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V003
   - key: V004
     sprite: {fileID: 0}
+    resourcePath: 
   - key: V005
-    sprite: {fileID: 21300000, guid: d3dc1e4640d51cf4f90d1ae5fb381669, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V005
   - key: V006
-    sprite: {fileID: 21300000, guid: 5a3a446b5602eb44ca1ae223757a4207, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V006
   - key: V007
-    sprite: {fileID: 21300000, guid: 28e8f7a9e04faa5449224cf115301025, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V007
   - key: V008
-    sprite: {fileID: 21300000, guid: a73c43bd310b25148816350f044f37e0, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V008
   - key: V009
-    sprite: {fileID: 21300000, guid: addf34f4e2e171f4f8d82d62881d59b3, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V009
   - key: V010
-    sprite: {fileID: 21300000, guid: 919d290d4a7b473428a50d9c7bfa4a04, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V010
   - key: V011
     sprite: {fileID: 0}
+    resourcePath: 
   - key: V012
     sprite: {fileID: 0}
+    resourcePath: 
   - key: V013
-    sprite: {fileID: 21300000, guid: ea29a9c71f325c94f8d4715a3893957a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V013
   - key: V014
-    sprite: {fileID: 21300000, guid: 752d44abd354edb499e59114ecbbd1a8, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/V014
   - key: V015
     sprite: {fileID: 0}
+    resourcePath: 
   - key: V016
     sprite: {fileID: 0}
+    resourcePath: 
   - key: V017
     sprite: {fileID: 0}
+    resourcePath: 
   - key: W001
-    sprite: {fileID: 21300000, guid: 874c6c1fd1bf3f1498716d1088e22198, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W001
   - key: W002
-    sprite: {fileID: 21300000, guid: 7871de2e9823fce46a7bbca4f0bb9fe9, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W002
   - key: W003
-    sprite: {fileID: 21300000, guid: e3567c8b55dc6114ea8cb3856b23a87a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W003
   - key: W004
-    sprite: {fileID: 21300000, guid: 394a4993b9801b148ae74680a392acb9, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W004
   - key: W005
-    sprite: {fileID: 21300000, guid: c0fa4bff693470b439cd949f702ca949, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W005
   - key: W006
-    sprite: {fileID: 21300000, guid: c00365f5e518bef429a647802dd55b2a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W006
   - key: W007
-    sprite: {fileID: 21300000, guid: a35923ffcb4ef5c4bbb0d1ab70998af9, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W007
   - key: W008
-    sprite: {fileID: 21300000, guid: 523e11b619b145245a89a6a9dc34e8d4, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W008
   - key: W009
-    sprite: {fileID: 21300000, guid: 1ac20abb36bd7f94e9255f40a64bc0ea, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W009
   - key: W010
-    sprite: {fileID: 21300000, guid: f4e3ad0e033a35742906931b7581ba5a, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W010
   - key: W012
-    sprite: {fileID: 21300000, guid: 57f7b485a19e5344d90382dbb6752e3d, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W012
   - key: W013
-    sprite: {fileID: 21300000, guid: 3f15763993b824b4caad7e6f35b1cbd2, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W013
   - key: W014
-    sprite: {fileID: 21300000, guid: 87758c160bbe6ae4780bb5c4be403191, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W014
   - key: W015
-    sprite: {fileID: 21300000, guid: 5497efa2b93758d4db79c40d6cc2ce04, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W015
   - key: W016
-    sprite: {fileID: 21300000, guid: e535258b12f9d2c4b908ce360b0c3a93, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W016
   - key: W017
-    sprite: {fileID: 21300000, guid: 24d93a6ef97a9bb46a0a60c92ea1162d, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W017
   - key: W018
-    sprite: {fileID: 21300000, guid: 059f37173e90f9b46a59f92f0168b2fe, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W018
   - key: W019
-    sprite: {fileID: 21300000, guid: ee7d624ac01ede54ba86b16b9c91df19, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W019
   - key: W020
-    sprite: {fileID: 21300000, guid: b7d860dbe108f2e4ca22dc82b56d37ef, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W020
   - key: W021
-    sprite: {fileID: 21300000, guid: c07bdbdb413e9b64684f3e821cf68c34, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W021
   - key: W022
-    sprite: {fileID: 21300000, guid: d60e5e7159d8c6d45bd440dafb917355, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W022
   - key: W023
-    sprite: {fileID: 21300000, guid: ef9e7b6b45a06a04fabc29205b2e28d0, type: 3}
+    sprite: {fileID: 0}
+    resourcePath: ItemIcons/W023
   - key: W024
     sprite: {fileID: 0}
+    resourcePath: 
+  useLazyResourceIcons: 1
   supplierPortraits: []

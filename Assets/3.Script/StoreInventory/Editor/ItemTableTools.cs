@@ -27,7 +27,6 @@ public static class ItemTableTools
         var file=AssetDatabase.LoadAssetAtPath<TextAsset>(DataFolder+"/"+name+"_table.json");
         if(file==null)throw new InvalidOperationException("메인 아이템 표 파일 누락: "+name);return file;
     }
-    [MenuItem("Store Inventory/Existing Scene Tools/Apply Workshop Schedule Update To Selection")]
     public static void ApplyScheduleToSelection()
     {
         if(EditorApplication.isPlayingOrWillChangePlaymode){Debug.LogWarning("Play를 중지하세요.");return;}
@@ -87,8 +86,14 @@ public static class ItemTableTools
         foreach(var row in runtime.spriteCatalog.itemIcons)
         {
             Sprite sprite;if(row==null)continue;
-            if(!duplicates.Contains(row.key)&&sprites.TryGetValue(row.key,out sprite)&&row.sprite==null){row.sprite=sprite;linked++;}
-            if(row.sprite==null)missing++;
+            if(!duplicates.Contains(row.key)&&sprites.TryGetValue(row.key,out sprite)&&row.sprite==null)
+            {
+                string path=AssetDatabase.GetAssetPath(sprite);int resource=path.LastIndexOf("/Resources/",StringComparison.Ordinal);var importer=AssetImporter.GetAtPath(path) as TextureImporter;
+                if(runtime.spriteCatalog.useLazyResourceIcons&&resource>=0&&importer!=null&&importer.spriteImportMode==SpriteImportMode.Single)
+                    row.resourcePath=path.Substring(resource+11,path.Length-resource-11-System.IO.Path.GetExtension(path).Length);
+                else{row.sprite=sprite;row.resourcePath="";}linked++;
+            }
+            if(row.sprite==null&&string.IsNullOrEmpty(row.resourcePath))missing++;
         }
         EditorUtility.SetDirty(runtime.spriteCatalog);EditorUtility.SetDirty(runtime);AssetDatabase.SaveAssets();
         Debug.Log("아이콘 연결 "+linked+"개 / 미연결 "+missing+"개. 기존 수동 연결은 유지. 검색 폴더: Assets/ItemIcons, Assets/Resources/ItemIcons. ID 대소문자를 맞추세요.",runtime);
@@ -184,12 +189,11 @@ public static class ItemTableTools
         var items=new ItemCatalog(JsonUtility.FromJson<ItemDatabase>(Data("items").text));
         var workshops=new WorkshopCatalog(JsonUtility.FromJson<WorkshopDatabase>(Data("workshops").text),items);
         var save=new InventorySave{gold=10000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});
-        var model=new InventoryModel(items,save,null,null,workshops);string error;
-        ScheduleCheck(model.TryUnlockAllWorkshopsForDemo(out error),error);return model;
+        return new InventoryModel(items,save,null,null,workshops);
     }
     static string ScheduleJob(InventoryModel model,string station,string itemId)
     {
-        string error,id;ScheduleCheck(model.TryHireWorkshop(station,true,model.Snapshot().lastSettledDay,out error),error);
+        string error,id;ScheduleCheck(model.TryUnlockWorkshop(station,out error),error);
         var recipe=model.Workshops.Recipe("recipe_"+itemId);
         ScheduleCheck(model.TryCreateWorkshopJob(station,recipe.id,1,out id,out error),error);int slot=0;
         foreach(var ingredient in recipe.ingredients)

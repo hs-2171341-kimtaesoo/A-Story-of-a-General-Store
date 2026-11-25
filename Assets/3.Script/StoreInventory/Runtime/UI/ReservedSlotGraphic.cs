@@ -24,7 +24,7 @@ namespace GeneralStore.Inventory
         void Hover(PointerEventData e){string uid=Hit(e.position);if(uid==hovered)return;ClearHover();hovered=uid;if(uid!=null&&owner.Panel.tooltip!=null)owner.Panel.tooltip.EnterReservation(owner,uid);}
         void ClearHover(){if(hovered!=null&&owner!=null&&owner.Panel?.tooltip!=null)owner.Panel.tooltip.ExitReservation(owner,hovered);hovered=null;}
         public void OnPointerEnter(PointerEventData e){Hover(e);}public void OnPointerMove(PointerEventData e){Hover(e);}public void OnPointerExit(PointerEventData e){ClearHover();}
-        public void OnPointerClick(PointerEventData e){string uid=Hit(e.position);if(uid!=null&&e.button==PointerEventData.InputButton.Left)owner.Panel.ToggleSelection(owner.containerId,uid);}
+        public void OnPointerClick(PointerEventData e){} // Reservations are described by hover only.
         protected override void OnDisable(){ClearHover();base.OnDisable();}
         protected override void OnPopulateMesh(VertexHelper h)
         {

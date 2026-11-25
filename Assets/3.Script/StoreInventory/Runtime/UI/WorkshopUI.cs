@@ -8,25 +8,36 @@ namespace GeneralStore.Inventory
     public sealed class WorkshopUI:MonoBehaviour
     {
         public InventoryPanel panel;public GameObject window,repeatControls;public RectTransform frame,content;
-        public Text titleLabel,account,probabilityLabel,hireLabel,collectLabel,repeatLabel,nightLabel;
+        public Text titleLabel,account,probabilityLabel,collectLabel,repeatLabel,nightLabel;
+        [HideInInspector]public Text hireLabel; // Only used to hide the button in older scenes.
         public Button collectButton,nightButton,repeatModeButton;public InputField repeatCountInput;public WorkshopJobView[] rows;
         public string StationId{get;private set;}="processing";
         public InventoryModel Model{get{return panel.Model;}}public WorkshopDefinition Definition{get{return Model.Workshops.Find(StationId);}}
+        readonly HashSet<WorkshopJobView> usedRows=new HashSet<WorkshopJobView>();
+        [Range(.05f,1)]public float progressRefreshSeconds=.1f;float nextProgress;
         readonly Dictionary<string,WorkshopJobView> bound=new Dictionary<string,WorkshopJobView>();
-        bool ready,dirty=true,progressDirty;string selected;int repeatMode;float shownPanelHeight;
+        bool ready,dirty=true,progressDirty,accessDirty=true;string selected;int repeatMode;float shownPanelHeight;
+        static readonly string[] stationIds={"processing","smith","alchemy"};
+        static readonly string[] stationNames={"가공소","대장간","연금술공방"};
+        readonly RectTransform[] tabs=new RectTransform[3];
+        RightSideMenu menu;ManagementWindowMotion motion;
         InventoryModel subscribedModel;InventoryRuntime subscribedRuntime;
         bool Busy{get{return panel.drag.IsDragging||panel.IsWindowDragging||panel.shop.HasPendingPlacement||(panel.shop.counterTrade!=null&&panel.shop.counterTrade.IsItemDragging);}}
         void Start()
         {
             string error;if(panel==null||window==null||frame==null||rows==null||rows.Length<3||titleLabel==null||collectButton==null||!panel.inventory.TryInitialize(out error)||Model.Workshops==null){Debug.LogError("공방 UI 참조를 갱신하세요. 기존 씬 업데이트 메뉴 또는 Create Latest Demo를 사용하세요.",this);enabled=false;return;}
-            foreach(var row in rows)row.Initialize(this);subscribedModel=Model;subscribedRuntime=panel.inventory;Model.Changed+=MarkDirty;Model.WorkshopsChanged+=MarkProgress;panel.inventory.Loaded+=Reload;ready=true;repeatMode=Model.GetWorkshop("processing").jobs[0].repeatMode;RestoreRepeatCount();MarkDirty();
+            foreach(var row in rows)row.Initialize(this);
+            for(int n=0;n<tabs.Length;n++)tabs[n]=frame.Find(stationNames[n]) as RectTransform;
+            if(hireLabel!=null){var oldButton=hireLabel.GetComponentInParent<Button>();if(oldButton!=null)oldButton.gameObject.SetActive(false);}
+            menu=panel.transform.root.GetComponentInChildren<RightSideMenu>(true);motion=ManagementWindowMotion.Ensure(window,frame,true);
+            subscribedModel=Model;subscribedRuntime=panel.inventory;Model.Changed+=MarkDirty;Model.WorkshopsChanged+=MarkProgress;panel.inventory.Loaded+=Reload;ready=true;repeatMode=Model.GetWorkshop("processing").jobs[0].repeatMode;RestoreRepeatCount();MarkDirty();RefreshAccess();
         }
-        void MarkDirty(){dirty=true;}void MarkProgress(){progressDirty=true;}
+        void MarkDirty(){dirty=true;accessDirty=true;}void MarkProgress(){progressDirty=true;}
         void Reload(){selected=null;bound.Clear();repeatMode=Model.GetWorkshop("processing").jobs[0].repeatMode;RestoreRepeatCount();MarkDirty();}
         void LateUpdate()
         {
-            if(!ready||!window.activeSelf)return;RefreshLayout();
-            if(dirty){dirty=false;progressDirty=false;Render();}else if(progressDirty){progressDirty=false;RenderProgress();}
+            if(!ready)return;if(accessDirty)RefreshAccess();if(!window.activeSelf)return;RefreshLayout();
+            if(dirty){dirty=false;progressDirty=false;Render();}else if(progressDirty&&Time.unscaledTime>=nextProgress){progressDirty=false;RenderProgress();}
         }
         void RefreshLayout()
         {
@@ -38,19 +49,33 @@ namespace GeneralStore.Inventory
                 probabilityLabel.rectTransform.anchoredPosition=new Vector2(24,-(height-136));
                 var collect=(RectTransform)collectButton.transform;collect.anchoredPosition=new Vector2(24,-(height-98));
                 var close=frame.Find("닫기") as RectTransform;if(close!=null)close.anchoredPosition=new Vector2(572,-(height-98));
-                foreach(string name in new[]{"가공소","대장간","연금술공방"}){var tab=frame.Find(name) as RectTransform;if(tab!=null)tab.anchoredPosition=new Vector2(tab.anchoredPosition.x,-(height-46));}
             }
+            int visible=0;for(int n=0;n<tabs.Length;n++)if(tabs[n]!=null&&tabs[n].gameObject.activeSelf)
+            {var tabPosition=new Vector2(24+276*visible++,-(height-46));if(tabs[n].anchoredPosition!=tabPosition)tabs[n].anchoredPosition=tabPosition;}
             float scale=Mathf.Min(1,Mathf.Min(Mathf.Max(1,canvas.rect.width-220)/860,Mathf.Max(1,canvas.rect.height-80)/height));
             var position=new Vector2(Mathf.Max(104,root.rect.width-860*scale-24),-Mathf.Max(40,root.rect.height-height*scale-65));
-            if(frame.localScale.x!=scale)frame.localScale=new Vector3(scale,scale,1);if(frame.anchoredPosition!=position)frame.anchoredPosition=position;
+            if(frame.localScale.x!=scale)frame.localScale=new Vector3(scale,scale,1);motion.SetTarget(position);
+        }
+        void RefreshAccess()
+        {
+            accessDirty=false;string first=null;
+            for(int n=0;n<stationIds.Length;n++)
+            {
+                bool available=Model.IsWorkshopUnlocked(stationIds[n]);if(available&&first==null)first=stationIds[n];
+                if(tabs[n]!=null&&tabs[n].gameObject.activeSelf!=available)tabs[n].gameObject.SetActive(available);
+            }
+            if(menu!=null)menu.SetUnlocked("workshops",first!=null);
+            if(first==null){window.SetActive(false);return;}
+            if(!Model.IsWorkshopUnlocked(StationId))SelectStation(first);
         }
         public void OpenTemporaryStorage(){if(!ready||Busy)return;var storage=panel.GetComponentInChildren<DeliveryUI>(true);if(storage!=null)storage.OpenStorage();}
-        public void Open(){window.SetActive(true);panel.shop.drawer.Open();MarkDirty();}
+        public void Open(){if(!ready||Busy)return;RefreshAccess();if(!Model.IsWorkshopUnlocked(StationId))return;window.SetActive(true);panel.shop.drawer.Open();MarkDirty();}
         public void Close(){if(!Busy)window.SetActive(false);}
         public void Processing(){Switch("processing");}public void Smith(){Switch("smith");}public void Alchemy(){Switch("alchemy");}
-        void Switch(string id){if(!ready||Busy)return;StationId=id;selected=null;bound.Clear();repeatMode=Model.GetWorkshop(id).jobs[0].repeatMode;MarkDirty();}
+        void Switch(string id){if(!ready||Busy||!Model.IsWorkshopUnlocked(id))return;SelectStation(id);}
+        void SelectStation(string id){StationId=id;selected=null;bound.Clear();repeatMode=Model.GetWorkshop(id).jobs[0].repeatMode;MarkDirty();}
         public void Hire()
-        {if(!ready||Busy)return;var w=Model.GetWorkshop(StationId);string error;bool ok=Model.TryHireWorkshop(StationId,!w.hired,panel.inventory.Clock.Day,out error);Message(ok,w.hired?"고용을 중지했습니다. 발생한 일급은 유지됩니다.":"고용 시작. 일급은 새벽에 정산합니다.",error);}
+        {if(ready)panel.ShowMessage("해금된 공방은 자동으로 고용됩니다.");}
         public void PayNightWork()
         {if(!ready||Busy)return;string error;bool ok=Model.TryPayNightWork(StationId,panel.inventory.Clock.Day,panel.inventory.Clock.Phase,out error);Message(ok,"오늘 밤 작업 신청. 추가 수당은 다음 새벽 정산입니다.",error);}
         public void Put(string job,int slot,ItemProposal proposal)
@@ -81,15 +106,15 @@ namespace GeneralStore.Inventory
         public void CollectAll()
         {if(!ready||Busy)return;int stored,overflow;string error;bool ok=Model.TryCollectWorkshopResults(StationId,out stored,out overflow,out error);Message(ok,"완성품 수령: 상자 "+stored+"개 / 임시 저장고 "+overflow+"개",error);}
         public void SelectJob(string id){selected=id;MarkDirty();}
-        public void UnlockAllForDemo(){if(!ready||Busy)return;string error;bool ok=Model.TryUnlockAllWorkshopsForDemo(out error);Message(ok,"공방3곳 해금. 고용 후 제작하세요.",error);}
+        public void UnlockAllForDemo(){if(!ready||Busy)return;string error;bool ok=Model.TryUnlockAllWorkshopsForDemo(out error);Message(ok,"공방3곳 해금 및 고용 완료.",error);}
         public string ItemName(ItemRecord item){var quality=panel.Catalog.FindQuality(item.itemId,item.quality);return quality==null?item.itemId:quality.name;}
         void Message(bool ok,string success,string error){panel.ShowMessage(ok?success:error);MarkDirty();}
         void Render()
         {
-            var w=Model.GetWorkshop(StationId);var definition=Definition;titleLabel.text=definition.name;hireLabel.text=w.hired?"고용 중지":"고용 시작";
-            account.text=(w.unlocked?(w.hired?"고용 중":"미고용"):"잠김 · 거래 "+Model.SuccessfulCustomerSales+"/"+definition.unlockSales)+" · 일급 "+definition.dailyWage+" G · 정산 "+w.wageDue+" + 추가 "+w.extraDue+" G";
+            var w=Model.GetWorkshop(StationId);var definition=Definition;titleLabel.text=definition.name;
+            account.text="고용 중 · 일급 "+definition.dailyWage+" G · 정산 "+w.wageDue+" + 추가 "+w.extraDue+" G";
             repeatControls.SetActive(StationId=="processing");repeatModeButton.interactable=!w.jobs[0].started;repeatCountInput.interactable=repeatMode==1&&!w.jobs[0].started;repeatLabel.text=repeatMode==0?"1회":repeatMode==1?"횟수 지정":"재료 소진까지";
-            int count=StationId=="smith"?3:1;var used=new HashSet<WorkshopJobView>();
+            int count=StationId=="smith"?3:1;var used=usedRows;used.Clear();
             for(int index=0;index<count;index++)
             {
                 var job=w.jobs[index];WorkshopJobView view;
@@ -108,11 +133,14 @@ namespace GeneralStore.Inventory
         }
         void RenderProgress()
         {
-            var w=Model.GetWorkshop(StationId);int count=Model.WorkshopResultCount(StationId);collectLabel.text="완성품 받기 "+count;collectButton.interactable=count>0;
-            bool paid=w.nightWorkDay==panel.inventory.Clock.Day;nightLabel.text=paid?"야간 신청 완료":"야간 +"+Model.NightWorkFee(StationId)+" G";
-            nightButton.interactable=w.hired&&w.unlocked&&!paid&&panel.inventory.Clock.Phase==ShopPhase.Night;
-            foreach(var row in rows)if(row.gameObject.activeSelf){var job=w.jobs.Find(v=>v.id==row.JobId);if(job!=null)row.RefreshProgress(this,job);}
+            nextProgress=Time.unscaledTime+Mathf.Max(.05f,progressRefreshSeconds);var status=Model.ReadWorkshopProgress(StationId);int count=status.resultCount;
+            if(shownResultCount!=count){shownResultCount=count;collectLabel.text="완성품 받기 "+count;}collectButton.interactable=count>0;
+            if(shownNightPaid!=status.nightPaid||shownNightFee!=Model.NightWorkFee(StationId)){shownNightPaid=status.nightPaid;shownNightFee=Model.NightWorkFee(StationId);nightLabel.text=status.nightPaid?"야간 신청 완료":"야간 +"+shownNightFee+" G";}
+            nightButton.interactable=status.hired&&status.unlocked&&!status.nightPaid&&panel.inventory.Clock.Phase==ShopPhase.Night;
+            foreach(var row in rows)if(row.gameObject.activeSelf)row.RefreshProgress(this,Model.ReadWorkshopProgress(StationId,row.JobId));
         }
+        int shownResultCount=-1;bool shownNightPaid;long shownNightFee=-1;
+
         void OnDestroy(){if(ready){subscribedModel.Changed-=MarkDirty;subscribedModel.WorkshopsChanged-=MarkProgress;subscribedRuntime.Loaded-=Reload;}}
     }
 }

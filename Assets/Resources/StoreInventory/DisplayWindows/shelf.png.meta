@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 7a62347bf673f604ea06ae9234210cb2
+guid: e969dd8eabb937340801ec9a95298a3f
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -142,10 +142,10 @@ TextureImporter:
       name: shelf_0
       rect:
         serializedVersion: 2
-        x: 130
-        y: 15
-        width: 1336
-        height: 1009
+        x: 0
+        y: 0
+        width: 1265
+        height: 990
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

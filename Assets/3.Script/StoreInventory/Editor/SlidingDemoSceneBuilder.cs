@@ -7,6 +7,19 @@ using UI=InventorySceneBuilder;
 public static class SlidingDemoSceneBuilder
 {
     const string CustomerPath="Assets/Resources/temporary_customer.png";
+    public static void UpdateMenuArtwork()
+    {
+        if(Application.isPlaying){Debug.LogWarning("Play를 중지하고 Store Scene을 선택하세요.");return;}
+        var selected=Selection.activeGameObject;if(selected==null){Debug.LogWarning("Store Scene을 선택하세요.");return;}
+        var menu=selected.transform.root.GetComponentInChildren<LeftDisplayMenu>(true);
+        if(menu==null){Debug.LogWarning("선택한 씬에서 진열대 목록을 찾지 못했습니다.");return;}
+        DisplayMenuTextureImporter.PrepareSprites();Undo.RegisterFullObjectHierarchyUndo(menu.gameObject,"Update Display Menu Artwork");
+        menu.useArtwork=true;menu.PrepareArtwork();menu.RefreshLayout();EditorUtility.SetDirty(menu);
+        var management=selected.transform.root.GetComponentInChildren<RightSideMenu>(true);
+        if(management!=null){Undo.RegisterFullObjectHierarchyUndo(management.gameObject,"Update Management Menu Artwork");management.useArtwork=true;management.PrepareArtwork();management.RefreshLayout();EditorUtility.SetDirty(management);}
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(menu.gameObject.scene);
+        Debug.Log("양쪽 목록의 새 틀과 아이콘을 연결했습니다. 진열대는 지정 순서, 임시 저장고는 마지막에 표시됩니다.");
+    }
     public static void PrepareCustomerSprite()
     {
         AssetDatabase.ImportAsset(CustomerPath);var importer=AssetImporter.GetAtPath(CustomerPath) as TextureImporter;if(importer==null)return;
@@ -29,7 +42,7 @@ public static class SlidingDemoSceneBuilder
         view.icon=UI.Box("Furniture Icon",image.transform,16,5,56,44,Color.white);view.icon.preserveAspect=true;view.icon.raycastTarget=false;
         view.label=UI.Label("Name",image.transform,3,50,82,28,"진열장",12);view.label.alignment=TextAnchor.MiddleCenter;
         image.gameObject.SetActive(false);menu.template=view;
-        menu.edgeIcon=UI.Box("Left Edge Menu Icon",menuBounds,8,524,22,32,Color.white);menu.edgeIcon.sprite=Resources.Load<Sprite>("StoreInventory/Furniture/furniture_01");menu.edgeIcon.preserveAspect=true;menu.edgeIcon.raycastTarget=false;
+        DisplayMenuTextureImporter.PrepareSprites();menu.PrepareArtwork();
         var flow=layout.gameObject.AddComponent<StagedCustomerInteraction>();shop.customerInteraction=flow;flow.shop=shop;
         var sprite=AssetDatabase.LoadAssetAtPath<Sprite>(CustomerPath);
         flow.sceneImage=UI.Box("Customer Scene Sprite",furnitureLayout,0,0,180,300,Color.white);flow.sceneImage.preserveAspect=true;
@@ -46,6 +59,36 @@ public static class SlidingDemoSceneBuilder
             int n=debug.GetComponentsInChildren<Button>(true).Length;
             UI.ButtonBox("돈 +10,000 G",debug,14+(n%2)*208,14+(n/2)*84,194,68,shop.simulation.AddDebugGold);
             debug.sizeDelta=new Vector2(430,Mathf.Max(debug.sizeDelta.y,28+(n/2+1)*84));
+        }
+    }
+}
+// Configure only the new menu textures. No texture pixels are changed.
+public sealed class DisplayMenuTextureImporter:AssetPostprocessor
+{
+    const string Folder="Assets/Resources/StoreInventory/DisplayMenu/";
+    const string ManagementFolder="Assets/Resources/StoreInventory/ManagementMenu/";
+    void OnPreprocessTexture()
+    {if(assetPath.StartsWith(Folder,System.StringComparison.Ordinal)||assetPath.StartsWith(ManagementFolder,System.StringComparison.Ordinal))Configure((TextureImporter)assetImporter);}
+    static void Configure(TextureImporter importer)
+    {
+        importer.textureType=TextureImporterType.Sprite;importer.spriteImportMode=SpriteImportMode.Single;
+        importer.alphaIsTransparency=true;importer.mipmapEnabled=false;importer.isReadable=false;
+        importer.maxTextureSize=importer.assetPath.EndsWith("/frame.png",System.StringComparison.Ordinal)?1024:256;
+        importer.textureCompression=TextureImporterCompression.Compressed;
+        var settings=new TextureImporterSettings();importer.ReadTextureSettings(settings);settings.spriteMeshType=SpriteMeshType.FullRect;importer.SetTextureSettings(settings);
+    }
+    public static void PrepareSprites()
+    {
+        foreach(string folder in new[]{Folder,ManagementFolder})
+        {
+        if(!AssetDatabase.IsValidFolder(folder.TrimEnd('/')))continue;
+        foreach(string guid in AssetDatabase.FindAssets("t:Texture2D",new[]{folder.TrimEnd('/')}))
+        {
+            string path=AssetDatabase.GUIDToAssetPath(guid);var importer=AssetImporter.GetAtPath(path) as TextureImporter;if(importer==null)continue;
+            int cap=path.EndsWith("/frame.png",System.StringComparison.Ordinal)?1024:256;
+            if(importer.textureType==TextureImporterType.Sprite&&importer.spriteImportMode==SpriteImportMode.Single&&importer.maxTextureSize==cap&&!importer.mipmapEnabled&&!importer.isReadable&&importer.alphaIsTransparency&&importer.textureCompression==TextureImporterCompression.Compressed)continue;
+            Configure(importer);importer.SaveAndReimport();
+        }
         }
     }
 }

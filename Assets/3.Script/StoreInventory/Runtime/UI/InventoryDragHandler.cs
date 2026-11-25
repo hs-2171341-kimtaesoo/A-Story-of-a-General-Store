@@ -55,7 +55,7 @@ namespace GeneralStore.Inventory
             PrepareGhost(view.Grid.itemTemplate);ghost.Bind(panel, view.Grid, selectedItem.Copy()); ghost.enabled = false;
             CanvasGroup group = ghost.GetComponent<CanvasGroup>(); group.alpha = .8f; group.blocksRaycasts = false;
             ghost.Rect.anchorMin = ghost.Rect.anchorMax = new Vector2(.5f, .5f);
-            panel.Select(sourceContainer, selectedItem.instanceId); panel.ShowMessage("드래그 중 R: 회전 / Esc: 취소");
+            panel.ShowMessage("드래그 중 R: 회전 / Esc: 취소");
             MovePointer(pointer);
         }
         void Update()

@@ -8,13 +8,13 @@ namespace GeneralStore.Inventory.Verification
     public static class WorkshopFeatureChecks
     {
         static int checks;static void Check(bool value,string note){checks++;if(!value)throw new Exception("공방/임시 저장고 검사: "+note);}
-        static InventoryModel Model(bool overflowSource=true)
+        static InventoryModel Model(bool overflowSource=true,bool unlock=true)
         {
             string folder=ItemTableTools.DataFolder;
             var catalog=new ItemCatalog(JsonUtility.FromJson<ItemDatabase>(AssetDatabase.LoadAssetAtPath<TextAsset>(folder+"/items_table.json").text));
             var data=JsonUtility.FromJson<WorkshopDatabase>(AssetDatabase.LoadAssetAtPath<TextAsset>(folder+"/workshops_table.json").text);data.repeatUsesTemporary=overflowSource;
             var save=new InventorySave{gold=10000};save.containers.Add(new ContainerRecord{containerId="warehouse",columns=8,rows=7});save.containers.Add(new ContainerRecord{containerId="display_test",columns=8,rows=5});
-            var model=new InventoryModel(catalog,save,null,null,new WorkshopCatalog(data,catalog));string error;Check(model.TryUnlockAllWorkshopsForDemo(out error),error);return model;
+            var model=new InventoryModel(catalog,save,null,null,new WorkshopCatalog(data,catalog));string error;if(unlock)Check(model.TryUnlockAllWorkshopsForDemo(out error),error);return model;
         }
         static string Draft(InventoryModel model,string station,int index=0){return model.GetWorkshop(station).jobs[index].id;}
         static void Put(InventoryModel model,string station,string job,int slot,string item,string quality="common")
@@ -25,7 +25,28 @@ namespace GeneralStore.Inventory.Verification
         static void Hire(InventoryModel model,string station){string error;Check(model.TryHireWorkshop(station,true,1,out error),error);}
         public static int Run()
         {
-            checks=0;string error;int stored,overflow;var m=Model();Hire(m,"processing");string job=Draft(m,"processing");
+            checks=0;string error;int stored,overflow;
+            var locked=Model(unlock:false);
+            Check(!locked.HasUnlockedWorkshop&&!locked.IsWorkshopUnlocked("processing")&&!locked.IsWorkshopUnlocked("smith")&&!locked.IsWorkshopUnlocked("alchemy"),"해금 전 관리 메뉴/탭 숨김 조건");
+            Check(locked.TryUnlockWorkshop("smith",out error),error);
+            var hired=locked.GetWorkshop("smith");long wage=locked.Workshops.Find("smith").dailyWage;
+            Check(locked.HasUnlockedWorkshop&&hired.unlocked&&hired.hired&&hired.wageDue==wage,"한 공방만 해금하면 즉시 고용/당일 일급 등록");
+            Check(!locked.IsWorkshopUnlocked("processing")&&!locked.IsWorkshopUnlocked("alchemy"),"다른 공방은 잠금 유지");
+            long before=locked.Revision;Check(locked.TryUnlockWorkshop("smith",out error)&&locked.Revision==before&&locked.WorkshopDue()==wage,"중복 해금 일급/리비전 중복 없음");
+            Check(!locked.TryHireWorkshop("smith",false,1,out error)&&locked.GetWorkshop("smith").hired,"수동 고용 중지 경로 제거");
+            var migration=locked.Snapshot();migration.workshops.Find(w=>w.id=="smith").hired=false;
+            Check(locked.TryRestore(migration,out error)&&locked.GetWorkshop("smith").hired&&locked.WorkshopDue()==wage,"이전 미고용 상태를 자동 고용으로 복원/일급 중복 없음");
+            migration=locked.Snapshot();migration.successfulCustomerSales=1;
+            Check(locked.TryRestore(migration,out error)&&locked.GetWorkshop("processing").hired,"기존 판매 실적에 맞는 공방 해금/고용");
+            var automatic=Model(unlock:false);Check(automatic.TryAdd("warehouse","R001","common",1,0,out error),error);
+            var offer=automatic.GetContainer("warehouse").items[0];int price=automatic.Catalog.ReferencePrice("R001","common");
+            Check(automatic.TryListOnDisplay(new MoveRequest{sourceContainer="warehouse",targetContainer="display_test",instanceId=offer.instanceId,x=0,y=0,expectedRevision=automatic.Revision},price,out error),error);
+            var session=new RecommendationSession(automatic);
+            Check(session.TryEnterShopping("해금 검사",100000,10,new[]{"R001"},1,out error),error);
+            Check(session.PresentOnCounter(out error),error);long revenue;
+            Check(session.TrySubmit(out revenue,out error),error);
+            Check(automatic.GetWorkshop("processing").hired&&automatic.SuccessfulCustomerSales==1,"첫 손님 판매로 즉시 자동 고용");
+            var m=Model();Hire(m,"processing");string job=Draft(m,"processing");
             Check(!m.CanStartWorkshopJob("processing",job),"빈 조합 제작 금지");Put(m,"processing",job,0,"R001");Check(m.MatchWorkshopRecipes("processing",job).Count==0,"불완전 조합 결과 없음");
             Put(m,"processing",job,4,"R001");var matches=m.MatchWorkshopRecipes("processing",job);Check(matches.Count==2,"슬롯 순서 무관 판재/목탄 후보2개");
             Check(m.TryChooseWorkshopRecipe("processing",job,"recipe_R013",out error),error);Put(m,"processing",job,2,"R001");Check(!m.CanStartWorkshopJob("processing",job),"재료가 더 있어도 정확한 조합만 허용");

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 namespace GeneralStore.Inventory
 {
-    // 상자 루트에 붙입니다. 열린 상자는 자유 배치, 반 이상 내리면 처음의 하단 자리로 복귀합니다.
+    // 열린 상자는 자유 배치, 높이의 1/3을 화면 아래로 내린 뒤 놓으면 하단 자리로 복귀합니다.
     public sealed class WarehouseDrawer:MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandler,IPointerDownHandler,IPointerUpHandler
     {
         public InventoryPanel panel;public RectTransform window,bounds,body;
@@ -11,7 +11,8 @@ namespace GeneralStore.Inventory
         public Vector2 openedPosition=new Vector2(24,-146);
         [Min(20)]public float peekHeight=60;
         [Range(0,.4f)]public float homeRaiseRatio=0; // 이전.1보다 화면 높이10%만큼 더 아래로 내립니다.
-        [Range(.1f,.9f)]public float closeHiddenFraction=.5f;
+        // New field name also updates existing scenes that serialized the former half-height threshold.
+        [Range(.1f,.9f)]public float closeHiddenRatio=1f/3f;
         [Min(1)]public float returnSpeed=12;
         public bool startClosed=true;
         public bool proximityReveal=true;
@@ -58,7 +59,6 @@ namespace GeneralStore.Inventory
             if(panel==null||window==null||bounds==null||body==null)return;
             if(panel.drag!=null)panel.drag.Cancel(false);
             panel.EndWindowDrag(this);
-            if(!value)panel.ClearWarehouseSelection();
             hoverRaised=false;pressed=false;dragging=false;opened=value;targetPosition=value?ClampPosition(openedPosition):ClosedPosition;
             animating=true;body.gameObject.SetActive(true);window.SetAsLastSibling();NotifyState();
         }
@@ -103,7 +103,7 @@ namespace GeneralStore.Inventory
         void FinishDrag()
         {
             dragging=false;panel.EndWindowDrag(this);
-            if(DrawerGeometry.ShouldClose(window.anchoredPosition.y-Top,Height,ScreenHeight,closeHiddenFraction))SetTarget(false);
+            if(DrawerGeometry.ShouldClose(window.anchoredPosition.y-Top,Height,ScreenHeight,closeHiddenRatio))SetTarget(false);
             else{opened=true;targetPosition=ClampPosition(window.anchoredPosition);animating=true;NotifyState();}
         }
         public void ReleaseHandle(){pressed=false;if(dragging&&panel!=null)FinishDrag();else if(panel!=null)panel.EndWindowDrag(this);}

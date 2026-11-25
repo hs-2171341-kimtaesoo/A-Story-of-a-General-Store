@@ -53,11 +53,12 @@ namespace GeneralStore.Inventory
         {
             settings.Validate();
             if(seconds<0||seconds>.1f||float.IsNaN(seconds)||float.IsInfinity(seconds))throw new ArgumentException("Counter delta time is invalid.");
-            bool moving=false;foreach(var b in bodies)if(b.active&&!b.dragged&&!b.asleep){moving=true;break;}
+            bool moving=false;for(int n=0;n<bodies.Count;n++){var b=bodies[n];if(b.active&&!b.dragged&&!b.asleep){moving=true;break;}}
             if(!moving||seconds==0)return 0;
             int steps=Math.Max(1,(int)Math.Ceiling(seconds*120)),work=0;float dt=seconds/steps;
-            for(int step=0;step<steps;step++)foreach(var body in bodies)
+            for(int step=0;step<steps;step++)for(int index=0;index<bodies.Count;index++)
             {
+                var body=bodies[index];
                 if(!body.active||body.dragged)continue;
                 
                 if(body.asleep)
