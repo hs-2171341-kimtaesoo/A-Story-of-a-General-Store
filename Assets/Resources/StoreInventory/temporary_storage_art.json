@@ -1,0 +1,53 @@
+{
+  "entries": [
+    {
+      "id": "frame",
+      "spriteKey": "StoreInventory/TemporaryStorage/frame",
+      "sourceWidth": 1498,
+      "sourceHeight": 999,
+      "maximumTextureSize": 2048
+    },
+    {
+      "id": "mark",
+      "spriteKey": "StoreInventory/TemporaryStorage/mark",
+      "sourceWidth": 440,
+      "sourceHeight": 440,
+      "maximumTextureSize": 512
+    },
+    {
+      "id": "fee",
+      "spriteKey": "StoreInventory/TemporaryStorage/fee",
+      "sourceWidth": 679,
+      "sourceHeight": 176,
+      "maximumTextureSize": 512
+    },
+    {
+      "id": "used",
+      "spriteKey": "StoreInventory/TemporaryStorage/used",
+      "sourceWidth": 659,
+      "sourceHeight": 158,
+      "maximumTextureSize": 512
+    },
+    {
+      "id": "recover",
+      "spriteKey": "StoreInventory/TemporaryStorage/recover",
+      "sourceWidth": 421,
+      "sourceHeight": 167,
+      "maximumTextureSize": 256
+    },
+    {
+      "id": "recover_disabled",
+      "spriteKey": "StoreInventory/TemporaryStorage/recover_disabled",
+      "sourceWidth": 424,
+      "sourceHeight": 166,
+      "maximumTextureSize": 256
+    },
+    {
+      "id": "close",
+      "spriteKey": "StoreInventory/TemporaryStorage/close",
+      "sourceWidth": 99,
+      "sourceHeight": 91,
+      "maximumTextureSize": 128
+    }
+  ]
+}

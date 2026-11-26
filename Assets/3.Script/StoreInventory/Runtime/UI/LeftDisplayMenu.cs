@@ -8,6 +8,9 @@ namespace GeneralStore.Inventory
         public bool keepVisibleWhileDisplayOpen=true;
         public bool dockRight=true;
         public bool useArtwork=true;
+        [Tooltip("아이콘 Slot과 Viewport의 Prefab 배치를 사용합니다.")]
+        public bool useAuthoredLayout;
+        Rect authoredViewport;bool viewportCaptured;
         [Range(.4f,1.2f)]public float artworkScale=.64f;
         [Min(0)]public float peekWidth=26;
         public InventoryPanel panel;public DisplayUI displays;public FurnitureArtCatalog art;
@@ -45,11 +48,17 @@ namespace GeneralStore.Inventory
                 var go=new GameObject("Display Menu Frame",typeof(RectTransform),typeof(CanvasRenderer),typeof(global::UnityEngine.UI.Image));
                 go.transform.SetParent(window,false);go.transform.SetAsFirstSibling();menuFrame=go.GetComponent<global::UnityEngine.UI.Image>();
             }
-            var frameRect=menuFrame.rectTransform;frameRect.anchorMin=Vector2.zero;frameRect.anchorMax=Vector2.one;frameRect.offsetMin=frameRect.offsetMax=Vector2.zero;
-            menuFrame.sprite=frameSprite;menuFrame.color=Color.white;menuFrame.preserveAspect=false;menuFrame.raycastTarget=true;
+            if(!useAuthoredLayout)
+            {
+                var frameRect=menuFrame.rectTransform;frameRect.anchorMin=Vector2.zero;frameRect.anchorMax=Vector2.one;frameRect.offsetMin=frameRect.offsetMax=Vector2.zero;
+                menuFrame.color=Color.white;menuFrame.preserveAspect=false;menuFrame.raycastTarget=true;
+            }
+            menuFrame.sprite=frameSprite;
             var background=viewport.GetComponent<global::UnityEngine.UI.Image>();if(background!=null){background.sprite=null;background.color=Color.clear;background.raycastTarget=false;background.canvasRenderer.cullTransparentMesh=true;}
             artworkReady=true;
         }
+        public void PrepareAuthoredLayout()
+        {PrepareArtwork();ApplyLayout(0);useAuthoredLayout=true;viewportCaptured=false;}
         float ShownX{get{return dockRight?bounds.rect.width-menuWidth:0;}}
         float HiddenX{get{float peek=artworkReady?Mathf.Min(peekWidth,menuWidth):0;return dockRight?bounds.rect.width-peek:-menuWidth+peek;}}
         public void RefreshLayout(){dirty=true;lastHeight=-1;if(window!=null&&!revealed)window.anchoredPosition=new Vector2(HiddenX,window.anchoredPosition.y);}
@@ -84,12 +93,13 @@ namespace GeneralStore.Inventory
                 v.icon.sprite=Icon(entry.typeId);v.icon.enabled=v.icon.sprite!=null;v.icon.preserveAspect=true;
                 bool open=displays.IsOpen(id);
                 v.label.text=panel.Model.DisplayTitle(id);v.label.gameObject.SetActive(!artworkReady);
+                if(panel.SharedFont!=null)v.label.font=panel.SharedFont;
                 v.background.sprite=null;v.background.color=artworkReady?Color.clear:open?selectedColor:normalColor;
                 v.button.transition=artworkReady?Selectable.Transition.None:Selectable.Transition.ColorTint;
                 v.icon.color=artworkReady&&open?new Color(1,.86f,.52f):Color.white;
                 var rt=(RectTransform)v.transform;rt.anchorMin=rt.anchorMax=rt.pivot=new Vector2(0,1);
                 rt.anchoredPosition=new Vector2(artworkReady?0:4,-n++*(unit+spacing));rt.sizeDelta=new Vector2(artworkReady?viewport.rect.width:menuWidth-8,unit);
-                if(artworkReady)
+                if(artworkReady&&!useAuthoredLayout)
                 {
                     var iconRect=v.icon.rectTransform;iconRect.anchorMin=iconRect.anchorMax=iconRect.pivot=new Vector2(.5f,.5f);
                     iconRect.anchoredPosition=Vector2.zero;float side=Mathf.Min(viewport.rect.width,unit);iconRect.sizeDelta=new Vector2(side,side);
@@ -101,6 +111,7 @@ namespace GeneralStore.Inventory
         }
         void ApplyLayout(int count)
         {
+            if(useAuthoredLayout&&!viewportCaptured){authoredViewport=AuthoredRowLayout.ReadViewport(viewport,window);viewportCaptured=true;}
             float scale=artworkReady?artworkScale:1;
             float contentHeight=Mathf.Max(0,count*(buttonHeight+gap)*scale-gap*scale),viewHeight;
             if(artworkReady)
@@ -109,8 +120,8 @@ namespace GeneralStore.Inventory
                 menuWidth=height*menuFrame.sprite.rect.width/menuFrame.sprite.rect.height;
                 window.sizeDelta=new Vector2(menuWidth,height);window.anchoredPosition=new Vector2(window.anchoredPosition.x,-(bounds.rect.height-height)*.5f);
                 viewport.anchorMin=viewport.anchorMax=viewport.pivot=new Vector2(0,1);
-                viewport.anchoredPosition=new Vector2(menuWidth*.30f,-height*.06f);
-                viewport.sizeDelta=new Vector2(menuWidth*.58f,height*.88f);viewHeight=viewport.rect.height;
+                if(useAuthoredLayout)AuthoredRowLayout.FitViewport(viewport,authoredViewport,menuWidth,height);
+                else{viewport.anchoredPosition=new Vector2(menuWidth*.30f,-height*.06f);viewport.sizeDelta=new Vector2(menuWidth*.58f,height*.88f);}viewHeight=viewport.rect.height;
             }
             else
             {

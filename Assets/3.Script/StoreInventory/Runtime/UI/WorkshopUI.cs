@@ -70,7 +70,7 @@ namespace GeneralStore.Inventory
         }
         public void OpenTemporaryStorage(){if(!ready||Busy)return;var storage=panel.GetComponentInChildren<DeliveryUI>(true);if(storage!=null)storage.OpenStorage();}
         public void Open(){if(!ready||Busy)return;RefreshAccess();if(!Model.IsWorkshopUnlocked(StationId))return;window.SetActive(true);panel.shop.drawer.Open();MarkDirty();}
-        public void Close(){if(!Busy)window.SetActive(false);}
+        public void Close(){if(!Busy){if(motion!=null)motion.fromBelow=true;ManagementWindowMotion.CloseWindow(window);}}
         public void Processing(){Switch("processing");}public void Smith(){Switch("smith");}public void Alchemy(){Switch("alchemy");}
         void Switch(string id){if(!ready||Busy||!Model.IsWorkshopUnlocked(id))return;SelectStation(id);}
         void SelectStation(string id){StationId=id;selected=null;bound.Clear();repeatMode=Model.GetWorkshop(id).jobs[0].repeatMode;MarkDirty();}

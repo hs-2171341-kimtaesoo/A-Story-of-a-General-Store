@@ -40,9 +40,9 @@ namespace GeneralStore.Inventory
         public void Toggle()
         {
             if(!ready)return;panel.drag.Cancel(false);panel.shop.CancelDisplayPrice();
-            window.SetActive(!window.activeSelf);if(window.activeSelf){EnsureCycle();ShowList();}
+            if(window.activeSelf)Close();else{window.SetActive(true);EnsureCycle();ShowList();}
         }
-        public void Close(){if(window!=null)window.SetActive(false);}
+        public void Close(){ManagementWindowMotion.CloseWindow(window);}
         void EnsureCycle(){string error;if(!panel.Model.RefreshSuppliersForDay(panel.inventory.Clock.Snapshot().day,out error))panel.ShowMessage(error);}
         public void ShowList(){listPage.SetActive(true);tradePage.SetActive(false);dirty=true;}
         public void SelectSupplierForTest(string id){selected=id;dirty=true;}

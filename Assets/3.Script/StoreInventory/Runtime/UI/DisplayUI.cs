@@ -15,13 +15,17 @@ namespace GeneralStore.Inventory
         [Min(0)]public float screenMargin=24;
         [HideInInspector]public bool useViewport;[HideInInspector]public Rect viewport;
         public Vector2 openedPosition=new Vector2(112,-110),maximumSize=new Vector2(760,900);
-        [Min(1)]public float slideSpeed=28;[Min(0)]public float hiddenMargin=30;
+        [HideInInspector]public float slideSpeed=28;[Min(0)]public float hiddenMargin=30;
+        public RightSideMenu managementMenu;
+        [Min(.05f)]public float slideDuration=.3f;
+        public float TransitionSeconds{get{return managementMenu==null?Mathf.Max(.05f,slideDuration):Mathf.Max(.05f,managementMenu.windowSlideSeconds);}}
         public event Action SelectionChanged;
         readonly Dictionary<string,DisplayWindowView> windows=new Dictionary<string,DisplayWindowView>();
         [Range(1,12)]public int maximumCachedWindows=2;
         readonly Dictionary<string,long> lastUse=new Dictionary<string,long>();long useCounter;
         readonly List<string> removed=new List<string>();string selectedId,currentId,requestedId;bool ready,dirty,moving;
         RectTransform movingRect;CanvasGroup movingGroup;
+        float slideElapsed,slideFromX,slideTargetX;bool slideInitialized,slideOpening;
         public string SelectedId{get{return selectedId;}}
         public int CachedWindowCount{get{return windows.Count;}}
         public bool AnyOpen{get{return currentId!=null||requestedId!=null;}}
@@ -47,7 +51,7 @@ namespace GeneralStore.Inventory
         void ResetWindows()
         {
             panel.drag.Cancel(false);foreach(var v in windows.Values){v.UnregisterGrids();v.gameObject.SetActive(false);Destroy(v.gameObject);}
-            windows.Clear();lastUse.Clear();currentId=requestedId=null;var ids=panel.Model.DisplayIds();selectedId=ids.Count>0?ids[0]:null;dirty=true;Changed();
+            windows.Clear();lastUse.Clear();currentId=requestedId=null;moving=false;slideInitialized=false;movingRect=null;movingGroup=null;var ids=panel.Model.DisplayIds();selectedId=ids.Count>0?ids[0]:null;dirty=true;Changed();
         }
         public void Select(string id){if(!ready||panel.Model.Installation(id)==null)return;selectedId=id;Changed();}
         public void SelectIndex(int n){var ids=panel.Model.DisplayIds();if(n>=0&&n<ids.Count)Select(ids[n]);}
@@ -125,7 +129,7 @@ namespace GeneralStore.Inventory
         public void RefreshViewport(Rect region)
         {
             viewport=region;useViewport=true;
-            if(currentId!=null&&windows.ContainsKey(currentId)){Fit(windows[currentId]);moving=true;}
+            if(currentId!=null&&windows.ContainsKey(currentId)){Fit(windows[currentId]);moving=true;slideInitialized=false;}
         }
         void StartRequested()
         {
@@ -142,17 +146,27 @@ namespace GeneralStore.Inventory
             currentId=requestedId;lastUse[currentId]=++useCounter;v.Open();var rt=(RectTransform)v.transform;
             Fit(v);movingRect=rt;movingGroup=v.GetComponent<CanvasGroup>();moving=true;
             rt.anchoredPosition=new Vector2(HiddenX(v),Top);movingGroup.blocksRaycasts=false;TrimWindows();
+            slideInitialized=false;
         }
         void Update()
+        {AdvanceSlide(Time.unscaledDeltaTime);}
+        public void AdvanceSlide(float deltaTime)
         {
             if(!ready||!moving||currentId==null)return;DisplayWindowView v;
             if(!windows.TryGetValue(currentId,out v))return;
             bool opening=currentId==requestedId;var rt=movingRect;float target=opening?OpenX(v):HiddenX(v);
-            float x=DrawerGeometry.Step(rt.anchoredPosition.x,target,slideSpeed,Time.unscaledDeltaTime);
+            if(!slideInitialized||slideOpening!=opening||!Mathf.Approximately(slideTargetX,target))
+            {
+                slideInitialized=true;slideOpening=opening;slideFromX=rt.anchoredPosition.x;slideTargetX=target;slideElapsed=0;
+            }
+            float seconds=TransitionSeconds;
+            slideElapsed=Mathf.Approximately(slideFromX,target)?seconds:Mathf.Min(seconds,slideElapsed+Mathf.Max(0,deltaTime));
+            float x=Mathf.LerpUnclamped(slideFromX,target,WindowSlideTiming.Ease(slideElapsed,seconds));
+            if(slideElapsed>=seconds)x=target;
             if(rt.anchoredPosition.x!=x||rt.anchoredPosition.y!=Top)rt.anchoredPosition=new Vector2(x,Top);
-            var group=movingGroup;bool interactive=opening&&x==target&&!panel.IsWindowDragging;if(group.blocksRaycasts!=interactive)group.blocksRaycasts=interactive;
-            if(opening&&x==target)moving=false;
-            if(!opening&&x==target)
+            var group=movingGroup;bool complete=slideElapsed>=seconds;bool interactive=opening&&complete&&!panel.IsWindowDragging;if(group.blocksRaycasts!=interactive)group.blocksRaycasts=interactive;
+            if(opening&&complete)moving=false;
+            if(!opening&&complete)
             {
                 v.gameObject.SetActive(false);currentId=null;moving=false;StartRequested();TrimWindows();
             }

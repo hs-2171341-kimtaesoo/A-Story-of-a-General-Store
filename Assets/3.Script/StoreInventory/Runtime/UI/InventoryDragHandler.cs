@@ -182,6 +182,36 @@ namespace GeneralStore.Inventory
     }
     internal static class InventoryKeys
     {
+        public static KeyCode PressedShortcut()
+        {
+#if ENABLE_INPUT_SYSTEM
+            var keys=Keyboard.current;if(keys==null)return KeyCode.None;
+            if(keys.spaceKey.wasPressedThisFrame)return KeyCode.Space;
+            if(keys.qKey.wasPressedThisFrame)return KeyCode.Q;
+            if(keys.wKey.wasPressedThisFrame)return KeyCode.W;
+            if(keys.eKey.wasPressedThisFrame)return KeyCode.E;
+            if(keys.rKey.wasPressedThisFrame)return KeyCode.R;
+            if(keys.aKey.wasPressedThisFrame)return KeyCode.A;
+            if(keys.sKey.wasPressedThisFrame)return KeyCode.S;
+#else
+            if(Input.GetKeyDown(KeyCode.Space))return KeyCode.Space;
+            if(Input.GetKeyDown(KeyCode.Q))return KeyCode.Q;
+            if(Input.GetKeyDown(KeyCode.W))return KeyCode.W;
+            if(Input.GetKeyDown(KeyCode.E))return KeyCode.E;
+            if(Input.GetKeyDown(KeyCode.R))return KeyCode.R;
+            if(Input.GetKeyDown(KeyCode.A))return KeyCode.A;
+            if(Input.GetKeyDown(KeyCode.S))return KeyCode.S;
+#endif
+            return KeyCode.None;
+        }
+        public static bool ShortcutModifierHeld()
+        {
+#if ENABLE_INPUT_SYSTEM
+            var keys=Keyboard.current;return keys!=null&&(keys.ctrlKey.isPressed||keys.altKey.isPressed||keys.leftMetaKey.isPressed||keys.rightMetaKey.isPressed);
+#else
+            return Input.GetKey(KeyCode.LeftControl)||Input.GetKey(KeyCode.RightControl)||Input.GetKey(KeyCode.LeftAlt)||Input.GetKey(KeyCode.RightAlt)||Input.GetKey(KeyCode.LeftCommand)||Input.GetKey(KeyCode.RightCommand);
+#endif
+        }
         public static bool TryPointerPosition(out Vector2 position)
         {
 #if ENABLE_INPUT_SYSTEM

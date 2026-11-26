@@ -19,6 +19,7 @@ namespace GeneralStore.Inventory
         Vector2 visualCellSize;bool previousLocked;
         public void Bind(InventoryPanel panel,InventoryGridView grid,ItemRecord record)
         {
+            if(panel.SharedFont!=null)nameLabel.font=panel.SharedFont;
             bool locked=panel.Model.IsReserved(record.instanceId);
             if(Panel==panel&&Grid==grid&&Record!=null&&Record.instanceId==record.instanceId&&Record.itemId==record.itemId&&Record.quality==record.quality
                 &&Record.x==record.x&&Record.y==record.y&&visualRotation==record.rotation&&Record.rotation==record.rotation&&Record.purchasePrice==record.purchasePrice&&previousLocked==locked

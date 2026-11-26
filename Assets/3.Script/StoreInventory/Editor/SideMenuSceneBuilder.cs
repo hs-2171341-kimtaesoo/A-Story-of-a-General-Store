@@ -75,7 +75,7 @@ public static class SideMenuSceneBuilder
         row.button=image.gameObject.AddComponent<Button>();row.button.targetGraphic=image;row.button.transition=Selectable.Transition.None;
         row.normalArtwork=PaperPart("Original Row",image.transform,parts["normal"],0,0,815,168);
         row.selectionArtwork=PaperPart("Selected Row",image.transform,parts["selected"],0,0,815,168);row.selectionArtwork.gameObject.SetActive(false);
-        row.thumbnail=UI.Box("Furniture Icon",image.transform,34*PaperScale,30*PaperScale,128*PaperScale,106*PaperScale,Color.white);row.thumbnail.raycastTarget=false;row.thumbnail.preserveAspect=true;
+        row.thumbnail=UI.IconSlot("Furniture Icon",image.transform,34*PaperScale,30*PaperScale,128*PaperScale,106*PaperScale);
         row.title=PaperText("Name",image.transform,225,20,570,60,"",44);
         row.body=PaperText("Capacity",image.transform,225,86,570,52,"",34);
         row.price=PaperText("Unused Price",image.transform,0,0,1,1,"",12);row.price.gameObject.SetActive(false);
@@ -84,9 +84,9 @@ public static class SideMenuSceneBuilder
     static DisplayStockRowView PaperStock(Transform parent,Dictionary<string,ManagementArtPart> parts)
     {
         var rect=UI.Rect("Parchment Stock Row Template",parent,0,0,792*PaperScale,124*PaperScale);var row=rect.gameObject.AddComponent<DisplayStockRowView>();row.parchmentStyle=true;
-        PaperPart("Thumbnail Well",rect,parts["well"],8,8,136,108);
+        var well=PaperPart("Thumbnail Well",rect,parts["well"],8,8,136,108);
         UI.Box("Row Separator",rect,0,123*PaperScale,792*PaperScale,PaperScale,new Color(.55f,.29f,.09f)).raycastTarget=false;
-        row.icon=UI.Box("Item Icon",rect,24*PaperScale,14*PaperScale,104*PaperScale,94*PaperScale,Color.white);row.icon.raycastTarget=false;row.icon.preserveAspect=true;
+        row.icon=UI.IconSlot("Item Icon",well.transform,7*PaperScale,7*PaperScale,well.rectTransform.rect.width-14*PaperScale,well.rectTransform.rect.height-14*PaperScale);
         row.nameLabel=PaperText("Name",rect,195,15,350,78,"",42);
         row.countLabel=PaperText("Count",rect,197,85,330,28,"",25);
         var badge=UI.Rect("Quality Laurel",rect,542*PaperScale,12*PaperScale,230*PaperScale,100*PaperScale);badge.gameObject.AddComponent<CanvasRenderer>();badge.gameObject.AddComponent<LaurelBadgeGraphic>().raycastTarget=false;
@@ -128,14 +128,14 @@ public static class SideMenuSceneBuilder
     {
         var image=UI.Box("Furniture Card Template",parent,0,0,508,98,new Color(.22f,.17f,.11f));var row=image.gameObject.AddComponent<FurnitureCardView>();row.background=image;
         row.button=image.gameObject.AddComponent<Button>();row.button.targetGraphic=image;
-        row.thumbnail=UI.Box("Thumbnail",image.transform,10,10,112,78,Color.white);row.thumbnail.raycastTarget=false;
+        row.thumbnail=UI.IconSlot("Thumbnail",image.transform,10,10,112,78);
         row.title=UI.Label("Name",image.transform,136,6,358,32,"",23);row.body=UI.Label("Details",image.transform,136,42,358,26,"",18);
         row.price=UI.Label("Price",image.transform,136,72,358,24,"",18);image.gameObject.SetActive(false);return row;
     }
     static DisplayStockRowView StockTemplate(Transform parent)
     {
         var image=UI.Box("Stock Summary Template",parent,0,0,508,58,new Color(.24f,.19f,.12f));var row=image.gameObject.AddComponent<DisplayStockRowView>();
-        row.icon=UI.Box("Icon",image.transform,6,6,46,46,Color.white);row.icon.raycastTarget=false;
+        row.icon=UI.IconSlot("Icon",image.transform,6,6,46,46);
         row.nameLabel=UI.Label("Name",image.transform,62,6,250,46,"",20);row.qualityLabel=UI.Label("Quality",image.transform,314,6,114,46,"",18);row.countLabel=UI.Label("Count",image.transform,432,6,70,46,"",20);
         image.gameObject.SetActive(false);return row;
     }
@@ -147,7 +147,7 @@ public static class SideMenuSceneBuilder
         UiPerformanceLayers.Ensure(p.gameObject,true);ManagementWindowMotion.Ensure(ui.window,p);
         PaperText("Title",p,105,102,796,105,"진열장 관리",72,TextAnchor.MiddleCenter);
         UI.Box("Title Separator",p,105*PaperScale,223*PaperScale,795*PaperScale,2*PaperScale,new Color(.55f,.29f,.09f)).raycastTarget=false;
-        ui.parchmentStyle=true;ui.displayRowHeight=168*PaperScale;ui.stockRowHeight=124*PaperScale;ui.rowGap=0;
+        ui.useTemplateRowHeight=true;ui.parchmentStyle=true;ui.displayRowHeight=168*PaperScale;ui.stockRowHeight=124*PaperScale;ui.rowGap=0;
         ui.displayList=PaperList(p,"Owned Displays",95,250,815,504,168);ui.cardTemplate=PaperCard(p,parts);
         ui.emptyDisplayLabel=PaperText("No Displays",ui.displayList.parent,0,0,815,504,"소유한 진열장이 없습니다.",36,TextAnchor.MiddleCenter);ui.emptyDisplayLabel.gameObject.SetActive(false);
         UI.Box("Stock Heading Top Line",p,105*PaperScale,801*PaperScale,795*PaperScale,2*PaperScale,new Color(.55f,.29f,.09f)).raycastTarget=false;
@@ -168,7 +168,7 @@ public static class SideMenuSceneBuilder
         var root=UI.Rect("Right Side Menu",parent,1832,190,84,700);var menu=root.gameObject.AddComponent<RightSideMenu>();menu.panel=panel;UiPerformanceLayers.Ensure(root.gameObject,true);
         menu.content=List(root,"Menu Scroll",0,0,84,700);
         var image=UI.Box("Menu Button Template",parent,0,0,82,86,new Color(.26f,.18f,.1f));var view=image.gameObject.AddComponent<RightMenuButtonView>();view.background=image;
-        view.button=image.gameObject.AddComponent<Button>();view.button.targetGraphic=image;view.icon=UI.Box("Icon",image.transform,17,7,48,44,Color.white);view.icon.raycastTarget=false;
+        view.button=image.gameObject.AddComponent<Button>();view.button.targetGraphic=image;view.icon=UI.IconSlot("Icon",image.transform);
         view.label=UI.Label("Label",image.transform,3,50,76,32,"",16);view.label.alignment=TextAnchor.MiddleCenter;image.gameObject.SetActive(false);menu.template=view;
         Add(menu,"displays","진열 관리",management.window,management.Toggle);
         Add(menu,"furniture","가구 구매",upgrade.window,upgrade.OpenFurniture);
@@ -234,7 +234,7 @@ public static class PurchaseSceneBuilder
         var row=hit.gameObject.AddComponent<FurnitureCardView>();row.parchmentStyle=true;row.background=hit;row.button=hit.gameObject.AddComponent<Button>();row.button.targetGraphic=hit;row.button.transition=Selectable.Transition.None;
         row.normalArtwork=Artwork("Normal Row",hit.transform,parts["normal"],new Rect(0,0,830,200),s);
         row.selectionArtwork=Artwork("Selected Row",hit.transform,parts["selected"],new Rect(0,0,830,200),s);row.selectionArtwork.gameObject.SetActive(false);
-        row.thumbnail=UI.Box("Furniture Icon",hit.transform,35*s,26*s,160*s,148*s,Color.white);row.thumbnail.raycastTarget=false;row.thumbnail.preserveAspect=true;
+        row.thumbnail=UI.IconSlot("Furniture Icon",hit.transform,35*s,26*s,160*s,148*s);
         row.title=Label("Name",hit.transform,new Rect(250,24,560,76),"",54,s);row.body=Label("Capacity",hit.transform,new Rect(250,100,560,70),"",40,s);
         row.price=Label("Unused Price",hit.transform,new Rect(0,0,1,1),"",12,s);row.price.gameObject.SetActive(false);hit.gameObject.SetActive(false);return row;
     }
@@ -246,12 +246,12 @@ public static class PurchaseSceneBuilder
         ui.furnitureList=SideMenuSceneBuilder.List(p,"Available Furniture",85*s,240*s,830*s,600*s);ui.furnitureList.sizeDelta=Vector2.zero;
         ui.furnitureScroll=ui.furnitureList.parent.GetComponent<ScrollRect>();var viewport=ui.furnitureScroll.viewport;viewport.GetComponent<global::UnityEngine.UI.Image>().color=new Color(1,1,1,.001f);
         viewport.GetComponent<global::UnityEngine.UI.Image>().canvasRenderer.cullTransparentMesh=false;ui.furnitureList.sizeDelta=new Vector2(830*s,0);ui.furnitureScroll.inertia=false;ui.furnitureScroll.scrollSensitivity=130*s;
-        ui.cardTemplate=Card(p,parts);ui.useFurnitureArtwork=true;ui.furnitureRowHeight=200*s;ui.furnitureRowGap=0;
+        ui.cardTemplate=Card(p,parts);ui.useTemplateRowHeight=true;ui.useFurnitureArtwork=true;ui.furnitureRowHeight=200*s;ui.furnitureRowGap=0;
         ui.furnitureEmptyLabel=Label("No Furniture",viewport,new Rect(0,0,830,600),"구매 가능한 가구가 없습니다.",36,s,TextAnchor.MiddleCenter);ui.furnitureEmptyLabel.gameObject.SetActive(false);
         ui.furniturePageLabel=Label("List Position",p,new Rect(735,840,175,34),"",32,s,TextAnchor.MiddleRight);
         UI.Box("Preview Divider",p,85*s,880*s,830*s,2*s,new Color(.55f,.29f,.09f)).raycastTarget=false;
         Artwork("Preview Well",p,parts["preview"],new Rect(95,910,400,380),s);
-        ui.furniturePreview=UI.Box("Selected Furniture Sprite",p,115*s,935*s,360*s,330*s,Color.white);ui.furniturePreview.raycastTarget=false;ui.furniturePreview.preserveAspect=true;
+        ui.furniturePreview=UI.IconSlot("Selected Furniture Sprite",p,115*s,935*s,360*s,330*s);
         UI.Box("Preview Split",p,520*s,928*s,2*s,352*s,new Color(.55f,.29f,.09f)).raycastTarget=false;
         ui.typeLabel=Label("Selected Title",p,new Rect(540,920,370,82),"",50,s);
         UI.Box("Capacity Divider",p,548*s,1016*s,355*s,2*s,new Color(.55f,.29f,.09f)).raycastTarget=false;

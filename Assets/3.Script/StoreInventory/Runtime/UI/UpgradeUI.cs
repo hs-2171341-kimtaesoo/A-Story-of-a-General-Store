@@ -15,6 +15,9 @@ namespace GeneralStore.Inventory
         public Text furniturePriceLabel,furnitureStatusLabel,furniturePageLabel,furnitureEmptyLabel;
         public Text storageBeforeLabel,storageAfterLabel,storageCostLabel,storageStatusLabel;
         public ScrollRect furnitureScroll;public float furnitureRowHeight=112,furnitureRowGap=8;
+        [Tooltip("구매 행 Prefab의 높이를 사용합니다. 아이콘/글자 위치는 Prefab에서 수정합니다.")]
+        public bool useTemplateRowHeight;
+        float FurniturePitch{get{return AuthoredRowLayout.Pitch(cardTemplate,furnitureRowHeight,furnitureRowGap,useTemplateRowHeight);}}
         int availableCount;
         [Min(0)]public int newBoxCost=600;
         readonly Dictionary<string,FurnitureCardView> cards=new Dictionary<string,FurnitureCardView>();
@@ -24,7 +27,7 @@ namespace GeneralStore.Inventory
         public void Toggle(){OpenFurniture();}
         public void OpenFurniture(){if(!ready)return;panel.drag.Cancel(false);panel.shop.CancelDisplayPrice();storageWindow.SetActive(false);window.SetActive(true);dirty=true;}
         public void OpenStorage(){if(!ready)return;panel.drag.Cancel(false);panel.shop.CancelDisplayPrice();window.SetActive(false);storageWindow.SetActive(true);dirty=true;}
-        public void Close(){window.SetActive(false);storageWindow.SetActive(false);}
+        public void Close(){ManagementWindowMotion.CloseWindow(window);ManagementWindowMotion.CloseWindow(storageWindow);}
         public void SelectType(string id){selectedType=id;dirty=true;}
         public void PreviousType(){}public void NextType(){} // 이전 버튼 연결 호환. 새 화면은 목록 선택입니다.
         public void UpgradeStorage()
@@ -43,15 +46,16 @@ namespace GeneralStore.Inventory
         }
         void RefreshFurniture()
         {
+            float pitch=FurniturePitch;
             var ids=panel.Model.AvailableFurnitureTypes();bool reset=!ids.Contains(selectedType);if(reset)selectedType=ids.Count>0?ids[0]:null;
             foreach(var row in cards.Values)row.gameObject.SetActive(false);int n=0;
             foreach(string id in ids)
             {
                 FurnitureCardView row;if(!cards.TryGetValue(id,out row)){row=Instantiate(cardTemplate,furnitureList);cards.Add(id,row);}row.gameObject.SetActive(true);
-                var t=panel.Model.Displays.Type(id);var a=art.Find(id);row.Bind(id,SelectType,t.title,useFurnitureArtwork?"진열 공간 "+t.columns+"×"+t.rows+"칸":t.columns+"×"+t.rows+" · "+(t.columns*t.rows)+"칸",useFurnitureArtwork?"":t.purchasePrice+" G",a==null?null:a.thumbnail,id==selectedType);
-                var r=(RectTransform)row.transform;r.anchorMin=r.anchorMax=r.pivot=new Vector2(0,1);r.anchoredPosition=new Vector2(0,-n++*furnitureRowHeight);r.sizeDelta=new Vector2(furnitureList.rect.width,Mathf.Max(1,furnitureRowHeight-furnitureRowGap));
+                var t=panel.Model.Displays.Type(id);var a=art.Find(id);row.Bind(id,SelectType,t.title,useFurnitureArtwork?"진열 공간 "+t.columns+"×"+t.rows+"칸":t.columns+"×"+t.rows+" · "+(t.columns*t.rows)+"칸",useFurnitureArtwork?"":t.purchasePrice+" G",a==null?null:a.thumbnail,id==selectedType,panel.SharedFont);
+                AuthoredRowLayout.Place((RectTransform)row.transform,n++,pitch,furnitureList.rect.width,furnitureRowGap);
             }
-            availableCount=n;furnitureList.sizeDelta=new Vector2(furnitureList.sizeDelta.x,n*furnitureRowHeight);
+            availableCount=n;furnitureList.sizeDelta=new Vector2(furnitureList.sizeDelta.x,n*pitch);
             if(furnitureScroll!=null&&furnitureScroll.viewport!=null)
             {
                 if(reset){furnitureScroll.StopMovement();furnitureList.anchoredPosition=Vector2.zero;}
@@ -88,8 +92,8 @@ namespace GeneralStore.Inventory
         void LateUpdate(){if(!ready)return;if(storageWindow.activeSelf&&quotedBoxCost!=newBoxCost)dirty=true;if(!dirty||(!window.activeSelf&&!storageWindow.activeSelf))return;dirty=false;if(window.activeSelf)RefreshFurniture();if(storageWindow.activeSelf)RefreshStorage();}
         void UpdateFurniturePage(Vector2 ignored)
         {
-            if(furniturePageLabel==null||furnitureScroll==null||furnitureScroll.viewport==null||furnitureRowHeight<=0)return;
-            int end=Mathf.Clamp(Mathf.CeilToInt((Mathf.Max(0,furnitureList.anchoredPosition.y)+furnitureScroll.viewport.rect.height)/furnitureRowHeight-.0001f),0,availableCount);
+            if(furniturePageLabel==null||furnitureScroll==null||furnitureScroll.viewport==null)return;
+            int end=Mathf.Clamp(Mathf.CeilToInt((Mathf.Max(0,furnitureList.anchoredPosition.y)+furnitureScroll.viewport.rect.height)/FurniturePitch-.0001f),0,availableCount);
             furniturePageLabel.text=end+" / "+availableCount;
         }
         void OnDestroy(){if(furnitureScroll!=null)furnitureScroll.onValueChanged.RemoveListener(UpdateFurniturePage);if(ready&&panel!=null&&panel.inventory!=null&&panel.inventory.Model!=null)panel.Model.Changed-=MarkDirty;}

@@ -8,12 +8,56 @@ namespace GeneralStore.Inventory
         public int delivered;
         public bool alreadySettled;
     }
+    public sealed class TemporaryRecoveryResult
+    {
+        public int recovered,remaining;
+        public string stoppedAtInstanceId,stopReason;
+    }
     public sealed partial class InventoryModel
     {
         public const string DeliveryContainerId="delivery";
         public const int DeliveryColumns=16;
         public const string TemporaryStorageId="temporary_storage";
         public const int TemporaryStorageColumns=16;
+        public const int TemporaryStorageMinimumRows=8;
+        // A total order shared by the visible list and the recovery button. Never skip a blocked item.
+        public static int CompareTemporaryItems(ItemRecord a,ItemRecord b)
+        {
+            int row=a.y.CompareTo(b.y);if(row!=0)return row;
+            int column=a.x.CompareTo(b.x);return column!=0?column:string.CompareOrdinal(a.instanceId,b.instanceId);
+        }
+        public bool TryRecoverTemporary(long expectedRevision,out TemporaryRecoveryResult result,out string error)
+        {
+            result=new TemporaryRecoveryResult{remaining=TemporaryItemCount};error="";
+            if(expectedRevision!=Revision){error="재고가 변경되었습니다. 다시 회수하세요.";return false;}
+            if(result.remaining==0){error="회수할 아이템이 없습니다.";return false;}
+            var trial=state.Copy();var temporary=Find(trial,TemporaryStorageId);
+            var ordered=new List<ItemRecord>(temporary.items);ordered.Sort(CompareTemporaryItems);
+            var moved=new HashSet<string>(StringComparer.Ordinal);
+            try
+            {
+                foreach(var item in ordered)
+                {
+                    bool placed=false;
+                    if(!IsReserved(item.instanceId))foreach(var box in trial.containers)
+                        if(IsWarehouse(box.containerId)&&TryPlaceRectangle(trial,box,item)){placed=true;break;}
+                    if(!placed)
+                    {
+                        result.stoppedAtInstanceId=item.instanceId;
+                        result.stopReason=IsReserved(item.instanceId)?"예약된 아이템에서 회수를 멈췄습니다.":"상자 공간이 부족해 회수를 멈췄습니다.";
+                        break;
+                    }
+                    moved.Add(item.instanceId);
+                }
+                if(moved.Count==0){error=result.stopReason;return false;}
+                temporary.items.RemoveAll(item=>moved.Contains(item.instanceId));
+                trial.listings.RemoveAll(listing=>moved.Contains(listing.instanceId));
+                TrimDynamic(trial,TemporaryStorageId);Validate(trial);
+            }
+            catch(ArgumentException e){error=e.Message;return false;}
+            catch(OverflowException){error="회수할 아이템의 좌표 범위를 초과했습니다.";return false;}
+            result.recovered=moved.Count;result.remaining=temporary.items.Count;Commit(trial);return true;
+        }
         public static bool IsDynamicStorage(string id){return id==DeliveryContainerId||id==TemporaryStorageId;}
         public long TemporaryOccupiedCells{get{long n=0;foreach(var item in Find(state,TemporaryStorageId).items)n+=Catalog.Shape(item.itemId).CellCount;return n;}}
         public int TemporaryItemCount{get{return Find(state,TemporaryStorageId).items.Count;}}
@@ -76,7 +120,8 @@ namespace GeneralStore.Inventory
                 AppendDelivery(box,legacy);save.floorItems.Clear();save.parcels.Clear();save.version=8;
             }
             var temporary=Find(save,TemporaryStorageId);
-            if(temporary==null){temporary=new ContainerRecord{containerId=TemporaryStorageId,columns=TemporaryStorageColumns,rows=5};save.containers.Add(temporary);}
+            if(temporary==null){temporary=new ContainerRecord{containerId=TemporaryStorageId,columns=TemporaryStorageColumns,rows=TemporaryStorageMinimumRows};save.containers.Add(temporary);}
+            temporary.rows=Math.Max(TemporaryStorageMinimumRows,temporary.rows);
             if(source.version<13)foreach(var warehouse in save.containers)if(IsWarehouse(warehouse.containerId)&&warehouse.columns==8&&warehouse.rows==5)warehouse.rows=7;
             if(source.version<10)MigrateRectangularOccupancy(save);
             if(source.version<11){var previous=new List<ItemRecord>(box.items);box.items.Clear();box.columns=DeliveryColumns;box.rows=5;AppendDynamic(temporary,previous);}
@@ -144,7 +189,7 @@ namespace GeneralStore.Inventory
         }
         void TrimDynamic(InventorySave save,string id)
         {
-            var box=Find(save,id);if(box==null)return;int rows=5;
+            var box=Find(save,id);if(box==null)return;int rows=id==TemporaryStorageId?TemporaryStorageMinimumRows:5;
             foreach(var item in box.items)rows=Math.Max(rows,item.y+Catalog.Shape(item.itemId).Height(item.rotation));box.rows=rows;
         }
         // Shared receiver for parcels, refunds, cancellations, and all workshop results.

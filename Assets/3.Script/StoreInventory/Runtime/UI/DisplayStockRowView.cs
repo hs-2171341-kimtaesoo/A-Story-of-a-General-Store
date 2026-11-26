@@ -8,6 +8,7 @@ namespace GeneralStore.Inventory
         public bool parchmentStyle;
         public void Bind(InventoryPanel panel,DisplayItemGroup group)
         {
+            if(panel.SharedFont!=null)nameLabel.font=qualityLabel.font=countLabel.font=panel.SharedFont;
             var q=panel.Catalog.FindQuality(group.itemId,group.quality);icon.sprite=panel.FindItemIcon(group.itemId);panel.ApplyQuality(icon,group.quality);
             icon.enabled=icon.sprite!=null;icon.preserveAspect=true;nameLabel.text=q.name;qualityLabel.text=QualityLabels.Title(group.quality);
             qualityLabel.color=parchmentStyle?PaperQualityColor(group.quality):QualityVisuals.Color(group.quality);

@@ -39,7 +39,7 @@ public static class SlidingDemoSceneBuilder
         menu.scroll=menu.window.gameObject.AddComponent<ScrollRect>();menu.scroll.viewport=menu.viewport;menu.scroll.content=menu.content;menu.scroll.horizontal=false;menu.scroll.vertical=true;menu.scroll.movementType=ScrollRect.MovementType.Clamped;
         var image=UI.Box("Left Display Button Template",layout,0,0,88,80,new Color(.24f,.16f,.09f));
         var view=image.gameObject.AddComponent<LeftDisplayButtonView>();view.background=image;view.button=image.gameObject.AddComponent<Button>();view.button.targetGraphic=image;
-        view.icon=UI.Box("Furniture Icon",image.transform,16,5,56,44,Color.white);view.icon.preserveAspect=true;view.icon.raycastTarget=false;
+        view.icon=UI.IconSlot("Furniture Icon",image.transform);
         view.label=UI.Label("Name",image.transform,3,50,82,28,"진열장",12);view.label.alignment=TextAnchor.MiddleCenter;
         image.gameObject.SetActive(false);menu.template=view;
         DisplayMenuTextureImporter.PrepareSprites();menu.PrepareArtwork();

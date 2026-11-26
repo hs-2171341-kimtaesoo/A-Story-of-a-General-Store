@@ -55,22 +55,10 @@ public static class CompactDemoSceneBuilder
         delivery.doorButton=icon.gameObject.AddComponent<Button>();delivery.doorButton.targetGraphic=icon;
         UnityEditor.Events.UnityEventTools.AddPersistentListener(delivery.doorButton.onClick,delivery.Toggle);
         delivery.badge=UI.Label("Delivery Badge",icon.transform,-12,100,128,32,"택배",21);delivery.badge.alignment=TextAnchor.MiddleCenter;
-        var root=UI.Box("Temporary Storage Window",layout,310,180,1284,744,new Color(.18f,.12f,.065f,.98f));delivery.window=root.rectTransform;
-        UI.Label("Title",root.transform,22,14,1080,46,"임시 저장고 · 가로16칸",29);
-        UI.ButtonBox("닫기",root.transform,1160,14,100,46,delivery.Close);
-        var viewport=UI.Box("Temporary Storage Viewport",root.transform,17,76,1250,600,new Color(.08f,.06f,.04f));viewport.gameObject.AddComponent<RectMask2D>();
-        delivery.scroll=viewport.gameObject.AddComponent<ScrollRect>();delivery.scroll.viewport=viewport.rectTransform;delivery.scroll.horizontal=false;delivery.scroll.vertical=true;
-        delivery.scroll.movementType=ScrollRect.MovementType.Clamped;delivery.scroll.inertia=false;delivery.scroll.scrollSensitivity=78;
-        delivery.content=UI.Rect("Virtual Storage Content",viewport.transform,0,0,1250,600);delivery.scroll.content=delivery.content;
-        var gridImage=UI.Box("Temporary Visible Rows",delivery.content,0,0,1250,600,new Color(1,1,1,0));gridImage.raycastTarget=false;gridImage.canvasRenderer.cullTransparentMesh=true;
-        var grid=gridImage.gameObject.AddComponent<InventoryGridView>();delivery.grid=grid;grid.containerId=InventoryModel.TemporaryStorageId;
-        var input=gridImage.gameObject.AddComponent<DragOnlyRaycastSurface>();input.panel=panel;input.image=gridImage;
-        grid.cellWidth=grid.cellHeight=78;grid.viewRows=5;grid.externalRefresh=true;grid.acceptsDrop=true;grid.recycleItems=true;grid.renderPartitions=false;grid.itemTemplate=itemTemplate;
-        grid.itemLayer=UI.Rect("Items",grid.transform,1,1,1248,598);
-        delivery.details=null;
-        delivery.feeLabel=UI.Label("Storage Fee",root.transform,24,712,1236,28,"",17);delivery.feeLabel.alignment=TextAnchor.MiddleCenter;
-        UiPerformanceLayers.Ensure(root.gameObject,true);root.gameObject.SetActive(false);icon.gameObject.SetActive(false);
-        var menu=layout.GetComponentInChildren<RightSideMenu>(true);var entry=new ShopMenuEntry{id="temporary_storage",title="임시 저장고",window=root.gameObject,icon=icon.sprite};
+        TemporaryStorageArtBuilder.BuildWindow(layout,delivery,itemTemplate);
+        icon.gameObject.SetActive(false);
+        var menu=layout.GetComponentInChildren<RightSideMenu>(true);delivery.managementMenu=menu;
+        var entry=new ShopMenuEntry{id="temporary_storage",title="임시 저장고",window=delivery.window.gameObject,icon=Resources.Load<Sprite>("StoreInventory/TemporaryStorage/mark"),visible=false};
         UnityEditor.Events.UnityEventTools.AddPersistentListener(entry.onOpen,delivery.OpenStorage);menu.AddEntry(entry);
     }
     public static void RebuildDelivery(InventoryPanel panel)
@@ -85,9 +73,9 @@ public static class CompactDemoSceneBuilder
         BuildDelivery(layout,furniture,panel,template);var current=layout.GetComponent<DeliveryUI>();
         var door=(RectTransform)current.doorButton.transform;door.anchorMin=anchorMin;door.anchorMax=anchorMax;door.pivot=pivot;door.anchoredPosition=position;door.sizeDelta=size;door.localScale=scale;door.localRotation=rotation;
         if(sprite!=null)current.doorButton.GetComponent<global::UnityEngine.UI.Image>().sprite=sprite;
-        var viewport=root.GetComponentInChildren<ShopViewportLayout>(true);if(viewport!=null){viewport.delivery=current;current.window.SetParent(viewport.edgeLayer,false);viewport.Apply();}
+        var viewport=root.GetComponentInChildren<ShopViewportLayout>(true);if(viewport!=null){viewport.delivery=current;current.window.SetParent(viewport.edgeLayer,false);current.windowDrag.bounds=viewport.edgeLayer;viewport.Apply();}
     }
-    static void ConfigureUiOnlyCamera(int sceneHandle)
+    internal static void ConfigureUiOnlyCamera(int sceneHandle)
     {
         // 새 UI 전용 데모에서만 적용합니다. Renderer/Terrain이 있으면 기존 카메라를 유지합니다.
         if(Object.FindObjectsByType<global::UnityEngine.Renderer>(FindObjectsInactive.Include,FindObjectsSortMode.None).Length>0||Terrain.activeTerrain!=null)return;

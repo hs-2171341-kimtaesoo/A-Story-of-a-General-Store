@@ -2,13 +2,9 @@
 using GeneralStore.Inventory;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem.UI;
-#endif
 
-// 1920x1080 기준 UI를 실제 씬에 생성합니다. 기존 데모가 없는 빈 새 씬을 단독으로 열고 실행하세요.
+// 최초 공통 배치를 생성합니다. 이후 새 데모는 저장된 StoreLayout.prefab을 사용합니다.
 public static class InventorySceneBuilder
 {
     const float CellWidth=78,CellHeight=78; // 이전 52의 정확히 1.5배. 데이터의 칸 수는 변하지 않습니다.
@@ -23,6 +19,20 @@ public static class InventorySceneBuilder
     {rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.pivot=new Vector2(.5f,.5f);rect.offsetMin=rect.offsetMax=Vector2.zero;}
     public static global::UnityEngine.UI.Image Box(string name,Transform parent,float x,float y,float w,float h,Color color)
     {var image=Rect(name,parent,x,y,w,h).gameObject.AddComponent<global::UnityEngine.UI.Image>();image.color=color;return image;}
+    // The slot is authored in the hierarchy. UGUI preserves the sprite aspect around its centre.
+    // Binding a different sprite never moves or resizes this slot or its image.
+    public static global::UnityEngine.UI.Image IconSlot(string name,Transform parent,float x,float y,float w,float h)
+    {
+        var slot=Rect(name+" Slot",parent,x,y,w,h);
+        var image=Box(name,slot,0,0,w,h,Color.white);
+        var rect=image.rectTransform;Stretch(rect);
+        image.preserveAspect=true;image.raycastTarget=false;return image;
+    }
+    public static global::UnityEngine.UI.Image IconSlot(string name,Transform parent)
+    {
+        var image=IconSlot(name,parent,0,0,0,0);
+        Stretch((RectTransform)image.transform.parent);return image;
+    }
     public static Text Label(string name,Transform parent,float x,float y,float w,float h,string content,int size=22)
     {
         if(font==null)font=LatestDemoSetup.FindKoreanFont()??Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -84,14 +94,14 @@ public static class InventorySceneBuilder
     public static void CreateLatestDemo()
     {
         if(Application.isPlaying||EditorApplication.isPlayingOrWillChangePlaymode){Debug.LogWarning("Play를 중지한 뒤 실행하세요.");return;}
-        CustomDisplayArtBuilder.ValidateDefinitions();SideMenuSceneBuilder.ValidateManagementArt();PurchaseSceneBuilder.ValidateArt();CreateInternal();
+        StoreLayoutPrefabTools.CreateLatestDemo();
     }
     // 기존 코드에서 호출해도 같은 최신 데모를 생성합니다. 생성 메뉴는 하나만 노출합니다.
     public static void Create(){CreateLatestDemo();}
     public static void CreateAllFurnitureTest(){CreateLatestDemo();}
-    static void CreateInternal()
+    // Bootstrap only. Later demos instantiate StoreLayout.prefab and do not call layout builders.
+    internal static GameObject BuildInitialLayout()
     {
-        if(!LatestDemoSetup.BeginNewScene())return;
         font=LatestDemoSetup.FindKoreanFont();bool hasKoreanFont=font!=null;
         if(font==null)font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         Furniture13SceneBuilder.PrepareSprites();CustomDisplayArtBuilder.PrepareSprites();SlidingDemoSceneBuilder.PrepareCustomerSprite();CounterDemoSceneBuilder.PrepareSprites();StoreTextureBudget.PrepareIconImports();
@@ -201,15 +211,6 @@ public static class InventorySceneBuilder
         ButtonBox("진열 확정",priceBox.transform,24,196,214,52,shop.ConfirmDisplayPrice);ButtonBox("취소",priceBox.transform,262,196,214,52,shop.CancelDisplayPrice);
         modal.gameObject.SetActive(false);
         var layer=Rect("Drag Layer",go.transform,0,0,1920,1080);Stretch(layer);panel.drag=go.AddComponent<InventoryDragHandler>();panel.drag.dragLayer=layer;
-        if(UnityEngine.Object.FindFirstObjectByType<EventSystem>()==null)
-        {
-            var es=new GameObject("EventSystem",typeof(EventSystem));Undo.RegisterCreatedObjectUndo(es,"Create EventSystem");
-#if ENABLE_INPUT_SYSTEM
-            es.AddComponent<InputSystemUIInputModule>().AssignDefaultActions();
-#else
-            es.AddComponent<StandaloneInputModule>();
-#endif
-        }
         DrawerSceneBuilder.MoveDebugButtons(layout);
         SideMenuSceneBuilder.BuildMenu(layout,panel,management,upgrade,supplier);
         SlidingDemoSceneBuilder.Build(layout,furnitureLayout,panel,art,counter);
@@ -221,8 +222,8 @@ public static class InventorySceneBuilder
         DrawerSceneBuilder.EnsureItemIdGrant(layout,simulation);
         ItemTableTools.ConnectIcons(runtime,false);
         Selection.activeGameObject=sceneRoot;UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(go.scene);
-        Debug.Log("새 씬에 최신 통합 데모를 생성했습니다. 화면 끝의 작은 목록(관리 왼쪽/진열 오른쪽), 관리 창 퇴장 후 교체, 드래그 스크롤 진열창과 실제 하부 서랍을 모두 적용했습니다. 새 이름으로 씬을 저장하고 Play하세요. 추가 적용 메뉴는 필요 없습니다.");
         if(!hasKoreanFont)Debug.LogWarning("프로젝트에서 알려진 한국어 Font를 찾지 못해 기본 폰트를 사용했습니다. 글자가 네모로 보이면 Store UI Canvas의 InventoryPanel > Korean Font에 한국어 Font를 연결하세요.");
+        return sceneRoot;
     }
 }
 #endif

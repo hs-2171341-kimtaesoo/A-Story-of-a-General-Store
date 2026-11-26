@@ -23,6 +23,9 @@ public static class InventoryCheckMenu
         Debug.Log("관리 창 순차 퇴장/마지막 선택/전환 취소 검사 "+ManagementWindowTransitionChecks.Run()+"개 통과");
         Debug.Log("양피지 관리창 비율/행 선택/스크롤/Texture 검사 "+ParchmentManagementChecks.Run()+"개 통과");
         Debug.Log("상자/가구 구매 UI 연결·실제 구매·가격 갱신·빈 목록 검사 "+PurchasePanelChecks.Run()+"개 통과");
+        Debug.Log("Prefab 저장/참조 복원/수정 유지/중앙 아이콘 검사 "+PrefabLayoutChecks.Run()+"개 통과");
+        Debug.Log("단축키/순차 퇴장/임시 저장고 이동/공통 속도 검사 "+WindowControlsChecks.Run()+"개 통과");
+        Debug.Log("임시 저장고 순차 회수/첫 실패 중지/128칸 아트/빈 상태 검사 "+TemporaryStorageChecks.Run()+"개 통과");
         Debug.Log("고정56칸/상자 추가 검사 "+SideMenuFeatureChecks.Run()+"개 통과");
         TextAsset json = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/3.Script/StoreInventory/Editor/TestData/items.json");
         if (json == null) throw new System.InvalidOperationException("JSON 파일이 없습니다.");

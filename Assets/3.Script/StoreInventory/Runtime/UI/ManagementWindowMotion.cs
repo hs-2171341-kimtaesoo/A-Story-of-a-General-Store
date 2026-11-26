@@ -2,6 +2,11 @@ using UnityEngine;
 
 namespace GeneralStore.Inventory
 {
+    public static class WindowSlideTiming
+    {
+        public static float Ease(float elapsed,float seconds)
+        {float t=Mathf.Clamp01(elapsed/Mathf.Max(.05f,seconds));return 1-(1-t)*(1-t)*(1-t);}
+    }
     // Only the moving window runs this tween; item cards and static lists are untouched.
     [DisallowMultipleComponent]
     public sealed class ManagementWindowMotion : MonoBehaviour
@@ -11,9 +16,26 @@ namespace GeneralStore.Inventory
         [Min(.05f)] public float duration = .3f;
         Vector2 target;
         float elapsed, progress, closeStart;
-        bool hasTarget, closing, inputBlocked, previousRaycasts, previousInteractable;
+        bool hasTarget, closing, deactivateOnClose, inputBlocked, previousRaycasts, previousInteractable;
         CanvasGroup input;
         public bool IsClosed { get; private set; }
+        public bool IsTransitioning{get{return hasTarget&&isActiveAndEnabled&&!IsClosed&&elapsed<Mathf.Max(.05f,duration);}}
+        public bool IsClosing{get{return closing;}}
+
+        public static void CloseWindow(GameObject window)
+        {
+            if(window==null||!window.activeSelf)return;
+            var menu=window.transform.root.GetComponentInChildren<RightSideMenu>(true);
+            if(menu!=null&&menu.CloseWindow(window))return;
+            var motion=window.GetComponent<ManagementWindowMotion>();
+            if(motion==null)
+            {
+                var moving=window.transform.Find("Panel Frame") as RectTransform;
+                motion=Ensure(window,moving!=null?moving:window.transform as RectTransform);
+                motion.progress=1;motion.elapsed=Mathf.Max(.05f,motion.duration);motion.Apply();
+            }
+            motion.BeginClose(true);
+        }
 
         public static ManagementWindowMotion Ensure(GameObject window, RectTransform moving, bool below = false)
         {
@@ -33,14 +55,15 @@ namespace GeneralStore.Inventory
             Apply();
         }
 
-        public void BeginClose()
+        public void BeginClose(bool deactivate=false)
         {
-            if (closing) return;
+            deactivateOnClose|=deactivate;if (closing) return;
+            if(!hasTarget&&frame!=null)SetTarget(frame.anchoredPosition);
             closing = true; elapsed = 0; closeStart = progress; IsClosed = frame == null || !isActiveAndEnabled;
             BlockInput();
         }
 
-        void OnEnable() { elapsed = progress = 0; closing = IsClosed = false; if (Application.isPlaying) BlockInput(); Apply(); }
+        void OnEnable() { elapsed = progress = 0; closing = IsClosed = deactivateOnClose = false; if (Application.isPlaying) BlockInput(); Apply(); }
         void OnDisable() { RestoreInput(); if (frame != null && hasTarget) frame.anchoredPosition = target; }
         void LateUpdate() { Advance(Time.unscaledDeltaTime); }
         public void Advance(float deltaTime)
@@ -48,11 +71,10 @@ namespace GeneralStore.Inventory
             float seconds = Mathf.Max(.05f, duration);
             if (!hasTarget || frame == null || IsClosed || elapsed >= seconds) return;
             elapsed = Mathf.Min(seconds, elapsed + Mathf.Max(0, deltaTime));
-            float t = Mathf.Clamp01(elapsed / seconds);
-            t = 1 - (1 - t) * (1 - t) * (1 - t);
+            float t = WindowSlideTiming.Ease(elapsed,seconds);
             progress = closing ? closeStart * (1 - t) : t;
             Apply();
-            if (elapsed >= seconds) { if (closing) IsClosed = true; else RestoreInput(); }
+            if (elapsed >= seconds) { if (closing){IsClosed=true;if(deactivateOnClose)gameObject.SetActive(false);} else RestoreInput(); }
         }
 
         void BlockInput()

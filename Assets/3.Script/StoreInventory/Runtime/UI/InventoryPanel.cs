@@ -22,6 +22,9 @@ namespace GeneralStore.Inventory
         public ShopfrontUI shop;
         public Text messageLabel;
         public Font koreanFont;public ItemHoverTooltip tooltip;
+        [Tooltip("공용 한국어 폰트를 적용합니다. 개별 Prefab의 폰트를 유지하려면 끄세요.")]
+        public bool useSharedFont=true;
+        public Font SharedFont{get{return useSharedFont?koreanFont:null;}}
         public InventoryModel Model { get { return inventory.Model; } }
         public ItemCatalog Catalog { get { return inventory.Catalog; } }
         public Camera EventCamera { get { return canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera; } }
@@ -54,8 +57,8 @@ namespace GeneralStore.Inventory
             foreach (InventoryGridView grid in grids)
                 if (Model.GetContainer(grid.containerId) == null)
                 { Debug.LogError("존재하지 않는 컨테이너: " + grid.containerId, this); enabled = false; return; }
-            if (koreanFont != null)
-                foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = koreanFont;
+            if (SharedFont != null)
+                foreach (Text text in GetComponentsInChildren<Text>(true)) text.font = SharedFont;
             drag.Initialize(this);
             foreach (InventoryGridView grid in grids) grid.Initialize(this);
             initialized = true; Model.Changed += MarkDirty;inventory.Sales.Changed+=MarkDirty;inventory.Loaded+=ResetSnapshots;

@@ -9,7 +9,7 @@ namespace GeneralStore.Inventory
         public Text title,status;public InventoryPanel panel;public DisplayUI owner;
         public string ContainerId{get{return grid.containerId;}}
         public void Bind(InventoryPanel p,DisplayUI manager,string id)
-        {panel=p;owner=manager;grid.containerId=id;if(details!=null){details.containerFilter=id;details.compactDisplay=true;}if(panel.koreanFont!=null)foreach(var text in GetComponentsInChildren<Text>(true))text.font=panel.koreanFont;panel.RegisterWindowGrid(grid,details);if(extraGrids!=null)foreach(var extra in extraGrids){if(extra==null)continue;extra.containerId=id;panel.RegisterWindowGrid(extra,null);}Refresh();}
+        {panel=p;owner=manager;grid.containerId=id;if(details!=null){details.containerFilter=id;details.compactDisplay=true;}if(panel.SharedFont!=null)foreach(var text in GetComponentsInChildren<Text>(true))text.font=panel.SharedFont;panel.RegisterWindowGrid(grid,details);if(extraGrids!=null)foreach(var extra in extraGrids){if(extra==null)continue;extra.containerId=id;panel.RegisterWindowGrid(extra,null);}Refresh();}
         public void Refresh()
         {
             var install=panel.Model.Installation(ContainerId);if(install==null)return;
