@@ -25,7 +25,7 @@ public static class Furniture13SceneBuilder
         importer.alphaIsTransparency=true;importer.mipmapEnabled=false;importer.isReadable=false;importer.maxTextureSize=maximum;
         importer.textureCompression=TextureImporterCompression.Compressed;importer.SaveAndReimport();
     }
-    static FurnitureSceneLayout Layout()
+    static FurnitureSceneLayout Layout(bool requireSprites=true)
     {
         var file=Resources.Load<TextAsset>("StoreInventory/furniture_layout");
         if(file==null)throw new InvalidOperationException("furniture_layout.json이 없습니다.");
@@ -35,9 +35,29 @@ public static class Furniture13SceneBuilder
         foreach(var e in result.entries)
             if(e==null||e.number<1||e.number>12||!numbers.Add(e.number)||string.IsNullOrEmpty(e.typeId)||!ids.Add(e.typeId)
                 ||string.IsNullOrEmpty(e.spriteKey)||!Finite(e.x)||!Finite(e.y)||!Finite(e.width)||!Finite(e.height)||e.width<=0||e.height<=0
-                ||e.x<0||e.y<0||e.x+e.width>1920||e.y+e.height>1080||Resources.Load<Sprite>(e.spriteKey)==null)
+                ||e.x+e.width<=0||e.y<0||e.x+e.width>1920||e.y+e.height>1080||(requireSprites&&Resources.Load<Sprite>(e.spriteKey)==null))
                 throw new InvalidOperationException("가구 배치 좌표/ID/Sprite 오류입니다.");
         return result;
+    }
+    // Apply the reference composition once when upgrading an authored demo.
+    internal static void UpgradeFloorPlacement(GameObject root)
+    {
+        var entries = Layout(false).entries;
+        foreach (var spot in root.GetComponentsInChildren<SceneFurnitureHotspot>(true))
+        {
+            var entry = Array.Find(entries, candidate => candidate.typeId == spot.typeId);
+            if (entry == null || spot.furnitureImage == null) continue;
+            var rect = (RectTransform)spot.transform;
+            var image = spot.furnitureImage.rectTransform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
+            rect.anchoredPosition = new Vector2(entry.x, -entry.y);
+            rect.sizeDelta = new Vector2(entry.width, entry.height);
+            rect.localScale = Vector3.one;
+            image.anchorMin = image.anchorMax = image.pivot = new Vector2(0, 1);
+            image.anchoredPosition = Vector2.zero;
+            image.sizeDelta = rect.sizeDelta;
+            image.localScale = Vector3.one;
+        }
     }
     static bool Finite(float n){return !float.IsNaN(n)&&!float.IsInfinity(n);}
     public static void Configure(DisplayWindowAppearance appearance,FurnitureArtCatalog art,DisplayCatalog catalog)

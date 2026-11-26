@@ -28,7 +28,7 @@ namespace GeneralStore.Inventory
         {
             if(!visiting||!AtCounter||Engaged||Busy)return;
             string error;if(!shop.panel.inventory.Sales.PresentOnCounter(out error)){shop.panel.ShowMessage(error);return;}
-            Engaged=true;sceneImage.enabled=sceneImage.sprite!=null;sceneImage.raycastTarget=false;shop.RefreshDialogue();
+            shop.panel.inventory.Sales.BeginConversation(out error);Engaged=true;sceneImage.enabled=sceneImage.sprite!=null;sceneImage.raycastTarget=false;shop.RefreshDialogue();
         }
         public void Minimize()
         {

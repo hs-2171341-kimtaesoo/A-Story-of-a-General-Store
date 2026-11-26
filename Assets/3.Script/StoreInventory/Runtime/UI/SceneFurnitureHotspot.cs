@@ -8,7 +8,9 @@ namespace GeneralStore.Inventory
         public global::UnityEngine.UI.Image furnitureImage;public Sprite hoverSprite;
         public float[] furnitureAlphaBounds,outlineAlphaBounds;
         public RectTransform outlineFrame;
-        [Range(0,8)]public float outlineThickness; // 0은 PNG 원래 두께, 양수는 추가 두께(UI 단위).
+        [Tooltip("기존 Outline Frame과 전용 윤곽 PNG를 사용합니다. 기본값은 가구 자체의 실루엣입니다.")]
+        public bool useAuthoredOutline;
+        [Range(0,8)]public float outlineThickness; // 0이면 가구의 표시 크기에 맞춥니다.
         public FurnitureHoverPresenter hoverPresenter;public SceneCounterOcclusion counter;
         global::UnityEngine.UI.Image hitImage;string boundId;bool ready,hover;
         bool InputBlocked{get{return panel.IsWindowDragging||(panel.drag!=null&&panel.drag.IsDragging);}}

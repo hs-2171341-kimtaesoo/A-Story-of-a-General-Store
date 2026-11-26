@@ -26,6 +26,8 @@ public static class InventoryCheckMenu
         Debug.Log("Prefab 저장/참조 복원/수정 유지/중앙 아이콘 검사 "+PrefabLayoutChecks.Run()+"개 통과");
         Debug.Log("단축키/순차 퇴장/임시 저장고 이동/공통 속도 검사 "+WindowControlsChecks.Run()+"개 통과");
         Debug.Log("임시 저장고 순차 회수/첫 실패 중지/128칸 아트/빈 상태 검사 "+TemporaryStorageChecks.Run()+"개 통과");
+        Debug.Log("버튼 기본/누름/선택/포커스/외부 놓기/배치 유지 검사 "+ButtonArtworkChecks.Run()+"개 통과");
+        Debug.Log("거래처/제작 아이콘 중앙/관리 버튼 글자 밝기 검사 "+PanelPresentationChecks.Run()+"개 통과");
         Debug.Log("고정56칸/상자 추가 검사 "+SideMenuFeatureChecks.Run()+"개 통과");
         TextAsset json = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/3.Script/StoreInventory/Editor/TestData/items.json");
         if (json == null) throw new System.InvalidOperationException("JSON 파일이 없습니다.");

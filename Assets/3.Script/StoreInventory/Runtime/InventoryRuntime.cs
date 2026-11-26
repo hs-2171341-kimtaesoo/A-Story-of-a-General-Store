@@ -37,6 +37,8 @@ namespace GeneralStore.Inventory
         public bool startAllFurnitureOwnedForTest; // 배치 확인용. 일반 게임에서는 끕니다.
         public long initialGold = 1000;
         public ShopClock Clock { get; private set; }
+        [Tooltip("비워 두면 Customer Json을 사용합니다. 채우면 이 목록이 방문 손님 명단이 됩니다.")]
+        public CustomerDefinition[] customerProfiles;
         public CustomerCatalog Customers { get; private set; }
         public event Action Loaded;
         public ItemCatalog Catalog { get; private set; }
@@ -75,7 +77,7 @@ namespace GeneralStore.Inventory
                 }
                 var customerFile=customerJson;
                 if(customerFile==null)throw new InvalidOperationException("Customer Json에 손님 데이터 파일을 연결하세요.");
-                var customers=new CustomerCatalog(JsonUtility.FromJson<CustomerDatabase>(customerFile.text));
+                var customers=new CustomerCatalog(customerProfiles!=null&&customerProfiles.Length>0?new CustomerDatabase{customers=customerProfiles}:JsonUtility.FromJson<CustomerDatabase>(customerFile.text));
                 var clock=new ShopClock(clockSettings,new ShopClockState());
                 Catalog = catalog; Model = model; Sales = new RecommendationSession(model);Customers=customers;Clock=clock;Model.SetWorkshopTime(clock.Phase,clock.Day);return true;
             }

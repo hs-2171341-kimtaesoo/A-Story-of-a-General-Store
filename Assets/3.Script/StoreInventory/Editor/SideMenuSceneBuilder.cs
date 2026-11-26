@@ -98,8 +98,8 @@ public static class SideMenuSceneBuilder
         var hit=UI.Box(title,parent,slot.x*PaperScale,slot.y*PaperScale,slot.width*PaperScale,slot.height*PaperScale,Color.clear);hit.canvasRenderer.cullTransparentMesh=false;
         var image=PaperPart("Button Artwork",hit.transform,part,0,0,slot.width,slot.height);
         var button=hit.gameObject.AddComponent<Button>();button.targetGraphic=image;
-        var colors=button.colors;colors.normalColor=colors.highlightedColor=colors.selectedColor=Color.white;colors.pressedColor=new Color(.82f,.82f,.82f);colors.disabledColor=new Color(.5f,.5f,.5f,1);button.colors=colors;
         var label=PaperText("Text",hit.transform,12,8,slot.width-24,slot.height-16,title,47,TextAnchor.MiddleCenter);label.color=new Color(.98f,.92f,.74f);
+        UI.UseTextButtonFeedback(button);
         UnityEditor.Events.UnityEventTools.AddPersistentListener(button.onClick,action);return button;
     }
     // 공통 관리 패널입니다. 배경/카드/아이콘은 Sprite를 연결해 교체할 수 있습니다.
@@ -223,9 +223,8 @@ public static class PurchaseSceneBuilder
     {
         var hit=UI.Box(name,parent,slot.x*s,slot.y*s,slot.width*s,slot.height*s,Color.clear);hit.canvasRenderer.cullTransparentMesh=false;
         var button=hit.gameObject.AddComponent<Button>();
-        RawImage art=null;if(artwork!=null)art=Artwork("Button Artwork",hit.transform,artwork,new Rect(0,0,slot.width,slot.height),s);
-        var label=Label("Text",hit.transform,new Rect(12,7,slot.width-24,slot.height-14),name,58,s,TextAnchor.MiddleCenter);label.color=Cream;button.targetGraphic=art!=null?(Graphic)art:label;
-        var colors=button.colors;colors.normalColor=colors.highlightedColor=colors.selectedColor=Color.white;colors.pressedColor=new Color(.82f,.82f,.82f);colors.disabledColor=new Color(.5f,.5f,.5f);button.colors=colors;
+        if(artwork!=null)Artwork("Button Artwork",hit.transform,artwork,new Rect(0,0,slot.width,slot.height),s);
+        var label=Label("Text",hit.transform,new Rect(12,7,slot.width-24,slot.height-14),name,58,s,TextAnchor.MiddleCenter);label.color=Cream;UI.UseTextButtonFeedback(button);
         UnityEditor.Events.UnityEventTools.AddPersistentListener(button.onClick,action);return button;
     }
     static FurnitureCardView Card(Transform parent,Dictionary<string,Part> parts)

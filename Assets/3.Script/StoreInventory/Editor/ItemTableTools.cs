@@ -54,15 +54,15 @@ public static class ItemTableTools
     public static void ConnectIcons(InventoryRuntime runtime,bool prepareTextures)
     {
         if(runtime==null||runtime.itemJson==null)throw new InvalidOperationException("Item Json을 먼저 연결하세요.");
-        InventoryAssetTools.Connect(runtime);
+        if(runtime.spriteCatalog==null)InventoryAssetTools.Connect(runtime);
         var catalog=new ItemCatalog(JsonUtility.FromJson<ItemDatabase>(runtime.itemJson.text));var keys=new HashSet<string>(StringComparer.Ordinal);
         foreach(var item in catalog.AllDefinitions())keys.Add(catalog.IconKey(item.id));
-        var folders=new List<string>();foreach(string folder in new[]{"Assets/ItemIcons","Assets/Resources/ItemIcons"})if(AssetDatabase.IsValidFolder(folder))folders.Add(folder);
+        var folders=new List<string>();foreach(string folder in new[]{"Assets/ItemIcons","Assets/Resources/ItemIcons","Assets/4.Sprite/Inventory"})if(AssetDatabase.IsValidFolder(folder))folders.Add(folder);
         var sprites=new Dictionary<string,Sprite>(StringComparer.Ordinal);var duplicates=new HashSet<string>(StringComparer.Ordinal);
         if(folders.Count>0)foreach(string guid in AssetDatabase.FindAssets("t:Texture2D",folders.ToArray()))
         {
             string path=AssetDatabase.GUIDToAssetPath(guid);
-            if(prepareTextures)
+            if(prepareTextures && !path.StartsWith("Assets/4.Sprite/Inventory/",StringComparison.Ordinal))
             {
                 var importer=AssetImporter.GetAtPath(path) as TextureImporter;
                 if(importer!=null)
@@ -82,21 +82,25 @@ public static class ItemTableTools
                 sprites[sprite.name]=sprite;
             }
         }
-        int linked=0,missing=0;Undo.RecordObject(runtime.spriteCatalog,"Connect Item Icons By ID");
+        int linked=0,missing=0;var missingKeys=new List<string>();Undo.RecordObject(runtime.spriteCatalog,"Connect Item Icons By ID");
         foreach(var row in runtime.spriteCatalog.itemIcons)
         {
             Sprite sprite;if(row==null)continue;
+            if(row.sprite!=null)continue;
+            if(!string.IsNullOrEmpty(row.resourcePath)&&Resources.Load<Sprite>(row.resourcePath)!=null)continue;
             if(!duplicates.Contains(row.key)&&sprites.TryGetValue(row.key,out sprite)&&row.sprite==null)
             {
                 string path=AssetDatabase.GetAssetPath(sprite);int resource=path.LastIndexOf("/Resources/",StringComparison.Ordinal);var importer=AssetImporter.GetAtPath(path) as TextureImporter;
                 if(runtime.spriteCatalog.useLazyResourceIcons&&resource>=0&&importer!=null&&importer.spriteImportMode==SpriteImportMode.Single)
                     row.resourcePath=path.Substring(resource+11,path.Length-resource-11-System.IO.Path.GetExtension(path).Length);
                 else{row.sprite=sprite;row.resourcePath="";}linked++;
+                continue;
             }
-            if(row.sprite==null&&string.IsNullOrEmpty(row.resourcePath))missing++;
+            missing++;missingKeys.Add(row.key);
         }
         EditorUtility.SetDirty(runtime.spriteCatalog);EditorUtility.SetDirty(runtime);AssetDatabase.SaveAssets();
-        Debug.Log("아이콘 연결 "+linked+"개 / 미연결 "+missing+"개. 기존 수동 연결은 유지. 검색 폴더: Assets/ItemIcons, Assets/Resources/ItemIcons. ID 대소문자를 맞추세요.",runtime);
+        Debug.Log("아이콘 연결 "+linked+"개 / 미연결 "+missing+"개. 기존 수동 연결은 유지. 검색 폴더: Assets/ItemIcons, Assets/Resources/ItemIcons, Assets/4.Sprite/Inventory. ID 대소문자를 맞추세요.",runtime);
+        if(missing>0)Debug.LogWarning("원본 Sprite 또는 유효한 경로가 없는 아이템 키: "+string.Join(", ",missingKeys));
         if(duplicates.Count>0)Debug.LogWarning("중복 Sprite 이름으로 자동 연결하지 않은 ID: "+string.Join(", ",duplicates));
     }
     [MenuItem("Store Inventory/Audit/Check Main Item Table")]

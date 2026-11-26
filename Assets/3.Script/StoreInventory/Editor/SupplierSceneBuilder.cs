@@ -9,17 +9,17 @@ public static class SupplierSceneBuilder
     {
         var image=UI.Box("Supplier Row Template",parent,0,0,508,166,new Color(.25f,.19f,.12f));var row=image.gameObject.AddComponent<SupplierListRowView>();
         row.selectButton=image.gameObject.AddComponent<Button>();row.selectButton.targetGraphic=image;row.tradeButton=row.selectButton;
-        row.portrait=UI.Box("Supplier Emblem Sprite",image.transform,12,20,92,110,Color.white);row.portrait.raycastTarget=false;
+        row.portrait=UI.IconSlot("Supplier Emblem Sprite",image.transform,12,20,92,110);
         row.nameLabel=UI.Label("Name",image.transform,120,12,350,32,"",25);row.descriptionLabel=UI.Label("Description",image.transform,120,50,350,44,"",18);
         row.statusLabel=UI.Label("Status",image.transform,120,126,350,32,"",16);
-        row.sampleIcons=new global::UnityEngine.UI.Image[2];for(int n=0;n<2;n++){row.sampleIcons[n]=UI.Box("Sample Icon "+n,image.transform,122+n*60,90,44,36,Color.white);row.sampleIcons[n].raycastTarget=false;}
+        row.sampleIcons=new global::UnityEngine.UI.Image[2];for(int n=0;n<2;n++)row.sampleIcons[n]=UI.IconSlot("Sample Icon "+n,image.transform,122+n*60,90,44,36);
         UI.Label("Arrow",image.transform,474,64,30,36,"›",30);
         image.gameObject.AddComponent<LayoutElement>().preferredHeight=166;image.gameObject.SetActive(false);return row;
     }
     static SupplierOfferRowView OfferTemplate(Transform parent)
     {
         var image=UI.Box("Supplier Offer Template",parent,0,0,508,110,new Color(.24f,.18f,.11f));var row=image.gameObject.AddComponent<SupplierOfferRowView>();
-        row.icon=UI.Box("Item Icon",image.transform,8,16,64,72,Color.white);row.icon.raycastTarget=false;
+        row.icon=UI.IconSlot("Item Icon",image.transform,8,16,64,72);
         row.nameLabel=UI.Label("Name",image.transform,82,8,234,30,"",21);row.priceLabel=UI.Label("Unit Price",image.transform,82,42,196,28,"",17);
         row.stockLabel=UI.Label("Remaining Stock",image.transform,82,76,196,26,"",16);
         row.minusButton=UI.ButtonBox("−",image.transform,288,40,36,36,null);row.quantityLabel=UI.Label("Quantity",image.transform,326,40,50,36,"0",21);row.quantityLabel.alignment=TextAnchor.MiddleCenter;
@@ -35,7 +35,7 @@ public static class SupplierSceneBuilder
         UI.Label("Delivery",list,24,700,512,44,"주문 물품은 내일 새벽 도착합니다.",20);UI.ButtonBox("닫기",list,140,778,280,56,ui.Close);
         var trade=UI.Rect("Supplier Trade Page",panel,0,0,560,860);ui.tradePage=trade.gameObject;
         UI.ButtonBox("‹ 목록으로",trade,24,76,180,38,ui.ShowList);
-        ui.portrait=UI.Box("Supplier Emblem Sprite",trade,28,128,88,88,Color.white);ui.portrait.raycastTarget=false;
+        ui.portrait=UI.IconSlot("Supplier Emblem Sprite",trade,28,128,88,88);
         ui.titleLabel=UI.Label("Supplier Name",trade,130,128,396,36,"",26);ui.greetingLabel=UI.Label("Greeting",trade,130,170,396,56,"",18);
         ui.offerList=SideMenuSceneBuilder.List(trade,"Offer List",24,242,512,360,true);
         ui.cycleLabel=UI.Label("Cycle And Delivery",trade,24,614,512,42,"",18);
@@ -44,6 +44,7 @@ public static class SupplierSceneBuilder
         ui.testSelectionLabel=UI.Label("Test Selection",parent,0,0,420,36,"",16);ui.testSelectionLabel.gameObject.SetActive(false);
         UI.ButtonBox("거래처 해금 테스트",parent,0,0,200,50,ui.UnlockNext);UI.ButtonBox("거래처 중단 테스트",parent,0,0,200,50,ui.BlockSelected);UI.ButtonBox("거래처 재개 테스트",parent,0,0,200,50,ui.ResumeSelected);
         ui.supplierTemplate=SupplierTemplate(parent);ui.offerTemplate=OfferTemplate(parent);ui.window.SetActive(false);trade.gameObject.SetActive(false);
+        PanelPresentationEditor.ApplyTextButtons(ui.window);PanelPresentationEditor.ApplyTextButtons(ui.offerTemplate.gameObject);
     }
 }
 #endif

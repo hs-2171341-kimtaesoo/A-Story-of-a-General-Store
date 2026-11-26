@@ -14,7 +14,7 @@ using Object=UnityEngine.Object;
 // Subsequent demos only instantiate the saved layout. They never regenerate authored UI.
 public static class StoreLayoutPrefabTools
 {
-    public const int CurrentSchema=3;
+    public const int CurrentSchema=8;
     public const string Folder="Assets/StoreInventorySettings/Prefabs";
     public const string LayoutPath=Folder+"/StoreLayout.prefab";
     public const string DisplayRowPath=Folder+"/Rows/OwnedDisplayRow.prefab";
@@ -27,31 +27,46 @@ public static class StoreLayoutPrefabTools
     public static void CreateLatestDemo()
     {
         if(EditorApplication.isPlayingOrWillChangePlaymode)return;
-        TemporaryStorageArtBuilder.ValidateArt();
+        TemporaryStorageArtBuilder.ValidateArt();TemporaryStorageArtBuilder.PrepareArt();CounterDemoSceneBuilder.PrepareSprites();ButtonArtworkEditor.ValidateSources();
         var prefab=Existing(LayoutPath);
         // All validation precedes the save/new-scene dialog. A broken prefab is never replaced.
-        if(prefab!=null)ValidateLayout(prefab,true);
+        if(prefab!=null)
+        {
+            Furniture13SceneBuilder.PrepareSprites();
+            prefab=RepairTemplateLinks(prefab);
+            ValidateLayout(prefab,true);
+        }
         else
         {
             CustomDisplayArtBuilder.ValidateDefinitions();
             SideMenuSceneBuilder.ValidateManagementArt();PurchaseSceneBuilder.ValidateArt();
         }
+        bool reusedLayout=prefab!=null;
         if(!LatestDemoSetup.BeginNewScene())return;
         GameObject root;
         if(prefab==null)
         {
             root=InventorySceneBuilder.BuildInitialLayout();
-            AttachBindings(root);SaveSharedTemplates(root);ValidateLayout(root);
+            AttachBindings(root);DemoSceneArtwork.Repair(root);SaveSharedTemplates(root);ValidateLayout(root);
             SaveNewLayout(root,LayoutPath);
             // Validate the persisted representation as well as the original hierarchy.
             prefab=AssetDatabase.LoadAssetAtPath<GameObject>(LayoutPath);ValidateLayout(prefab);
+            DemoSceneArtwork.Verify(prefab);
         }
         else
         {
             if(prefab.GetComponent<StoreLayoutRoot>().schemaVersion<CurrentSchema)prefab=UpgradeControls(LayoutPath);
+            prefab=DemoSceneArtwork.RepairPrefab(prefab,LayoutPath);
             root=InstantiateLayout(prefab);
             Undo.RegisterCreatedObjectUndo(root,"Create Prefab Demo");
         }
+        var bound = root.GetComponent<StoreLayoutRoot>();
+        PrefabArtworkBindings.RepairRow(bound.management.cardTemplate,"ManagementPanel");
+        PrefabArtworkBindings.RepairRow(bound.management.stockTemplate,"ManagementPanel");
+        PrefabArtworkBindings.RepairRow(bound.purchases.cardTemplate,"PurchasePanel");
+        ButtonArtworkEditor.RepairCatalog(bound.buttonArtwork);
+        if(reusedLayout && bound.inventory.spriteCatalog!=null)
+            ItemTableTools.ConnectIcons(bound.inventory,false);
         EnsureSceneInput();CompactDemoSceneBuilder.ConfigureUiOnlyCamera(root.scene.handle);
         Selection.activeGameObject=root;
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(root.scene);
@@ -70,6 +85,56 @@ public static class StoreLayoutPrefabTools
 #else
         events.AddComponent<StandaloneInputModule>();
 #endif
+    }
+
+    static T Row<T>(string path) where T:Component
+    {
+        var asset=Existing(path);
+        var component=asset==null?null:asset.GetComponent<T>();
+        if(component==null)throw new InvalidOperationException("목록 Prefab 원본 누락: "+path);
+        return component;
+    }
+
+    static bool TemplateLinks(GameObject root,bool fix)
+    {
+        var layout=root.GetComponent<StoreLayoutRoot>();
+        if(layout==null||layout.management==null||layout.purchases==null||layout.inventory==null)return false;
+        bool changed=false;
+        var management=layout.management;
+        var purchase=layout.purchases;
+        if(management.cardTemplate==null){changed=true;if(fix)management.cardTemplate=Row<FurnitureCardView>(DisplayRowPath);}
+        if(management.stockTemplate==null){changed=true;if(fix)management.stockTemplate=Row<DisplayStockRowView>(StockRowPath);}
+        if(purchase.cardTemplate==null){changed=true;if(fix)purchase.cardTemplate=Row<FurnitureCardView>(PurchaseRowPath);}
+        foreach(var grid in root.GetComponentsInChildren<InventoryGridView>(true))
+            if(grid.itemTemplate==null){changed=true;if(fix)grid.itemTemplate=Row<InventoryItemView>(ItemPath);}
+        var right=root.GetComponentInChildren<RightSideMenu>(true);
+        var left=root.GetComponentInChildren<LeftDisplayMenu>(true);
+        if(right!=null&&right.template==null){changed=true;if(fix)right.template=Row<RightMenuButtonView>(ManagementButtonPath);}
+        if(left!=null&&left.template==null){changed=true;if(fix)left.template=Row<LeftDisplayButtonView>(DisplayButtonPath);}
+        if(layout.inventory.spriteCatalog==null){changed=true;if(fix)InventoryAssetTools.Connect(layout.inventory);}
+        if(layout.schemaVersion>=5 && (layout.buttonArtwork==null || right!=null&&right.buttonArtwork==null || left!=null&&left.buttonArtwork==null)){
+            changed=true;
+            if(fix){
+                if(layout.buttonArtwork==null)layout.buttonArtwork=ButtonArtworkEditor.EnsureCatalog();
+                if(right!=null&&right.buttonArtwork==null)right.buttonArtwork=layout.buttonArtwork;
+                if(left!=null&&left.buttonArtwork==null)left.buttonArtwork=layout.buttonArtwork;
+            }
+        }
+        return changed;
+    }
+
+    static GameObject RepairTemplateLinks(GameObject prefab)
+    {
+        if(!TemplateLinks(prefab,false))return prefab;
+        var root=PrefabUtility.LoadPrefabContents(LayoutPath);
+        try{
+            TemplateLinks(root,true);
+            ValidateLayout(root,true);
+            bool saved;
+            var result=PrefabUtility.SaveAsPrefabAsset(root,LayoutPath,out saved);
+            if(!saved||result==null)throw new InvalidOperationException("공통 Prefab 참조 복구 실패: "+LayoutPath);
+            return result;
+        }finally{PrefabUtility.UnloadPrefabContents(root);}
     }
 
     static GameObject Existing(string path)
@@ -114,7 +179,7 @@ public static class StoreLayoutPrefabTools
         layout.viewport.CaptureAuthoredManagementPlacement();
         ConfigureControls(root);
     }
-    // Keep existing authored panels. Only the legacy temporary-storage window gains the new art.
+    // Preserve authored transforms while connecting new controls and button states.
     internal static GameObject UpgradeControls(string path)
     {
         var contents=PrefabUtility.LoadPrefabContents(path);
@@ -124,7 +189,21 @@ public static class StoreLayoutPrefabTools
             if(layout==null||layout.schemaVersion<1||layout.schemaVersion>=CurrentSchema)throw new InvalidOperationException("지원하지 않는 Prefab 갱신 버전입니다: "+path);
             var delivery=contents.GetComponentInChildren<DeliveryUI>(true);
             if(!delivery.useStorageArtwork)TemporaryStorageArtBuilder.UpgradeWindow(delivery);
-            ConfigureControls(contents);layout.schemaVersion=CurrentSchema;ValidateLayout(contents);
+            if(layout.schemaVersion<5)ConfigureControls(contents);
+            if(layout.schemaVersion<7)
+            {
+                Furniture13SceneBuilder.UpgradeFloorPlacement(contents);
+                var left=contents.GetComponentInChildren<RightSideMenu>(true);
+                var right=contents.GetComponentInChildren<LeftDisplayMenu>(true);
+                float leftShift=Mathf.Min(4,left.peekWidth);
+                float rightShift=Mathf.Min(4,right.peekWidth);
+                left.peekWidth-=leftShift;
+                right.peekWidth-=rightShift;
+                if(left.autoHide)((RectTransform)left.transform).anchoredPosition+=Vector2.left*leftShift;
+                right.window.anchoredPosition+=(right.dockRight?Vector2.right:Vector2.left)*rightShift;
+            }
+            TemporaryStorageArtBuilder.ApplyBronzeLayout(delivery);
+            layout.schemaVersion=CurrentSchema;ValidateLayout(contents);
             bool success;var asset=PrefabUtility.SaveAsPrefabAsset(contents,path,out success);
             if(!success||asset==null)throw new InvalidOperationException("단축키/임시 저장고 Prefab 갱신 실패: "+path);
             return asset;
@@ -151,6 +230,8 @@ public static class StoreLayoutPrefabTools
             if(entry.window==null)continue;
             var motion=entry.window.GetComponent<ManagementWindowMotion>();if(motion!=null)motion.duration=menu.windowSlideSeconds;
         }
+        ButtonArtworkEditor.ApplyToLayout(root);
+        PanelPresentationEditor.Apply(root);
     }
     static void SaveSharedTemplates(GameObject root)
     {
@@ -219,6 +300,8 @@ public static class StoreLayoutPrefabTools
             throw new InvalidOperationException("양쪽 메뉴의 Prefab 참조가 누락되었습니다.");
         if(layout.schemaVersion==CurrentSchema)
         {
+            if(layout.buttonArtwork==null||managementMenu.buttonArtwork==null||displayMenu.buttonArtwork==null)
+                throw new InvalidOperationException("버튼 기본/누름/선택 Sprite 연결이 누락되었습니다.");
             var delivery=root.GetComponentInChildren<DeliveryUI>(true);var drag=delivery==null||delivery.window==null?null:delivery.window.GetComponent<TemporaryStorageWindowDrag>();
             if(layout.hotkeys==null||layout.hotkeys.panel!=panel||layout.hotkeys.menu!=managementMenu||layout.hotkeys.drawer!=panel.shop.drawer||management.display.managementMenu!=managementMenu
                 ||delivery==null||delivery.managementMenu!=managementMenu||drag==null||drag.delivery!=delivery||drag.panel!=panel||drag.window!=delivery.window||drag.bounds==null)
@@ -240,7 +323,8 @@ public static class StoreLayoutPrefabTools
         foreach(var component in root.GetComponentsInChildren<Component>(true))
         {
             if(component==null)throw new InvalidOperationException("Prefab 안에 Missing Script가 있습니다: "+root.name);
-            var serialized=new SerializedObject(component);var property=serialized.GetIterator();
+            using(var serialized=new SerializedObject(component))
+            using(var property=serialized.GetIterator())
             while(property.Next(true))
             {
                 // Native prefab bookkeeping is not a user reference. A subprefab root may have

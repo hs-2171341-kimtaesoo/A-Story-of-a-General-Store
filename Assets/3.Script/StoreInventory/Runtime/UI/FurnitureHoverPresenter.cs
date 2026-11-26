@@ -1,16 +1,46 @@
 using UnityEngine;
 namespace GeneralStore.Inventory
 {
-    // 표시 Image 하나를 공유합니다. 각 가구 Outline Frame은 에디터에서 편집한 그대로 사용합니다.
+    // 기본 윤곽은 가구의 실제 메시에서 그립니다. 수동 프레임 모드만 별도 이미지를 씁니다.
     public sealed class FurnitureHoverPresenter:MonoBehaviour
     {
         public global::UnityEngine.UI.Image image;public Color tint=new Color(1,.8f,.15f,1);[Min(0)]public float padding=1;
         public global::UnityEngine.UI.Outline thicknessEffect;
         SceneFurnitureHotspot owner;
-        void Start(){owner=null;if(image!=null)image.enabled=false;} // 편집 모드의 미리보기를 플레이에 남기지 않습니다.
+        QualityOutlineEffect silhouette;
+        Material originalMaterial;
+
+        void ClearSilhouette()
+        {
+            if (silhouette == null) return;
+            silhouette.enabled = false;
+            if (owner != null && owner.furnitureImage != null)
+                owner.furnitureImage.material = originalMaterial;
+            silhouette = null;
+            originalMaterial = null;
+        }
+        void Start(){ClearSilhouette();owner=null;if(image!=null)image.enabled=false;} // 편집 모드의 미리보기를 플레이에 남기지 않습니다.
         public void Show(SceneFurnitureHotspot target)
         {
-            if(image==null||target==null||target.hoverSprite==null||target.furnitureImage==null||target.furnitureImage.sprite==null)return;
+            if(target==null||target.furnitureImage==null||target.furnitureImage.sprite==null)return;
+            if(owner!=target)ClearSilhouette();
+            if(!target.useAuthoredOutline)
+            {
+                if(image!=null)image.enabled=false;
+                owner=target;
+                if(silhouette==null)
+                {
+                    var surface=target.furnitureImage;
+                    originalMaterial=surface.material==surface.defaultMaterial?null:surface.material;
+                    silhouette=surface.GetComponent<QualityOutlineEffect>();
+                    if(silhouette==null)silhouette=surface.gameObject.AddComponent<QualityOutlineEffect>();
+                }
+                float width=target.outlineThickness>0?target.outlineThickness:Mathf.Clamp(target.furnitureImage.rectTransform.rect.height*.006f,1.4f,2.8f);
+                silhouette.Configure(tint,width);
+                return;
+            }
+            ClearSilhouette();
+            if(image==null||target.hoverSprite==null)return;
             owner=target;var rect=image.rectTransform;
             if(target.outlineFrame!=null)
             {
@@ -33,7 +63,7 @@ namespace GeneralStore.Inventory
             if(thickness>0){thicknessEffect.effectDistance=new Vector2(thickness,thickness);thicknessEffect.effectColor=tint;thicknessEffect.useGraphicAlpha=true;}
             image.enabled=true;
         }
-        public void Hide(SceneFurnitureHotspot target){if(owner!=target)return;owner=null;if(image!=null){image.enabled=false;image.transform.SetParent(transform,false);}}
-        void OnDisable(){owner=null;if(image!=null)image.enabled=false;}
+        public void Hide(SceneFurnitureHotspot target){if(owner!=target)return;ClearSilhouette();owner=null;if(image!=null){image.enabled=false;image.transform.SetParent(transform,false);}}
+        void OnDisable(){ClearSilhouette();owner=null;if(image!=null)image.enabled=false;}
     }
 }

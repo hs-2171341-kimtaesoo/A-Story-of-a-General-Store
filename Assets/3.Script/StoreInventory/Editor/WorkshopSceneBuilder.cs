@@ -10,7 +10,7 @@ public static class WorkshopSceneBuilder
     static WorkshopSlotView Slot(Transform parent,string name,float x,bool result,int index)
     {
         var image=UI.Box(name,parent,x,32,66,72,new Color(.24f,.16f,.09f));var slot=image.gameObject.AddComponent<WorkshopSlotView>();slot.background=image;slot.result=result;slot.slot=index;
-        slot.icon=UI.Box("Icon",image.transform,5,3,56,42,Color.white);slot.icon.raycastTarget=false;slot.icon.preserveAspect=true;
+        slot.icon=UI.IconSlot("Icon",image.transform,5,3,56,42);
         slot.label=UI.Label("Name",image.transform,2,45,62,25,"",11);slot.label.alignment=TextAnchor.MiddleCenter;return slot;
     }
     public static void Build(RectTransform layout,InventoryPanel panel)

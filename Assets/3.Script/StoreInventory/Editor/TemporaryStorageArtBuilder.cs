@@ -9,7 +9,7 @@ using UI=InventorySceneBuilder;
 
 public static class TemporaryStorageArtBuilder
 {
-    const float Scale=1284f/1498;
+    const float Scale=1284f/1536;
     [Serializable]sealed class Part{public string id,spriteKey;public float sourceWidth,sourceHeight;public int maximumTextureSize;}
     [Serializable]sealed class ArtData{public Part[] entries;}
     static Dictionary<string,Part> Art()
@@ -24,7 +24,7 @@ public static class TemporaryStorageArtBuilder
                 throw new ArgumentException("임시 저장고 Sprite 정의 오류");
             parts.Add(part.id,part);
         }
-        foreach(string key in new[]{"frame","mark","fee","used","recover","recover_disabled","close"})
+        foreach(string key in new[]{"frame","mark","fee","used","recover","recover_disabled","close","coin","close_pressed"})
             if(!parts.ContainsKey(key))throw new ArgumentException("임시 저장고 Sprite 누락: "+key);
         return parts;
     }
@@ -79,7 +79,52 @@ public static class TemporaryStorageArtBuilder
         grid.itemLayer=UI.Rect("Items",grid.transform,0,0,1376*Scale,688*Scale);
         var input=gridImage.gameObject.AddComponent<DragOnlyRaycastSurface>();input.panel=ui.panel;input.image=gridImage;
         var drag=root.gameObject.AddComponent<TemporaryStorageWindowDrag>();drag.panel=ui.panel;drag.delivery=ui;drag.window=ui.window;drag.bounds=parent as RectTransform;ui.windowDrag=drag;
+        ApplyBronzeLayout(ui);
         ui.details=null;UiPerformanceLayers.Ensure(root.gameObject,true);root.gameObject.SetActive(false);
+    }
+    static void Place(RectTransform rect,float x,float y,float w,float h)
+    {
+        rect.anchorMin=rect.anchorMax=rect.pivot=new Vector2(0,1);
+        rect.anchoredPosition=new Vector2(x,-y)*Scale;
+        rect.sizeDelta=new Vector2(w,h)*Scale;
+    }
+    public static void ApplyBronzeLayout(DeliveryUI ui)
+    {
+        var root=ui.window;
+        root.sizeDelta=new Vector2(1536,1024)*Scale;
+        Place((RectTransform)root.Find("Official Mark Slot"),80,69,162,144);
+        Place((RectTransform)root.Find("Title"),282,76,394,75);
+        Place((RectTransform)root.Find("Fee Rule"),282,153,394,49);
+        Place(ui.feeLabel.rectTransform,779,111,221,69);
+        Place(ui.usedCellsLabel.rectTransform,1054,114,209,65);
+        var coin=root.Find("Fee Coin");
+        var coinImage=coin==null?UI.Box("Fee Coin",root,0,0,1,1,Color.white):coin.GetComponent<global::UnityEngine.UI.Image>();
+        Place(coinImage.rectTransform,729,125,44,40);
+        coinImage.sprite=Resources.Load<Sprite>("StoreInventory/TemporaryStorage/coin");
+        coinImage.preserveAspect=true;coinImage.raycastTarget=false;
+        Place((RectTransform)ui.recoverButton.transform,1274,114,186,69);
+        Place(ui.recoverEnabledArtwork.rectTransform,0,0,186,69);
+        Place(ui.recoverDisabledArtwork.rectTransform,0,0,186,69);
+        Place(ui.recoverLabel.rectTransform,24,1,138,66);
+        var close=(RectTransform)root.Find("Close");
+        Place(close,1415,4,102,98);
+        var node=(RectTransform)close.Find("Artwork");
+        Place(node,0,0,102,98);
+        var raw=node.GetComponent<RawImage>();
+        if(raw!=null)UnityEngine.Object.DestroyImmediate(raw);
+        var icon=node.GetComponent<global::UnityEngine.UI.Image>();
+        if(icon==null)icon=node.gameObject.AddComponent<global::UnityEngine.UI.Image>();
+        icon.raycastTarget=false;
+        ButtonArtworkCatalog.Apply(close.GetComponent<Button>(),icon,new ButtonSpriteSet{
+            normal=Resources.Load<Sprite>("StoreInventory/TemporaryStorage/close"),
+            pressed=Resources.Load<Sprite>("StoreInventory/TemporaryStorage/close_pressed")},false);
+        Place(ui.scroll.viewport,76,260,1384,698);
+        ui.grid.cellWidth=1384*Scale/16;
+        ui.grid.cellHeight=698*Scale/8;
+        ui.gridArtwork.cellHeight=ui.grid.cellHeight;
+        ui.scroll.scrollSensitivity=ui.grid.cellHeight;
+        ui.gridArtwork.sourceUv=new Rect(76f/1536,66f/1024,1384f/1536,698f/1024);
+        ui.content.sizeDelta=ui.grid.Rect.sizeDelta=ui.grid.itemLayer.sizeDelta=new Vector2(1384,698)*Scale;
     }
     public static void UpgradeWindow(DeliveryUI ui)
     {

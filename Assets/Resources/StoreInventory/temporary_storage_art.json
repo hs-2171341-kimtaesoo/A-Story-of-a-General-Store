@@ -3,36 +3,36 @@
     {
       "id": "frame",
       "spriteKey": "StoreInventory/TemporaryStorage/frame",
-      "sourceWidth": 1498,
-      "sourceHeight": 999,
+      "sourceWidth": 1536,
+      "sourceHeight": 1024,
       "maximumTextureSize": 2048
     },
     {
       "id": "mark",
       "spriteKey": "StoreInventory/TemporaryStorage/mark",
-      "sourceWidth": 440,
-      "sourceHeight": 440,
+      "sourceWidth": 362,
+      "sourceHeight": 329,
       "maximumTextureSize": 512
     },
     {
       "id": "fee",
       "spriteKey": "StoreInventory/TemporaryStorage/fee",
-      "sourceWidth": 679,
-      "sourceHeight": 176,
+      "sourceWidth": 478,
+      "sourceHeight": 164,
       "maximumTextureSize": 512
     },
     {
       "id": "used",
       "spriteKey": "StoreInventory/TemporaryStorage/used",
-      "sourceWidth": 659,
-      "sourceHeight": 158,
+      "sourceWidth": 417,
+      "sourceHeight": 152,
       "maximumTextureSize": 512
     },
     {
       "id": "recover",
       "spriteKey": "StoreInventory/TemporaryStorage/recover",
-      "sourceWidth": 421,
-      "sourceHeight": 167,
+      "sourceWidth": 413,
+      "sourceHeight": 171,
       "maximumTextureSize": 256
     },
     {
@@ -45,9 +45,23 @@
     {
       "id": "close",
       "spriteKey": "StoreInventory/TemporaryStorage/close",
-      "sourceWidth": 99,
-      "sourceHeight": 91,
+      "sourceWidth": 245,
+      "sourceHeight": 245,
       "maximumTextureSize": 128
+    },
+    {
+      "id": "coin",
+      "spriteKey": "StoreInventory/TemporaryStorage/coin",
+      "maximumTextureSize": 256,
+      "sourceWidth": 169,
+      "sourceHeight": 150
+    },
+    {
+      "id": "close_pressed",
+      "spriteKey": "StoreInventory/TemporaryStorage/close_pressed",
+      "maximumTextureSize": 256,
+      "sourceWidth": 1254,
+      "sourceHeight": 1254
     }
   ]
 }

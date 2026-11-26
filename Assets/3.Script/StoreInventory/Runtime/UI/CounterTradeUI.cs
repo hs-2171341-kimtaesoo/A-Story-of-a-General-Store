@@ -98,7 +98,17 @@ namespace GeneralStore.Inventory
             LastPhysicsSteps=CounterTableMotion.Advance(bodies,motion,Mathf.Min(.1f,Time.unscaledDeltaTime));
             if(LastPhysicsSteps>0)ApplyPositions();
         }
-        void OnDisable(){if(dragging!=null)EndCounterDrag(dragging);}
+        readonly List<GameObject> returnEffects = new List<GameObject>();
+        void OnDisable()
+        {
+            if (dragging != null) EndCounterDrag(dragging);
+            StopAllCoroutines();
+            priceTween = null;
+            previousCounter = -1;
+            foreach (var effect in returnEffects)
+                if (effect != null) Destroy(effect);
+            returnEffects.Clear();
+        }
 
         RecommendationSession Session{get{return panel.inventory.Sales;}}
         bool Busy{get{return panel.IsWindowDragging||panel.drag.IsDragging||shop.HasPendingPlacement||IsItemDragging;}}
@@ -107,7 +117,7 @@ namespace GeneralStore.Inventory
             string error;if(panel==null||shop==null||tableItems==null||controls==null||priceEditor==null||itemTemplate==null||totalLabel==null||infoLabel==null||proposedTotalInput==null||sellButton==null||talkButton==null||!panel.inventory.TryInitialize(out error))
             {Debug.LogError("카운터 거래 참조를 확인하세요. 새 데모 씬을 생성하세요.",this);enabled=false;return;}
             authoredControlsPosition=((RectTransform)controls.transform).anchoredPosition;authoredInfoPosition=infoLabel.rectTransform.anchoredPosition;
-            RefreshViewport(visibleRegion);HideLegacyNavigation();ConfigureMotion();itemTemplate.gameObject.SetActive(false);priceEditor.SetActive(false);ready=true;panel.drag.DraggingChanged+=OnHeld;Render();
+            RefreshViewport(visibleRegion);HideLegacyNavigation();ConfigureMotion();itemTemplate.gameObject.SetActive(false);priceEditor.SetActive(false);ready=true;Session.Returned+=FlyReturn;panel.drag.DraggingChanged+=OnHeld;Render();
         }
         void ReleaseUnused()
         {
@@ -122,14 +132,24 @@ namespace GeneralStore.Inventory
             if(controls.activeSelf!=engaged)controls.SetActive(engaged);
             if(tableItems.gameObject.activeSelf!=present)tableItems.gameObject.SetActive(present);
             if(dropSurface!=null)dropSurface.raycastTarget=present&&panel.drag.IsDragging&&!priceEditor.activeSelf;
+            ShowSpeech(engaged?Session.Speech:null);
             seen.Clear();quotedTotal=0;
-            if(!present){ReleaseUnused();bodies.Clear();dropPoints.Clear();priceEditor.SetActive(false);infoLabel.text="";return;}
-            var cart=Session.Purchases();long pickedTotal=0;foreach(var line in cart)pickedTotal+=line.price;var extra=Session.Offers();cart.AddRange(extra);int count=cart.Count;
-            foreach(var line in cart){seen.Add(line.instanceId);quotedTotal+=line.price;}ReleaseUnused();if(selectedInfoUid!=null&&!seen.Contains(selectedInfoUid)){selectedInfoUid=null;infoLabel.text="";}
+            if(!present){previousCounter=-1;ReleaseUnused();bodies.Clear();dropPoints.Clear();priceEditor.SetActive(false);infoLabel.text="";return;}
+            int count=Session.CounterLineCount;
+            int picks=Session.PickedCount;
+            long pickedTotal=0;
+            for(int i=0;i<count;i++)
+            {
+                var line=Session.CounterLineAt(i);
+                seen.Add(line.instanceId);
+                quotedTotal+=line.price;
+                if(i<picks)pickedTotal+=line.price;
+            }
+            ReleaseUnused();if(selectedInfoUid!=null&&!seen.Contains(selectedInfoUid)){selectedInfoUid=null;infoLabel.text="";}
             ConfigureMotion();bodies.Clear();
             for(int n=0;n<count;n++)
             {
-                var offer=cart[n];CounterItemView v;bool arriving=!views.TryGetValue(offer.instanceId,out v);
+                var offer=Session.CounterLineAt(n);CounterItemView v;bool arriving=!views.TryGetValue(offer.instanceId,out v);
                 if(arriving){v=pool.Count>0?pool.Pop():Instantiate(itemTemplate,tableItems);views.Add(offer.instanceId,v);v.transform.SetParent(tableItems,false);v.gameObject.SetActive(true);}
                 v.Bind(this,offer,arriving);bodies.Add(v.Body);
                 if(arriving)
@@ -140,24 +160,89 @@ namespace GeneralStore.Inventory
                 }
             }
             foreach(var body in bodies)if(!body.dragged)Clamp(body);ApplyPositions();WakeBodies();PlaceControlsAboveGoods();
-            totalLabel.text=verticalControls?quotedTotal.ToString("N0")+" G":"진열 등록 합계 "+pickedTotal.ToString("N0")+" G"+(extra.Count>0?" · 추천 포함 "+quotedTotal.ToString("N0")+" G":"");
-            sellButton.interactable=count>0;talkButton.interactable=true;
+            if(Session.ProposedPrice>=0)quotedTotal=Session.ProposedPrice;
+            long beforeCounter=quotedTotal;
+            if(Session.CounterPrice>=0)quotedTotal=Session.CounterPrice;
+            if(Session.Selling)quotedTotal=Session.SellerPrice;
+            if(sellLabel==null)sellLabel=sellButton.GetComponentInChildren<Text>(true);
+            if(sellLabel!=null)sellLabel.text=Session.Selling?"매입":Session.EventVisit?"확인":"판매";
+            totalLabel.text=(verticalControls||Session.StoryVisit)?quotedTotal.ToString("N0")+" G":"진열 등록 합계 "+pickedTotal.ToString("N0")+" G"+(count>picks?" · 추천 포함 "+quotedTotal.ToString("N0")+" G":"");
+            if(Session.CounterPrice>=0&&previousCounter!=Session.CounterPrice){
+                if(priceTween!=null)StopCoroutine(priceTween);
+                priceTween=StartCoroutine(CountDown(beforeCounter,Session.CounterPrice));
+            }else if(Session.CounterPrice<0&&priceTween!=null){StopCoroutine(priceTween);priceTween=null;}
+            previousCounter=Session.CounterPrice;
+            sellButton.interactable=count>0||Session.Selling||Session.EventVisit;talkButton.interactable=true;
         }
-        public void Sell(){if(Busy)return;shop.SubmitOffer();}
+        long previousCounter=-1;
+        Coroutine priceTween;
+        System.Collections.IEnumerator CountDown(long from,long to){
+            for(float t=0;t<1;t+=Time.unscaledDeltaTime*3){
+                if(!Session.CustomerPresent||Session.CounterPrice!=to)yield break;
+                totalLabel.text=((long)(from+(to-from)*(double)t)).ToString("N0")+" G";yield return null;
+            }
+            totalLabel.text=to.ToString("N0")+" G";priceTween=null;
+        }
+        Text speechText, sellLabel;
+        void ShowSpeech(string line){
+            if(speechText==null&&string.IsNullOrEmpty(line))return;
+            if(speechText==null){
+                var box=new GameObject("Customer Dialogue",typeof(RectTransform),typeof(global::UnityEngine.UI.Image));
+                var rect=(RectTransform)box.transform;rect.SetParent(controls.transform,false);
+                rect.anchorMin=rect.anchorMax=new Vector2(.5f,1);rect.pivot=new Vector2(.5f,0);
+                rect.sizeDelta=new Vector2(530,100);rect.anchoredPosition=new Vector2(0,12);
+                var bg=box.GetComponent<global::UnityEngine.UI.Image>();bg.color=new Color(.04f,.035f,.03f,.8f);bg.raycastTarget=false;
+                speechText=Instantiate(totalLabel,rect);var t=speechText.rectTransform;
+                t.anchorMin=Vector2.zero;t.anchorMax=Vector2.one;t.offsetMin=new Vector2(12,6);t.offsetMax=new Vector2(-12,-6);
+                speechText.resizeTextForBestFit=true;speechText.raycastTarget=false;
+            }
+            speechText.transform.parent.gameObject.SetActive(!string.IsNullOrEmpty(line));speechText.text=line;
+        }
+        void FlyReturn(string uid,string destination)
+        {
+            CounterItemView view;
+            if(!isActiveAndEnabled||!views.TryGetValue(uid,out view)||view.image==null)return;
+            RectTransform target=shop.drawer.window;
+            if(destination==InventoryModel.TemporaryStorageId){
+                var menu=panel.transform.root.GetComponentInChildren<RightSideMenu>(true);
+                if(menu!=null)target=(RectTransform)menu.transform;
+            }
+            var ghost=Instantiate(view.image,panel.canvas.transform,false);
+            ghost.raycastTarget=false;ghost.rectTransform.sizeDelta=((RectTransform)view.transform).rect.size;
+            ghost.transform.position=view.transform.position;
+            returnEffects.Add(ghost.gameObject);
+            StartCoroutine(Fly(ghost,target));
+        }
+        System.Collections.IEnumerator Fly(global::UnityEngine.UI.Image ghost,RectTransform target){
+            var start=ghost.transform.position;
+            for(float t=0;t<1;t+=Time.unscaledDeltaTime*3){
+                if(ghost==null||target==null)break;
+                ghost.transform.position=Vector3.Lerp(start,target.TransformPoint(target.rect.center),t);
+                ghost.transform.localScale=Vector3.one*(1-t*.8f);yield return null;
+            }
+            if(ghost!=null){returnEffects.Remove(ghost.gameObject);Destroy(ghost.gameObject);}
+        }
+        public void Sell(){if(Busy)return;
+            if(Session.EventVisit){Session.Leave();return;}
+            string message;
+            if(Session.Selling){Session.AcceptSeller(out message);panel.ShowMessage(message);return;}
+            long revenue;if(Session.TrySubmitAtTotal(quotedTotal,out revenue,out message))message="판매 완료 +"+revenue+" G";
+            panel.ShowMessage(message);}
         public void Talk(){if(Busy)return;shop.BeginTalk();}
         public void Reject(){if(!Busy)shop.LeaveCustomer();}
         public void TogglePrice()
-        {if(Busy||!Session.CustomerPresent)return;bool open=!priceEditor.activeSelf;priceEditor.SetActive(open);OnHeld(panel.drag.IsDragging);if(open){proposedTotalInput.text=quotedTotal.ToString();proposedTotalInput.ActivateInputField();}}
+        {if(Busy||!Session.CustomerPresent||Session.Selling||Session.EventVisit)return;bool open=!priceEditor.activeSelf;priceEditor.SetActive(open);OnHeld(panel.drag.IsDragging);if(open){proposedTotalInput.text=quotedTotal.ToString();proposedTotalInput.ActivateInputField();}}
         public void CancelPrice(){priceEditor.SetActive(false);OnHeld(panel.drag.IsDragging);}
         public void ConfirmPrice()
         {
             if(Busy)return;long total;
             if(!long.TryParse(proposedTotalInput.text,out total)||total<0){panel.ShowMessage("0 이상의 정수 금액을 입력하세요.");return;}
+            if(Session.StoryVisit){CancelPrice();Session.SetOffer(total);return;}
             long revenue;string error;
-            if(Session.TrySubmitAtTotal(total,out revenue,out error)){priceEditor.SetActive(false);panel.ShowMessage("거래 완료 +"+revenue+" G");}else panel.ShowMessage(error);
+            if(Session.TrySubmitAtTotal(total,out revenue,out error)){priceEditor.SetActive(false);panel.ShowMessage("거래 완료 +"+revenue+" G");}else {priceEditor.SetActive(false);panel.ShowMessage(error);}
         }
         void OnHeld(bool held){if(dropSurface!=null)dropSurface.raycastTarget=held&&Session.CounterPresented&&!priceEditor.activeSelf;}
-        void OnDestroy(){if(ready&&panel!=null&&panel.drag!=null)panel.drag.DraggingChanged-=OnHeld;}
+        void OnDestroy(){if(ready&&panel!=null&&panel.inventory!=null&&Session!=null)Session.Returned-=FlyReturn;if(ready&&panel!=null&&panel.drag!=null)panel.drag.DraggingChanged-=OnHeld;}
         public void ShowItem(string container,string uid)
         {
             var item=panel.Model.GetItem(container,uid);if(item==null)return;selectedInfoUid=uid;

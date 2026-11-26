@@ -11,7 +11,7 @@ namespace GeneralStore.Inventory
         public PendingOffer Copy() { return (PendingOffer)MemberwiseClone(); }
     }
     // 손님 추천 → 수락 → 재고/돈 확정의 작은 데모 규칙입니다. 스토리/취향 AI는 아닙니다.
-    public sealed class RecommendationSession
+    public sealed partial class RecommendationSession
     {
         readonly InventoryModel model;
         ICustomerPurchasePolicy purchasePolicy=new DefaultCustomerPurchasePolicy();
@@ -42,11 +42,18 @@ namespace GeneralStore.Inventory
         {
             error="";if(!CustomerPresent||!Browsing){error="둘러보는 손님이 없습니다.";return false;}
             var profile=activeProfile;CustomerPresent=false;Browsing=false;
+            if(liveVisit&&EventVisit){CustomerPresent=true;Notify();return true;}
             if(EnterProfile(profile,out error))return true;
             Leave();return false;
         }
         readonly List<PendingOffer> offers = new List<PendingOffer>();
         readonly List<PendingOffer> picked = new List<PendingOffer>();
+        internal int PickedCount { get { return picked.Count; } }
+        internal int CounterLineCount { get { return picked.Count + offers.Count; } }
+        internal PendingOffer CounterLineAt(int index)
+        {
+            return index < picked.Count ? picked[index] : offers[index - picked.Count];
+        }
         public List<PendingOffer> Purchases()
         { var result = new List<PendingOffer>(); foreach (PendingOffer p in picked) result.Add(p.Copy()); return result; }
         // 테스트 선택 규칙: 선호 itemId 순서 → 진열 순서로 최대 5개. 품질이 달라도 낱개 UID로 예약합니다.
@@ -71,10 +78,15 @@ namespace GeneralStore.Inventory
                         int price;
                         if (candidates.Count>=pickLimit || item.itemId!=preferred || used.Contains(item.instanceId)
                             || model.IsReserved(item.instanceId) || !model.TryGetOfferPrice(c.containerId,item.instanceId,out price)
-                            || !purchasePolicy.AcceptItem(profile,item,price,model.Catalog.ReferencePrice(item.itemId,item.quality)) || price>customerBudget-sum) continue;
+                            || (!liveVisit&&(!purchasePolicy.AcceptItem(profile,item,price,model.Catalog.ReferencePrice(item.itemId,item.quality)) || price>customerBudget-sum))) continue;
                         candidates.Add(new PendingOffer { containerId=c.containerId,instanceId=item.instanceId,price=price,customerPicked=true });
                         used.Add(item.instanceId); sum+=price;
                     }
+            if(candidates.Count==0&&liveVisit&&askStock&&preferredIds.Length>0){
+                requestId=preferredIds[(visitNumber-1)%preferredIds.Length];
+                CustomerPresent=true;Speech="혹시 "+model.Catalog.Find(requestId).qualities[0].name+" 하나 남아 있나요?";
+                Notify();return true;
+            }
             if (candidates.Count==0) { error="선호 품목 중 가격과 예산에 맞는 진열 상품이 없어 돌아갔습니다."; return false; }
             if (!model.TryReserve(candidates,out error)) return false;
             picked.Clear();picked.AddRange(candidates);offers.Clear();CustomerPresent=true;
@@ -116,6 +128,7 @@ namespace GeneralStore.Inventory
             error = "";
             if (!CustomerPresent) { error = "먼저 손님을 맞이하세요."; return false; }
             if(Browsing){error="손님이 진열대를 둘러보고 있습니다.";return false;}
+            if(Selling||EventVisit){error="현재 물품을 추천할 수 없습니다.";return false;}
             if (model.IsReserved(instanceId)) { error = "손님이 이미 구매할 물건으로 골랐습니다."; return false; }
             if (offers.Exists(o => o.instanceId == instanceId)) { error = "이미 추천 목록에 있는 물건입니다."; return false; }
             int price;
@@ -123,26 +136,27 @@ namespace GeneralStore.Inventory
             { error = "물건이 없거나 진열 가격이 등록되지 않았습니다."; return false; }
             var offer=new PendingOffer { containerId = containerId, instanceId = instanceId, price = price };
             if(CounterPresented&&!model.TryReserveCounterOffers(new[]{offer},out error))return false;
-            offers.Add(offer);Notify(); return true;
+            offers.Add(offer);ProposedPrice=CounterPrice=-1;Notify(); return true;
         }
-        public void Remove(string instanceId) { if (offers.RemoveAll(o => o.instanceId == instanceId) > 0){if(CounterPresented)model.ReleaseCounterOffer(instanceId);Notify();} }
+        public void Remove(string instanceId) { if (offers.RemoveAll(o => o.instanceId == instanceId) > 0){if(CounterPresented)model.ReleaseCounterOffer(instanceId);ProposedPrice=CounterPrice=-1;Notify();} }
         PendingOffer CounterOffer(string uid){return offers.Find(o=>o.instanceId==uid)??picked.Find(o=>o.instanceId==uid);}
         public PlacementPreview PreviewCounterReturn(MoveRequest request)
         {
             var offer=request==null?null:CounterOffer(request.instanceId);
+            if(liveVisit&&offer!=null&&offer.customerPicked)return new PlacementPreview{error="손님이 고른 물건입니다."};
             if(!CounterPresented||offer==null||request.sourceContainer!=offer.containerId)return new PlacementPreview{error="카운터에 있는 물품만 회수할 수 있습니다."};
             return model.PreviewCounterReturn(request);
         }
         // Compatibility name retained; both customer-selected and recommended goods can be withdrawn.
         public bool TryReturnRecommendation(string uid,string target,int x,int y,int rotation,out string error)
         {
-            error="";var offer=CounterOffer(uid);
+            error="";var offer=CounterOffer(uid);if(liveVisit&&offer!=null&&offer.customerPicked){error="손님이 고른 물건입니다.";return false;}
             if(!CounterPresented||offer==null){error="카운터에 있는 물품만 회수할 수 있습니다.";return false;}
             var request=new MoveRequest{sourceContainer=offer.containerId,targetContainer=target,instanceId=uid,x=x,y=y,rotation=rotation,expectedRevision=model.Revision};
             if(!model.TryReturnCounterOffer(request,offer.price,out error))return false;
-            offers.Remove(offer);picked.Remove(offer);Notify();return true;
+            offers.Remove(offer);picked.Remove(offer);ProposedPrice=CounterPrice=-1;Notify();return true;
         }
-        public void Leave() { Browsing=false;CounterPresented=false;ConversationStarted=false;activeProfile=null;model.ReleaseReservations(); picked.Clear(); CustomerPresent = false; CustomerName = ""; offers.Clear(); Notify(); }
+        public void Leave() { ResetVisit(); Browsing=false;CounterPresented=false;ConversationStarted=false;activeProfile=null;model.ReleaseReservations(); picked.Clear(); CustomerPresent = false; CustomerName = ""; offers.Clear(); Notify(); }
         public bool TrySubmit(out long revenue, out string error)
         {return Submit(false,out revenue,out error);}
         public bool TrySubmitPurchasesOnly(out long revenue,out string error)
@@ -155,6 +169,7 @@ namespace GeneralStore.Inventory
             if (!CustomerPresent || (purchasesOnly?picked.Count:offers.Count + picked.Count) == 0) { error = "손님과 추천 물건이 필요합니다."; return false; }
             long total = 0; var lines = new List<SaleLine>();
             var combined = Purchases(); if(!purchasesOnly)combined.AddRange(Offers());
+            if(liveVisit&&!Evaluate(combined,proposedTotal,out error))return false;
             foreach (PendingOffer offer in combined)
             {
                 if(!offer.customerPicked&&activeProfile!=null&&Array.IndexOf(activeProfile.preferredItemIds,model.GetItem(offer.containerId,offer.instanceId)?.itemId)<0)
@@ -162,15 +177,15 @@ namespace GeneralStore.Inventory
                 ItemRecord item = model.GetItem(offer.containerId, offer.instanceId); int quote;
                 if (item == null || !model.TryGetOfferPrice(offer.containerId, offer.instanceId, out quote) || quote != offer.price)
                 { error = "추천 물건이 이동/소진되었거나 가격이 바뀌었습니다. 제거한 뒤 다시 추천하세요."; return false; }
-                if (activeProfile!=null ? !purchasePolicy.AcceptItem(activeProfile,item,offer.price,model.Catalog.ReferencePrice(item.itemId,item.quality))
-                    : offer.price > model.Catalog.ReferencePrice(item.itemId, item.quality) * allowedPriceRatio)
+                if (!liveVisit&&(activeProfile!=null ? !purchasePolicy.AcceptItem(activeProfile,item,offer.price,model.Catalog.ReferencePrice(item.itemId,item.quality))
+                    : offer.price > model.Catalog.ReferencePrice(item.itemId, item.quality) * allowedPriceRatio))
                 { error = "손님이 가격이 높다고 제안을 거절했습니다."; return false; }
                 total += offer.price;
                 lines.Add(new SaleLine { containerId = offer.containerId, instanceId = offer.instanceId, price = offer.price });
             }
             long payable=proposedTotal??total;
             if(payable<0){error="0 이상의 정수 금액을 입력하세요.";return false;}
-            if (payable > budget) { error = "손님 예산을 초과해서 제안을 거절했습니다."; return false; }
+            if (!liveVisit&&payable > budget) { error = "손님 예산을 초과해서 제안을 거절했습니다."; return false; }
             if(proposedTotal.HasValue)
             {
                 if(total==0&&payable!=0){error="등록 합계가 0인 물건은 0 G로만 계산할 수 있습니다.";return false;}
@@ -180,7 +195,7 @@ namespace GeneralStore.Inventory
                 {
                     var offer=combined[n];long allocated=total==0?0:n==lastPaid?remaining:(long)((decimal)offer.price*payable/total);
                     remaining-=allocated;var item=model.GetItem(offer.containerId,offer.instanceId);
-                    if(allocated>int.MaxValue||(activeProfile!=null?!purchasePolicy.AcceptItem(activeProfile,item,(int)allocated,model.Catalog.ReferencePrice(item.itemId,item.quality))
+                    if(allocated>int.MaxValue||!liveVisit&&(activeProfile!=null?!purchasePolicy.AcceptItem(activeProfile,item,(int)allocated,model.Catalog.ReferencePrice(item.itemId,item.quality))
                         :allocated>model.Catalog.ReferencePrice(item.itemId,item.quality)*allowedPriceRatio))
                     {error="손님이 제시한 금액을 받아들이지 않았습니다. 물건과 진열 가격은 그대로입니다.";return false;}
                 }
@@ -191,7 +206,11 @@ namespace GeneralStore.Inventory
             if(!sold)return false;
             model.ReleaseReservations(); // Unpurchased recommendations remain available after purchases-only checkout.
             // 한 번 판매하면 손님/목록을 종료합니다. 연타해도 다시 판매할 수 없습니다.
-            Browsing=false;CounterPresented=false;ConversationStarted=false;activeProfile=null; picked.Clear(); offers.Clear(); CustomerPresent = false; CustomerName = ""; Notify(); return true;
+            if(liveVisit&&sellAfter){
+                offers.Clear();picked.Clear();Selling=true;sellAfter=false;ProposedPrice=CounterPrice=-1;
+                Speech=SaleDescription();Notify();return true;
+            }
+            ResetVisit();Browsing=false;CounterPresented=false;ConversationStarted=false;activeProfile=null; picked.Clear(); offers.Clear(); CustomerPresent = false; CustomerName = ""; Notify(); return true;
         }
     }
 }

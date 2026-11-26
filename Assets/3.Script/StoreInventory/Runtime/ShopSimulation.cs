@@ -105,10 +105,15 @@ namespace GeneralStore.Inventory
             if(shop.panel.IsWindowDragging||shop.panel.drag.IsDragging||shop.HasPendingPlacement)return;
             if(inventory.Sales.CustomerPresent){if(showFailure)shop.panel.ShowMessage("이미 손님을 응대 중입니다.");return;}
             var profiles=inventory.Customers.All();var clock=inventory.Clock.Snapshot();
-            profiles.RemoveAll(c=>!VisitPolicy.CanVisit(c,clock));
+            profiles.RemoveAll(c=>inventory.Clock.HasVisited(c.id)||!VisitPolicy.CanVisit(c,clock));
             if(profiles.Count==0){if(showFailure)shop.panel.ShowMessage("방문 가능한 손님이 없습니다.");return;}
             // Visit eligibility is independent of stock; purchase selection happens after browsing.
-            shop.EnterProfile(profiles[random.Next(profiles.Count)],showFailure);
+            var guest=profiles[random.Next(profiles.Count)];
+            int visit=inventory.Clock.NextVisit(guest.id);
+            if(shop.EnterProfile(guest,showFailure)){
+                inventory.Clock.MarkVisit(guest.id);
+                inventory.Sales.ConfigureVisit(visit,random.Next(3),random.NextDouble());
+            }
         }
         public void ToggleTime(){if(ready)FlushClock();timeRunning=!timeRunning;}
         public void AdvanceToNextPhase()

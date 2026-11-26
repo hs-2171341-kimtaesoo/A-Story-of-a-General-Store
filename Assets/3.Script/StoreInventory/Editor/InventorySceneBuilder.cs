@@ -45,6 +45,14 @@ public static class InventorySceneBuilder
         Label("Text",image.transform,0,0,w,h,label,20).alignment=TextAnchor.MiddleCenter;
         if(action!=null)UnityEditor.Events.UnityEventTools.AddPersistentListener(button.onClick,action);return button;
     }
+    public static void UseTextButtonFeedback(Button button)
+    {
+        if(button==null)return;var child=button.transform.Find("Text");var label=child==null?null:child.GetComponent<Text>();if(label==null)return;
+        if(button.targetGraphic!=null&&button.targetGraphic!=label)button.targetGraphic.CrossFadeColor(Color.white,0,true,true);
+        button.targetGraphic=label;button.transition=Selectable.Transition.ColorTint;
+        var colors=button.colors;colors.normalColor=colors.highlightedColor=colors.selectedColor=Color.white;
+        colors.pressedColor=new Color(.82f,.82f,.82f,1);colors.disabledColor=new Color(.5f,.5f,.5f,1);colors.fadeDuration=.1f;button.colors=colors;
+    }
     static Scrollbar ScrollBar(Transform parent,bool horizontal,float length)
     {
         var image=Box(horizontal?"Horizontal Scrollbar":"Vertical Scrollbar",parent,horizontal?0:length+4,horizontal?length+4:0,

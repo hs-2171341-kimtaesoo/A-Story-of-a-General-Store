@@ -31,6 +31,12 @@ namespace GeneralStore.Inventory
         {
             if(panel==null||window==null||iconFit==null)return;string error;if(!panel.inventory.TryInitialize(out error))return;
             rootCanvas=panel.canvas.rootCanvas;
+            var overlay=window.GetComponent<Canvas>();
+            if(overlay==null)overlay=window.gameObject.AddComponent<Canvas>();
+            overlay.overrideSorting=true;
+            overlay.sortingLayerID=rootCanvas.sortingLayerID;
+            overlay.sortingOrder=Mathf.Min(short.MaxValue,rootCanvas.sortingOrder+100);
+            overlay.additionalShaderChannels|=AdditionalCanvasShaderChannels.TexCoord1;
             window.anchorMin=window.anchorMax=window.pivot=new Vector2(0,1);
             var group=window.GetComponent<CanvasGroup>();if(group==null)group=window.gameObject.AddComponent<CanvasGroup>();group.blocksRaycasts=false;group.interactable=false;
             panel.Model.Changed+=InvalidateContent;panel.inventory.Loaded+=Reload;ready=true;Hide();

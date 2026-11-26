@@ -106,7 +106,9 @@ public static class CounterDemoSceneBuilder
     }
     public static void BuildTooltip(InventoryPanel panel)
     {
-        if(panel.tooltip!=null)return;var ui=panel.gameObject.AddComponent<ItemHoverTooltip>();panel.tooltip=ui;ui.panel=panel;
+        if(panel.tooltip!=null&&panel.tooltip.window!=null)return;
+        var ui=panel.tooltip!=null?panel.tooltip:panel.gameObject.AddComponent<ItemHoverTooltip>();
+        panel.tooltip=ui;ui.panel=panel;
         var frame=UI.Box("Shared Item Tooltip",panel.drag.dragLayer,0,0,460,460*1024f/1536,Color.white);frame.sprite=Resources.Load<Sprite>("StoreInventory/CounterDemo/item_tooltip");ui.window=frame.rectTransform;
         var group=frame.gameObject.AddComponent<CanvasGroup>();group.blocksRaycasts=false;frame.raycastTarget=false;
         float s=460f/1536;

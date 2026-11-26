@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 namespace GeneralStore.Inventory
 {
@@ -7,11 +7,10 @@ namespace GeneralStore.Inventory
         public global::UnityEngine.UI.Image image;
         public RectTransform frame;
         [Min(0)] public float padding=6;
-        struct Bounds {public float x0,y0,x1,y1;}
+        sealed class Bounds {public float x0,y0,x1,y1;}
         // 텍스처 픽셀을 읽거나 Read/Write를 켜지 않고 Sprite 메시 경계만 한 번 캐시합니다.
-        static readonly Dictionary<Sprite,Bounds> cache=new Dictionary<Sprite,Bounds>();
-        const int MaximumBoundsCache=256;
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]public static void ResetCache(){cache.Clear();}
+        static ConditionalWeakTable<Sprite,Bounds> cache=new ConditionalWeakTable<Sprite,Bounds>();
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]public static void ResetCache(){cache=new ConditionalWeakTable<Sprite,Bounds>();}
         Sprite fittedSprite;Vector2 fittedSize;float fittedPadding;bool hasFit;
         static Bounds ReadBounds(Sprite sprite)
         {
@@ -23,7 +22,7 @@ namespace GeneralStore.Inventory
                     b.x0=Mathf.Min(b.x0,x);b.y0=Mathf.Min(b.y0,y);b.x1=Mathf.Max(b.x1,x);b.y1=Mathf.Max(b.y1,y);
                 }
                 if(b.x1<=b.x0||b.y1<=b.y0)b=new Bounds{x0=0,y0=0,x1=sprite.rect.width,y1=sprite.rect.height};
-                if(cache.Count>=MaximumBoundsCache)cache.Clear();cache[sprite]=b;
+                cache.Add(sprite,b);
             return b;
         }
         public static float VisibleAspect(Sprite sprite)

@@ -12,12 +12,13 @@ namespace GeneralStore.Inventory
         public InventoryPanel panel;public RectTransform content;public RightMenuButtonView template;public List<ShopMenuEntry> entries=new List<ShopMenuEntry>();
         public Color normalColor=new Color(.26f,.18f,.1f),selectedColor=new Color(.7f,.45f,.1f);
         public bool useArtwork=true;
+        public ButtonArtworkCatalog buttonArtwork;
         [Tooltip("아이콘 Slot과 Viewport의 Prefab 배치를 사용합니다.")]
         public bool useAuthoredLayout;
         Rect authoredViewport;bool viewportCaptured;
         public global::UnityEngine.UI.Image menuFrame;
         [Range(.4f,1.2f)]public float artworkScale=.64f;
-        [Min(0)]public float peekWidth=26;
+        [Min(0)]public float peekWidth=22;
         [Min(1)]public float buttonWidth=82,buttonHeight=86;
         [Min(0)]public float buttonGap=8,screenVerticalMargin=100;
         [Min(1)]public float maximumViewportHeight=700;
@@ -174,16 +175,26 @@ namespace GeneralStore.Inventory
             for(int pass=0;pass<2;pass++)foreach(var e in entries)if(e.unlocked&&e.visible&&IsLast(e.id)==(pass==1))visible.Add(e);
             ApplyCenteredLayout(visible.Count);int n=0;float scale=artworkReady?artworkScale:1;
             float unit=buttonHeight*scale,spacing=buttonGap*scale;
-            foreach(var v in views.Values)v.gameObject.SetActive(false);
+            foreach(var pair in views)
+            {
+                bool shown=false;foreach(var entry in visible)if(entry.id==pair.Key){shown=true;break;}
+                if(!shown)pair.Value.gameObject.SetActive(false);
+            }
             foreach(var e in visible)
             {
                 RightMenuButtonView v;if(!views.TryGetValue(e.id,out v)){v=Instantiate(template,content);string key=e.id;v.button.onClick.AddListener(()=>Toggle(key));views.Add(key,v);}
-                v.gameObject.SetActive(true);v.label.text=e.title;v.icon.sprite=artworkReady?Icon(e):e.icon;v.icon.enabled=v.icon.sprite!=null;v.icon.preserveAspect=true;
+                var states=artworkReady&&buttonArtwork!=null?buttonArtwork.Management(e.id):null;
+                v.gameObject.SetActive(true);v.label.text=e.title;v.icon.sprite=states!=null?states.normal:artworkReady?Icon(e):e.icon;v.icon.enabled=v.icon.sprite!=null;v.icon.preserveAspect=true;
                 if(panel.SharedFont!=null)v.label.font=panel.SharedFont;
                 v.label.gameObject.SetActive(!artworkReady||v.icon.sprite==null);
                 v.background.color=artworkReady?Color.clear:e.id==selected?selectedColor:normalColor;
-                v.button.transition=artworkReady?Selectable.Transition.None:Selectable.Transition.ColorTint;
-                v.icon.color=artworkReady&&e.id==selected?new Color(1,.86f,.52f):Color.white;
+                if(states!=null)ButtonArtworkCatalog.Apply(v.button,v.icon,states,e.id==selected);
+                else
+                {
+                    v.icon.overrideSprite=null;
+                    v.button.targetGraphic=v.background;v.button.transition=artworkReady?Selectable.Transition.None:Selectable.Transition.ColorTint;
+                    v.icon.color=artworkReady&&e.id==selected?new Color(1,.86f,.52f):Color.white;
+                }
                 var r=(RectTransform)v.transform;r.anchorMin=r.anchorMax=r.pivot=new Vector2(0,1);r.anchoredPosition=new Vector2(0,-n++*(unit+spacing));r.sizeDelta=new Vector2(content.rect.width,unit);
                 if(artworkReady&&!useAuthoredLayout)
                 {

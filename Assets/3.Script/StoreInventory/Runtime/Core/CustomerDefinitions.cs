@@ -9,13 +9,36 @@ namespace GeneralStore.Inventory
         public string id,displayName,portraitKey,greeting,situationText;
         public bool enabled=true;
         public string[] preferredItemIds;
+        public double priceSensitivity=1, preferencePremium=.5, negotiationRoom=.1;
+        public double inquiryChance=.6, inquiryPerVisit=.05;
+        public int patience=3, sellPrice;
+        public string sellItemId,eventText;
+        public double[] preferenceStrength;
+        public string[] visitStories;
+        public double ValueRatio(string itemId)
+        {
+            int index=Array.IndexOf(preferredItemIds,itemId);
+            double liking=index<0?0:preferenceStrength!=null&&index<preferenceStrength.Length?preferenceStrength[index]:1;
+            return 1+(Math.Max(0,maxPriceRatio-1)+liking*preferencePremium)/Math.Max(.05,priceSensitivity);
+        }
         public int maxPickCount=5;
         public long wallet=1000;
         public double spendingFraction=.5, maxPriceRatio=1.5;
         public CustomerDefinition Copy()
-        { var c=(CustomerDefinition)MemberwiseClone();c.preferredItemIds=preferredItemIds==null?null:(string[])preferredItemIds.Clone();return c; }
+        {
+            var copy=(CustomerDefinition)MemberwiseClone();
+            copy.preferredItemIds=(string[])preferredItemIds?.Clone();
+            copy.preferenceStrength=(double[])preferenceStrength?.Clone();
+            copy.visitStories=(string[])visitStories?.Clone();
+            return copy;
+        }
         public void Validate()
         {
+            foreach(double value in new[]{priceSensitivity,preferencePremium,negotiationRoom,inquiryChance,inquiryPerVisit})
+                if(double.IsNaN(value)||double.IsInfinity(value)||value<0||value>100)throw new ArgumentException("손님 성향 범위 오류: "+id);
+            if(patience<1||sellPrice<0||negotiationRoom>1||inquiryChance>1)throw new ArgumentException("손님 거래 설정 오류: "+id);
+            if(preferenceStrength!=null)foreach(double strength in preferenceStrength)
+                if(!(strength>=0&&strength<=1))throw new ArgumentException("선호도는 0~1입니다: "+id);
             if(string.IsNullOrWhiteSpace(id)||wallet<0||maxPickCount<1||maxPickCount>5||preferredItemIds==null
                 ||double.IsNaN(spendingFraction)||spendingFraction<0||spendingFraction>1
                 ||double.IsNaN(maxPriceRatio)||double.IsInfinity(maxPriceRatio)||maxPriceRatio<=0)

@@ -413,6 +413,15 @@ namespace GeneralStore.Inventory.Verification
             var wrong=clock.Snapshot();wrong.elapsedMinutes=540;threw=false;
             try{clock.Restore(wrong);}catch(ArgumentException){threw=true;}
             Check(threw&&clock.Snapshot().elapsedMinutes==0,"시간 범위가 잘못된 저장 거절");
+            clock.MarkVisit("guest");
+            var brokenHistory=clock.Snapshot();
+            brokenHistory.visitCounts.Clear();
+            threw=false;
+            try{clock.Restore(brokenHistory);}catch(ArgumentException){threw=true;}
+            Check(threw&&clock.NextVisit("guest")==2,"손상된 방문 기록 복원 시 원래 상태 유지");
+            var legacyClock=new ShopClockState{visitorIds=null,visitCounts=null,visitDays=null};
+            clock.Restore(legacyClock);
+            Check(!clock.HasVisited("guest")&&clock.NextVisit("guest")==1,"구버전 방문 기록 호환");
             return count;
         }
     }

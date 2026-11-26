@@ -8,11 +8,12 @@ namespace GeneralStore.Inventory
         public bool keepVisibleWhileDisplayOpen=true;
         public bool dockRight=true;
         public bool useArtwork=true;
+        public ButtonArtworkCatalog buttonArtwork;
         [Tooltip("아이콘 Slot과 Viewport의 Prefab 배치를 사용합니다.")]
         public bool useAuthoredLayout;
         Rect authoredViewport;bool viewportCaptured;
         [Range(.4f,1.2f)]public float artworkScale=.64f;
-        [Min(0)]public float peekWidth=26;
+        [Min(0)]public float peekWidth=22;
         public InventoryPanel panel;public DisplayUI displays;public FurnitureArtCatalog art;
         public RectTransform bounds,window,viewport,content;public ScrollRect scroll;public LeftDisplayButtonView template;
         public global::UnityEngine.UI.Image menuFrame;
@@ -90,13 +91,19 @@ namespace GeneralStore.Inventory
                 string id=entry.id;seen.Add(id);LeftDisplayButtonView v;
                 if(!views.TryGetValue(id,out v))
                 {v=Instantiate(template,content);v.menu=this;v.containerId=id;v.button.onClick.AddListener(v.Click);v.gameObject.SetActive(true);views.Add(id,v);}
-                v.icon.sprite=Icon(entry.typeId);v.icon.enabled=v.icon.sprite!=null;v.icon.preserveAspect=true;
+                var states=artworkReady&&buttonArtwork!=null?buttonArtwork.Furniture(entry.typeId):null;
+                v.icon.sprite=states!=null?states.normal:Icon(entry.typeId);v.icon.enabled=v.icon.sprite!=null;v.icon.preserveAspect=true;
                 bool open=displays.IsOpen(id);
                 v.label.text=panel.Model.DisplayTitle(id);v.label.gameObject.SetActive(!artworkReady);
                 if(panel.SharedFont!=null)v.label.font=panel.SharedFont;
                 v.background.sprite=null;v.background.color=artworkReady?Color.clear:open?selectedColor:normalColor;
-                v.button.transition=artworkReady?Selectable.Transition.None:Selectable.Transition.ColorTint;
-                v.icon.color=artworkReady&&open?new Color(1,.86f,.52f):Color.white;
+                if(states!=null)ButtonArtworkCatalog.Apply(v.button,v.icon,states,open);
+                else
+                {
+                    v.icon.overrideSprite=null;
+                    v.button.targetGraphic=v.background;v.button.transition=artworkReady?Selectable.Transition.None:Selectable.Transition.ColorTint;
+                    v.icon.color=artworkReady&&open?new Color(1,.86f,.52f):Color.white;
+                }
                 var rt=(RectTransform)v.transform;rt.anchorMin=rt.anchorMax=rt.pivot=new Vector2(0,1);
                 rt.anchoredPosition=new Vector2(artworkReady?0:4,-n++*(unit+spacing));rt.sizeDelta=new Vector2(artworkReady?viewport.rect.width:menuWidth-8,unit);
                 if(artworkReady&&!useAuthoredLayout)

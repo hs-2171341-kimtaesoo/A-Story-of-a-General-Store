@@ -13,10 +13,10 @@ public static class CompactDemoSceneBuilder
         var settings=layout.gameObject.AddComponent<ShopViewportLayout>();settings.panel=panel;settings.stage=panel.shop.displays.windowLayer;settings.edgeLayer=edge;
         settings.drawer=panel.shop.drawer;settings.drawer.startClosed=true;settings.displays=panel.shop.displays;settings.displays.slideFromRight=true;
         var management=layout.GetComponentInChildren<RightSideMenu>(true);
-        management.artworkScale=.64f;management.peekWidth=26;
+        management.artworkScale=.64f;management.peekWidth=22;
         settings.managementMenu=(RectTransform)management.transform;settings.managementMenu.name="Left Management Menu";settings.managementMenu.SetParent(edge,false);
         settings.displayMenu=layout.GetComponentInChildren<LeftDisplayMenu>(true);settings.displayMenu.dockRight=true;
-        settings.displayMenu.artworkScale=.64f;settings.displayMenu.peekWidth=26;
+        settings.displayMenu.artworkScale=.64f;settings.displayMenu.peekWidth=22;
         settings.displayMenuLayer=(RectTransform)settings.displayMenu.transform;settings.displayMenuLayer.name="Right Display Menu Layer";settings.displayMenuLayer.SetParent(edge,false);
         var roots=new List<RectTransform>();var frames=new List<RectTransform>();
         foreach(var entry in management.entries)if(entry.window!=null)

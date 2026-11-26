@@ -72,7 +72,7 @@ namespace GeneralStore.Inventory
             if(!ready)return;string error;if(!Session.BeginConversation(out error)){panel.ShowMessage(error);return;}
             panel.ShowMessage(Session.DialogueText);
         }
-        public void LeaveCustomer(){if(!ready)return;Session.Leave();panel.ShowMessage("거래 취소. 손님 선택 물건의 잠금을 해제했습니다.");}
+        public void LeaveCustomer(){if(!ready)return;Session.Decline();panel.ShowMessage("거래를 마쳤습니다.");}
         // 추천은 드롭으로만 호출합니다. 선택한 물건 추천 버튼/메서드는 제거했습니다.
         public bool Recommend(string containerId,string instanceId)
         {

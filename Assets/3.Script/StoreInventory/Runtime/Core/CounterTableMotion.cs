@@ -56,6 +56,7 @@ namespace GeneralStore.Inventory
             bool moving=false;for(int n=0;n<bodies.Count;n++){var b=bodies[n];if(b.active&&!b.dragged&&!b.asleep){moving=true;break;}}
             if(!moving||seconds==0)return 0;
             int steps=Math.Max(1,(int)Math.Ceiling(seconds*120)),work=0;float dt=seconds/steps;
+            float damping=(float)Math.Exp(-settings.drag*dt);
             for(int step=0;step<steps;step++)for(int index=0;index<bodies.Count;index++)
             {
                 var body=bodies[index];
@@ -63,7 +64,7 @@ namespace GeneralStore.Inventory
                 
                 if(body.asleep)
                 {if(Math.Abs(body.Bottom-settings.surface)<.5f)continue;body.asleep=false;}
-                work++;body.vx*=(float)Math.Exp(-settings.drag*dt);body.vy-=settings.gravity*dt;
+                work++;body.vx*=damping;body.vy-=settings.gravity*dt;
                 body.x+=body.vx*dt;body.y+=body.vy*dt;
                 float left=settings.left+body.halfWidth,right=settings.right-body.halfWidth;
                 if(body.x<left||body.x>right){body.x=Clamp(body.x,left,right);body.vx=-body.vx*.15f;}

@@ -8,7 +8,15 @@ namespace GeneralStore.Inventory
         public int day=1;
         public ShopPhase phase=ShopPhase.Day;
         public double elapsedMinutes;
-        public ShopClockState Copy(){return (ShopClockState)MemberwiseClone();}
+        public List<string> visitorIds=new List<string>();
+        public List<int> visitDays=new List<int>(),visitCounts=new List<int>();
+        public ShopClockState Copy(){
+            var copy=(ShopClockState)MemberwiseClone();
+            copy.visitorIds=visitorIds == null ? new List<string>() : new List<string>(visitorIds);
+            copy.visitDays=visitDays == null ? new List<int>() : new List<int>(visitDays);
+            copy.visitCounts=visitCounts == null ? new List<int>() : new List<int>(visitCounts);
+            return copy;
+        }
     }
     [Serializable] public sealed class ShopClockSettings
     {
@@ -27,6 +35,19 @@ namespace GeneralStore.Inventory
         public readonly ShopClockSettings Settings;
         public ShopClock(ShopClockSettings settings,ShopClockState initial)
         {settings.Validate();Settings=settings;Restore(initial);}
+        public bool HasVisited(string id){
+            int index=state.visitorIds.IndexOf(id);
+            return index>=0&&state.visitDays[index]==Day;
+        }
+        public int NextVisit(string id){
+            int index=state.visitorIds.IndexOf(id);
+            return index<0?1:state.visitCounts[index]+1;
+        }
+        public void MarkVisit(string id){
+            int index=state.visitorIds.IndexOf(id);
+            if(index<0){state.visitorIds.Add(id);state.visitDays.Add(Day);state.visitCounts.Add(1);}
+            else {state.visitDays[index]=Day;state.visitCounts[index]++;}
+        }
         public int Day {get{return state.day;}}
         public ShopPhase Phase {get{return state.phase;}}
         public double ElapsedMinutes {get{return state.elapsedMinutes;}}
@@ -38,7 +59,23 @@ namespace GeneralStore.Inventory
                 ||value.elapsedMinutes>=Settings.Duration(value.phase))throw new ArgumentException("저장된 시간 정보 오류입니다.");
         }
         public void ValidateCurrent(){Validate(state);}
-        public void Restore(ShopClockState value){Validate(value);state=value.Copy();}
+        public void Restore(ShopClockState value)
+        {
+            Validate(value);
+            var restored=value.Copy();
+            int count=restored.visitorIds.Count;
+            if(restored.visitDays.Count!=count || restored.visitCounts.Count!=count)
+                throw new ArgumentException("손님 방문 기록의 길이가 맞지 않습니다.");
+            var ids=new HashSet<string>(StringComparer.Ordinal);
+            for(int i=0;i<count;i++)
+            {
+                if(string.IsNullOrWhiteSpace(restored.visitorIds[i]) || !ids.Add(restored.visitorIds[i])
+                    || restored.visitDays[i]<1 || restored.visitDays[i]>restored.day || restored.visitCounts[i]<1
+                    || restored.visitCounts[i]>restored.visitDays[i])
+                    throw new ArgumentException("저장된 손님 방문 기록을 확인하세요.");
+            }
+            state=restored;
+        }
         public ShopClockState RemapSavedTime(ShopClockState saved,ShopClockSettings previous)
         {
             var checkedState=new ShopClock(previous,saved).Snapshot();

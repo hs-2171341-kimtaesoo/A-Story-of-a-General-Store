@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f561e5b7f0f10d94dbe51b6c72805270, type: 3}
+  m_Name: ButtonArtwork
+  m_EditorClassIdentifier: Assembly-CSharp::GeneralStore.Inventory.ButtonArtworkCatalog
+  management:
+  - id: displays
+    normal: {fileID: -3349400650718296148, guid: 78e10931f000022439fe245aa477c7cd, type: 3}
+    pressed: {fileID: -3161328894964054483, guid: 7f73db5d21bf502498940ca02d837333, type: 3}
+    active: {fileID: 1877257233917800327, guid: 3a217f3bffbbeff458c99872fe4621ca, type: 3}
+  - id: furniture
+    normal: {fileID: -7622078593721339977, guid: 463936b32d7501044a3b7b9997ca0592, type: 3}
+    pressed: {fileID: -8473858168918788455, guid: 26301b78344188f49b15f9010f3ec1ea, type: 3}
+    active: {fileID: -7602042662282740868, guid: 2108d4140fd087f4e950554f88cd2be2, type: 3}
+  - id: storage
+    normal: {fileID: 2967796106592825739, guid: f359269cbd3c5f04e9fe72ceb5ea207b, type: 3}
+    pressed: {fileID: 7476200355752254832, guid: 2bbbfa98cb1c483418011b825154a822, type: 3}
+    active: {fileID: 155737457897360312, guid: bbc5fd9cb1a40ef49bc02988b1e043b7, type: 3}
+  - id: suppliers
+    normal: {fileID: -4768028534326121171, guid: c104b311496c52741b79e018b03c69d1, type: 3}
+    pressed: {fileID: -8371170578923799078, guid: 31af6c7734aab964a90044cd708cffba, type: 3}
+    active: {fileID: -7691444625811502789, guid: 7b2e4c669c854df428017d88fcdae1c6, type: 3}
+  - id: workshops
+    normal: {fileID: 6208976658231855797, guid: c0ac60bf74c6e9446a1345da62db54c3, type: 3}
+    pressed: {fileID: -2905372453899571238, guid: a8264dc84f45e00419ae21e77292e783, type: 3}
+    active: {fileID: 8290849984807461905, guid: ebdc5daad36017c438ff93627009e5eb, type: 3}
+  - id: temporary_storage
+    normal: {fileID: 333593858324772925, guid: d127a3614fae6de4a9015f1838ebb64f, type: 3}
+    pressed: {fileID: 5110299282052666737, guid: bd9039ade72d84e46b2b343805b1470c, type: 3}
+    active: {fileID: 4732565221640182462, guid: 60e34dfdb56d8e942bff74ecbb181476, type: 3}
+  furniture:
+  - id: weapon_rack
+    normal: {fileID: -8558165609880375842, guid: fa21919c46b34c044bbd3e4a45a600c3, type: 3}
+    pressed: {fileID: -6662711343279927289, guid: 37c19183a1c245c419f1c9573245ec3a, type: 3}
+    active: {fileID: -229866374890208404, guid: 2fe6ab38901aed9489efd4525d85141a, type: 3}
+  - id: mannequin
+    normal: {fileID: 2373992974184877952, guid: e4a66d96a1470684a87808be6d1db29d, type: 3}
+    pressed: {fileID: -3280214338289254879, guid: a231603190e94674c9d61d390be0a55a, type: 3}
+    active: {fileID: 5941191265580455010, guid: f86a0810a99058946a2ed03b9280eb1c, type: 3}
+  - id: wall_shelf_lower
+    normal: {fileID: 2673188027395887886, guid: 9cbbe6dd78a7e8e4b8b6851f3f811934, type: 3}
+    pressed: {fileID: -4048674028694309816, guid: 1a22c467e5f250a4786ffa8007b1f3c6, type: 3}
+    active: {fileID: 4511333182068683025, guid: 18498e1b27acda04a924be03294b879f, type: 3}
+  - id: wall_shelf
+    normal: {fileID: -1459037296381559742, guid: 6f44ee8b06921ac4099e48cb7e048f6d, type: 3}
+    pressed: {fileID: -3810504500840153970, guid: 75d884b45d1a27344868bbd5596e4148, type: 3}
+    active: {fileID: 2315241752629135427, guid: 5656bdc08b595be4090f2ca8ab42499f, type: 3}
+  - id: aisle_left
+    normal: {fileID: 317899187717870775, guid: 8a39ca290de5da747940e92c63393e37, type: 3}
+    pressed: {fileID: 144487486824128683, guid: cdf80232c7f145446a2aee7fe22dab08, type: 3}
+    active: {fileID: -4319547537637560950, guid: b982a1d587bd18543aed5731c89f5c41, type: 3}
+  - id: table
+    normal: {fileID: 7242102264716235556, guid: 18b21f23d620b844790a0cfd266aec75, type: 3}
+    pressed: {fileID: -4325819313796069450, guid: 13330a443cb2026468c34895c7f02756, type: 3}
+    active: {fileID: 4687558752233698826, guid: 60ea561a31373274996e01a3029fc7ff, type: 3}
+  - id: aisle_right
+    normal: {fileID: 3740807011596248105, guid: 0fa81b80903fade41b51188368d4f2f6, type: 3}
+    pressed: {fileID: -3678476184736124577, guid: 5bca50ec77d48d4448a76a0e5bf40edf, type: 3}
+    active: {fileID: -6977703680680297964, guid: 69f33add52f9f774582b777c19e7629d, type: 3}
+  - id: cubby_cabinet
+    normal: {fileID: -6240974312785342340, guid: 5c09cfb33e5af854e904be186f40517e, type: 3}
+    pressed: {fileID: -1278651851124238537, guid: 207f3513572f187499e8fd937be546dd, type: 3}
+    active: {fileID: -424401364557458367, guid: 767eb2a9673134548a28794f288f3791, type: 3}
+  - id: shelf
+    normal: {fileID: -1574081648812624431, guid: 89073b55d0f31b44ba28f5dd473f9ecd, type: 3}
+    pressed: {fileID: -6075045972054677841, guid: b7956a9121c21174e8f8f266afbed3bf, type: 3}
+    active: {fileID: 5588637367559107143, guid: b6c50d87804a7ab449016b6ea9fbd566, type: 3}
+  - id: side_shelf
+    normal: {fileID: 4865388979556473944, guid: 21db20ae0faeb5f459625ba9aa8aa49e, type: 3}
+    pressed: {fileID: -8062973352983086469, guid: 8512f8e318528d04d838306c759f0f96, type: 3}
+    active: {fileID: 570958187345336793, guid: 7515b69095d818b49aa3c9c55dd478ef, type: 3}
+  - id: single_stand
+    normal: {fileID: 9025311160836118109, guid: 76ed34c7af0a4184fa8901438cb07b62, type: 3}
+    pressed: {fileID: 1164435890754729465, guid: 00070cf53d5bc844b978df04d81d7c8d, type: 3}
+    active: {fileID: 3898676016583435212, guid: 8f071d9ac4114e84abfffc8895ea4fc6, type: 3}
+  - id: drawer_cabinet
+    normal: {fileID: -3923088043506755454, guid: 153cee45bd6ee9646ac39bb3b5107c96, type: 3}
+    pressed: {fileID: -4792377434517562653, guid: fb2b7e53e9278a5448010814611fe205, type: 3}
+    active: {fileID: 7312931811686298781, guid: 5c0560f27f0c7524e937f833095eebae, type: 3}
+  close:
+    id: close
+    normal: {fileID: 3556385632663993408, guid: c7c1bd108461aa9459f06ffd436852f7, type: 3}
+    pressed: {fileID: -7887331538767603867, guid: 7cc88375b06460c4ba27a89b155b3e89, type: 3}
+    active: {fileID: 0}

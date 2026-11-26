@@ -15,7 +15,25 @@
       "spendingFraction": 0.5,
       "maxPriceRatio": 1.5,
       "greeting": "진열장에서 고른 물건을 계산해 주세요.",
-      "situationText": "북쪽 폐광으로 떠나려는데 더 챙길 물건이 있을까요?"
+      "situationText": "북쪽 폐광으로 떠나려는데 더 챙길 물건이 있을까요?",
+      "priceSensitivity": 0.4,
+      "preferencePremium": 1.2,
+      "preferenceStrength": [
+        1,
+        0.7,
+        0.4
+      ],
+      "negotiationRoom": 0.15,
+      "patience": 4,
+      "inquiryChance": 0.6,
+      "inquiryPerVisit": 0.08,
+      "sellItemId": "T007",
+      "sellPrice": 40,
+      "eventText": "",
+      "visitStories": [
+        "북쪽 폐광으로 떠나려는데 더 챙길 물건이 있을까요?",
+        "지난번에 산 물건이 길에서 도움이 됐어요."
+      ]
     },
     {
       "id": "guard",
@@ -32,7 +50,25 @@
       "spendingFraction": 0.4,
       "maxPriceRatio": 1.5,
       "greeting": "진열장에서 고른 물건을 계산해 주세요.",
-      "situationText": "오늘 밤 순찰을 나가야 해요."
+      "situationText": "오늘 밤 순찰을 나가야 해요.",
+      "priceSensitivity": 1.5,
+      "preferencePremium": 0.3,
+      "preferenceStrength": [
+        1,
+        0.7,
+        0.4
+      ],
+      "negotiationRoom": 0.05,
+      "patience": 2,
+      "inquiryChance": 0.6,
+      "inquiryPerVisit": 0.08,
+      "sellItemId": "",
+      "sellPrice": 0,
+      "eventText": "",
+      "visitStories": [
+        "오늘 밤 순찰을 나가야 해요.",
+        "오늘도 순찰 준비를 하러 왔습니다."
+      ]
     },
     {
       "id": "camper",
@@ -49,7 +85,25 @@
       "spendingFraction": 0.6,
       "maxPriceRatio": 1.5,
       "greeting": "진열장에서 고른 물건을 계산해 주세요.",
-      "situationText": "숲에서 하룻밤 묵으려는데 준비가 충분할까요?"
+      "situationText": "숲에서 하룻밤 묵으려는데 준비가 충분할까요?",
+      "priceSensitivity": 1,
+      "preferencePremium": 0.5,
+      "preferenceStrength": [
+        1,
+        0.7,
+        0.4
+      ],
+      "negotiationRoom": 0.1,
+      "patience": 3,
+      "inquiryChance": 0.6,
+      "inquiryPerVisit": 0.08,
+      "sellItemId": "",
+      "sellPrice": 0,
+      "eventText": "",
+      "visitStories": [
+        "숲에서 하룻밤 묵으려는데 준비가 충분할까요?",
+        "다시 숲에 갈 준비를 하고 있어요."
+      ]
     }
   ]
 }

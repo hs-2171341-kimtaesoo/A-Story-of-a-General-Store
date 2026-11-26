@@ -34,7 +34,7 @@ public static class StoreTextureBudget
         if(Application.isPlaying){Debug.LogWarning("Stop Play before reimporting textures.");return;}
         EditorPrefs.SetBool(Key,low);
         Furniture13SceneBuilder.PrepareSprites();CustomDisplayArtBuilder.PrepareSprites();
-        CounterDemoSceneBuilder.PrepareSprites();SlidingDemoSceneBuilder.PrepareCustomerSprite();DisplayMenuTextureImporter.PrepareSprites();SideMenuSceneBuilder.PrepareManagementArt();PurchaseSceneBuilder.PrepareArt();TemporaryStorageArtBuilder.PrepareArt();PrepareIconImports();
+        CounterDemoSceneBuilder.PrepareSprites();SlidingDemoSceneBuilder.PrepareCustomerSprite();DisplayMenuTextureImporter.PrepareSprites();SideMenuSceneBuilder.PrepareManagementArt();PurchaseSceneBuilder.PrepareArt();TemporaryStorageArtBuilder.PrepareArt();ButtonArtworkEditor.PrepareTextures();PrepareIconImports();
         Debug.Log("Store texture profile: "+(low?"Low Memory":"Previous Quality")+". Original PNGs and scene transforms preserved. Compare in a fresh Player run; this does not clear Editor memory.");
     }
 }
@@ -84,6 +84,11 @@ public sealed class InventoryRuntimeInspector:Editor
         var runtime=(GeneralStore.Inventory.InventoryRuntime)target;
         if(!Application.isPlaying)
         {
+            if(runtime.customerJson!=null&&(runtime.customerProfiles==null||runtime.customerProfiles.Length==0)&&GUILayout.Button("손님 JSON을 편집 가능한 명단으로 복사")){
+                Undo.RecordObject(runtime,"Copy customer profiles");
+                runtime.customerProfiles=JsonUtility.FromJson<GeneralStore.Inventory.CustomerDatabase>(runtime.customerJson.text).customers;
+                EditorUtility.SetDirty(runtime);PrefabUtility.RecordPrefabInstancePropertyModifications(runtime);
+            }
             if(GUILayout.Button("기존 씬에 최적화 설정 적용"))StoreOptimizationTools.Apply(runtime.transform.root.gameObject);
         }
         else

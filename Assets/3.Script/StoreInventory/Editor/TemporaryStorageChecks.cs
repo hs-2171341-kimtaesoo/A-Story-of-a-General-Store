@@ -76,6 +76,10 @@ public static class TemporaryStorageChecks
             var keys=root.AddComponent<StoreHotkeys>();keys.panel=panel;keys.menu=menu;keys.drawer=root.AddComponent<WarehouseDrawer>();
             Call(ui,"Start");
             Check(ui.useStorageArtwork&&!ui.matchWarehouseCells&&Mathf.Abs(ui.scroll.viewport.rect.width/ui.grid.cellWidth-16)<.001f&&Mathf.Abs(ui.scroll.viewport.rect.height/ui.grid.cellHeight-8)<.001f,"원본 틀과 16×8 칸 정렬 오류");
+            var close=ui.window.Find("Close").GetComponent<Button>();
+            Check(ui.window.Find("Fee Coin").GetComponent<global::UnityEngine.UI.Image>().sprite!=null&&
+                close.image.sprite!=null&&close.spriteState.pressedSprite!=null&&close.image.sprite!=close.spriteState.pressedSprite,
+                "임시저장고 동전 또는 닫기 버튼 상태 누락");
             Check(!keys.HandleKey(KeyCode.S)&&!ui.window.gameObject.activeSelf,"빈 임시 저장고를 S로 열었습니다.");ui.OpenStorage();Check(!ui.window.gameObject.activeSelf&&!entry.visible,"빈 저장고 직접 열기/목록 표시 허용");
             var source=runtime.Model.Snapshot();var warehouse=source.containers.Find(box=>box.containerId=="warehouse");var item=warehouse.items[0];warehouse.items.RemoveAt(0);item.x=item.y=0;
             source.containers.Find(box=>box.containerId==InventoryModel.TemporaryStorageId).items.Add(item);
