@@ -24,7 +24,7 @@ public static class TemporaryStorageArtBuilder
                 throw new ArgumentException("임시 저장고 Sprite 정의 오류");
             parts.Add(part.id,part);
         }
-        foreach(string key in new[]{"frame","mark","fee","used","recover","recover_disabled","close","coin","close_pressed"})
+        foreach(string key in new[]{"frame","mark","fee","used","recover","recover_pressed","recover_disabled","close","coin","close_pressed"})
             if(!parts.ContainsKey(key))throw new ArgumentException("임시 저장고 Sprite 누락: "+key);
         return parts;
     }
@@ -56,7 +56,7 @@ public static class TemporaryStorageArtBuilder
         var ink=new Color(.07f,.09f,.1f);var cream=new Color(.98f,.91f,.65f);
         Label("Title",root.transform,new Rect(270,73,380,73),"임시저장고",60,ink,TextAnchor.MiddleLeft);
         Label("Fee Rule",root.transform,new Rect(270,152,380,45),"보관료는 매일 새벽 정산됩니다",26,ink,TextAnchor.MiddleLeft);
-        ui.feeLabel=Label("Expected Storage Fee",root.transform,new Rect(704,107,276,55),"예정 보관료 0 G",32,cream,TextAnchor.MiddleCenter);
+        ui.feeLabel=Label("Expected Storage Fee",root.transform,new Rect(704,107,276,55),"보관료 0 G",32,cream,TextAnchor.MiddleCenter);
         ui.usedCellsLabel=Label("Used Cells",root.transform,new Rect(1040,107,201,55),"사용 중 0칸",34,ink,TextAnchor.MiddleCenter);
         var recover=UI.Box("Recover",root.transform,1255*Scale,98*Scale,190*Scale,76*Scale,Color.clear);recover.canvasRenderer.cullTransparentMesh=false;
         ui.recoverButton=recover.gameObject.AddComponent<Button>();ui.recoverButton.transition=Selectable.Transition.None;
@@ -80,6 +80,7 @@ public static class TemporaryStorageArtBuilder
         var input=gridImage.gameObject.AddComponent<DragOnlyRaycastSurface>();input.panel=ui.panel;input.image=gridImage;
         var drag=root.gameObject.AddComponent<TemporaryStorageWindowDrag>();drag.panel=ui.panel;drag.delivery=ui;drag.window=ui.window;drag.bounds=parent as RectTransform;ui.windowDrag=drag;
         ApplyBronzeLayout(ui);
+        ApplyRecoveryControls(ui);
         ui.details=null;UiPerformanceLayers.Ensure(root.gameObject,true);root.gameObject.SetActive(false);
     }
     static void Place(RectTransform rect,float x,float y,float w,float h)
@@ -125,6 +126,23 @@ public static class TemporaryStorageArtBuilder
         ui.scroll.scrollSensitivity=ui.grid.cellHeight;
         ui.gridArtwork.sourceUv=new Rect(76f/1536,66f/1024,1384f/1536,698f/1024);
         ui.content.sizeDelta=ui.grid.Rect.sizeDelta=ui.grid.itemLayer.sizeDelta=new Vector2(1384,698)*Scale;
+    }
+    public static void ApplyRecoveryControls(DeliveryUI ui)
+    {
+        ui.feeLabel.fontStyle=ui.recoverLabel.fontStyle=FontStyle.Normal;
+        ui.feeLabel.text="보관료 0 G";
+        var host=ui.recoverEnabledArtwork;
+        var node=host.transform.Find("State Image");
+        var image=node==null?UI.Box("State Image",host.transform,0,0,1,1,Color.white):node.GetComponent<global::UnityEngine.UI.Image>();
+        var rect=image.rectTransform;
+        rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;
+        rect.offsetMin=rect.offsetMax=Vector2.zero;
+        var sprites=new ButtonSpriteSet{
+            normal=Resources.Load<Sprite>("StoreInventory/TemporaryStorage/recover"),
+            pressed=Resources.Load<Sprite>("StoreInventory/TemporaryStorage/recover_pressed")};
+        if(sprites.normal==null||sprites.pressed==null)throw new InvalidOperationException("회수 버튼 Sprite 누락");
+        ButtonArtworkCatalog.Apply(ui.recoverButton,image,sprites,false);
+        image.preserveAspect=false;image.raycastTarget=false;host.enabled=false;
     }
     public static void UpgradeWindow(DeliveryUI ui)
     {

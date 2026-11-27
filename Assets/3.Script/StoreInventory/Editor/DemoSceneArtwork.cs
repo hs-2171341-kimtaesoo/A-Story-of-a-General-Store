@@ -70,6 +70,13 @@ internal static class DemoSceneArtwork
             if (frame != null) changed |= Bind(frame.GetComponent<UIImage>(), "CounterDemo/warehouse_frame", 1024, repair);
         }
         changed |= PrefabArtworkBindings.Check(root,repair);
+        if(layout.schemaVersion>=15)
+        {
+            var supplier=root.GetComponentInChildren<SupplierUI>(true);
+            // Initial generation verifies the shared row assets after they have been saved.
+            if(EditorUtility.IsPersistent(supplier.supplierTemplate))
+                changed |= SupplierSceneBuilder.CheckArtwork(supplier,repair);
+        }
         return changed;
     }
 

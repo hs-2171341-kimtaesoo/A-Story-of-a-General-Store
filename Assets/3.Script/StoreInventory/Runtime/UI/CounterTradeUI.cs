@@ -98,7 +98,8 @@ namespace GeneralStore.Inventory
             LastPhysicsSteps=CounterTableMotion.Advance(bodies,motion,Mathf.Min(.1f,Time.unscaledDeltaTime));
             if(LastPhysicsSteps>0)ApplyPositions();
         }
-        readonly List<GameObject> returnEffects = new List<GameObject>();
+        readonly Dictionary<string,GameObject> returnEffects = new Dictionary<string,GameObject>();
+        WarehouseUI returnWarehouse;
         void OnDisable()
         {
             if (dragging != null) EndCounterDrag(dragging);
@@ -106,7 +107,10 @@ namespace GeneralStore.Inventory
             priceTween = null;
             previousCounter = -1;
             foreach (var effect in returnEffects)
-                if (effect != null) Destroy(effect);
+                {
+                    if (returnWarehouse != null) returnWarehouse.grid.SetReturnInFlight(effect.Key, false);
+                    if (effect.Value != null) Destroy(effect.Value);
+                }
             returnEffects.Clear();
         }
 
@@ -202,25 +206,90 @@ namespace GeneralStore.Inventory
         {
             CounterItemView view;
             if(!isActiveAndEnabled||!views.TryGetValue(uid,out view)||view.image==null)return;
-            RectTransform target=shop.drawer.window;
-            if(destination==InventoryModel.TemporaryStorageId){
-                var menu=panel.transform.root.GetComponentInChildren<RightSideMenu>(true);
-                if(menu!=null)target=(RectTransform)menu.transform;
+            var item = panel.Model.GetItem(destination, uid);
+            if (item == null || returnEffects.ContainsKey(uid)) return;
+            if (returnWarehouse == null) returnWarehouse = panel.GetComponent<WarehouseUI>();
+            var canvas = (RectTransform)panel.canvas.rootCanvas.transform;
+            var source = view.image.sprite != null ? view.image.rectTransform : (RectTransform)view.transform;
+            var ghost = Instantiate(view.image, canvas, false);
+            ghost.enabled = true;
+            ghost.raycastTarget = false;
+            if (ghost.sprite == null)
+            {
+                ghost.color = new Color(.35f,.23f,.12f,1);
+                if (view.fallbackLabel != null) Instantiate(view.fallbackLabel, ghost.transform, false).raycastTarget = false;
             }
-            var ghost=Instantiate(view.image,panel.canvas.transform,false);
-            ghost.raycastTarget=false;ghost.rectTransform.sizeDelta=((RectTransform)view.transform).rect.size;
-            ghost.transform.position=view.transform.position;
-            returnEffects.Add(ghost.gameObject);
-            StartCoroutine(Fly(ghost,target));
+            var rect = ghost.rectTransform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f,.5f);
+            rect.localScale = Vector3.one;
+            rect.position = source.TransformPoint(source.rect.center);
+            rect.rotation = source.rotation;
+            rect.sizeDelta = CanvasSize(source, canvas, source.rect.size);
+            returnEffects.Add(uid, ghost.gameObject);
+            if (returnWarehouse != null && InventoryModel.IsWarehouse(destination))
+                returnWarehouse.grid.SetReturnInFlight(uid, true);
+            StartCoroutine(Fly(uid, destination, item, ghost, canvas));
         }
-        System.Collections.IEnumerator Fly(global::UnityEngine.UI.Image ghost,RectTransform target){
-            var start=ghost.transform.position;
-            for(float t=0;t<1;t+=Time.unscaledDeltaTime*3){
-                if(ghost==null||target==null)break;
-                ghost.transform.position=Vector3.Lerp(start,target.TransformPoint(target.rect.center),t);
-                ghost.transform.localScale=Vector3.one*(1-t*.8f);yield return null;
+
+        static Vector2 CanvasSize(RectTransform source, RectTransform canvas, Vector2 size)
+        {
+            return new Vector2(canvas.InverseTransformVector(source.TransformVector(Vector3.right * size.x)).magnitude,
+                canvas.InverseTransformVector(source.TransformVector(Vector3.up * size.y)).magnitude);
+        }
+
+        System.Collections.IEnumerator Fly(string uid, string destination, ItemRecord item, global::UnityEngine.UI.Image ghost, RectTransform canvas)
+        {
+            var rect = ghost.rectTransform;
+            var start = rect.localPosition;
+            var initialSize = rect.sizeDelta;
+            var initialRotation = rect.localRotation;
+            bool warehouse = InventoryModel.IsWarehouse(destination);
+            var drawer = shop.drawer;
+            var menu = warehouse ? null : panel.transform.root.GetComponentInChildren<RightSideMenu>(true);
+            var shape = panel.Catalog.Shape(item.itemId);
+            for (float elapsed = 0; ; elapsed += Time.unscaledDeltaTime)
+            {
+                var target = drawer.window;
+                var end = canvas.InverseTransformPoint(target.TransformPoint(target.rect.center));
+                var size = initialSize;
+                var rotation = initialRotation;
+                if (warehouse && !drawer.IsOpen)
+                {
+                    // Pass the bottom edge with enough clearance for the entire rotated icon.
+                    end.y = canvas.rect.yMin - initialSize.magnitude;
+                }
+                else if (warehouse && returnWarehouse != null && returnWarehouse.SelectedId == destination)
+                {
+                    var grid = returnWarehouse.grid;
+                    float w = grid.cellWidth, h = grid.cellHeight;
+                    int r = item.rotation;
+                    var center = new Vector3((item.x-grid.startColumn+shape.Width(r)*.5f)*w,
+                        -(item.y-grid.startRow+shape.Height(r)*.5f)*h, 0);
+                    end = canvas.InverseTransformPoint(grid.itemLayer.TransformPoint(center));
+                    var sprite = ghost.sprite;
+                    var quad = IconMeshGeometry.BuildQuad(shape, r, sprite != null,
+                        sprite == null ? 1 : sprite.rect.width/sprite.rect.height, w/h);
+                    size = CanvasSize(grid.itemLayer, canvas, new Vector2((quad.x1-quad.x0)*w, (quad.y1-quad.y0)*h));
+                    if ((r & 1) != 0) size = new Vector2(size.y, size.x);
+                    rotation = Quaternion.Inverse(canvas.rotation)*grid.itemLayer.rotation*Quaternion.Euler(0,0,-90*r);
+                }
+                else
+                {
+                    if (warehouse && returnWarehouse != null) target = returnWarehouse.tabs.FindTab(destination) ?? target;
+                    else if (menu != null) target = (RectTransform)menu.transform;
+                    end = canvas.InverseTransformPoint(target.TransformPoint(target.rect.center));
+                    size *= .14f;
+                }
+                float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(elapsed/.38f));
+                rect.localPosition = Vector3.Lerp(start, end, t);
+                rect.sizeDelta = Vector2.Lerp(initialSize, size, t);
+                rect.localRotation = Quaternion.Slerp(initialRotation, rotation, t);
+                if (t >= 1) break;
+                yield return null;
             }
-            if(ghost!=null){returnEffects.Remove(ghost.gameObject);Destroy(ghost.gameObject);}
+            if (warehouse && returnWarehouse != null) returnWarehouse.grid.SetReturnInFlight(uid, false);
+            returnEffects.Remove(uid);
+            Destroy(ghost.gameObject);
         }
         public void Sell(){if(Busy)return;
             if(Session.EventVisit){Session.Leave();return;}

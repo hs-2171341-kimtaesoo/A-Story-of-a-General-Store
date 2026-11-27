@@ -87,7 +87,7 @@ public static class TemporaryStorageChecks
             Check(entry.visible,"비활성 창에서도 내용물에 따라 메뉴를 표시하지 못했습니다.");
             ui.OpenStorage();long cells=runtime.Model.TemporaryOccupiedCells;
             Check(ui.window.gameObject.activeSelf&&ui.recoverButton.interactable&&ui.recoverEnabledArtwork.gameObject.activeSelf&&!ui.recoverDisabledArtwork.gameObject.activeSelf,"회수 버튼 활성 상태 표시 오류");
-            Check(ui.usedCellsLabel.text=="사용 중 "+cells+"칸"&&ui.feeLabel.text=="예정 보관료 "+(cells*10).ToString("N0")+" G","실제 사용 칸/새벽 예정 보관료 표시 오류");
+            Check(ui.usedCellsLabel.text=="사용 중 "+cells+"칸"&&ui.feeLabel.text=="보관료 "+(cells*10).ToString("N0")+" G","실제 사용 칸/새벽 예정 보관료 표시 오류");
             Check(ui.recoverButton.onClick.GetPersistentEventCount()==1&&ui.recoverButton.onClick.GetPersistentTarget(0)==ui,"회수 버튼 연결 누락/중복");
             Check(ui.gridArtwork.artwork==ui.window.GetComponent<global::UnityEngine.UI.Image>().sprite.texture,"격자에 다른 색의 생성 텍스처를 사용했습니다.");
             foreach(float offset in new[]{0f,ui.grid.cellHeight*.5f,ui.grid.cellHeight*8,ui.grid.cellHeight*9.5f})
@@ -103,7 +103,7 @@ public static class TemporaryStorageChecks
             }
             long gold=runtime.Model.Gold,debt=runtime.Model.UnpaidCosts;ui.recoverButton.onClick.Invoke();
             Check(runtime.Model.TemporaryItemCount==0&&ui.window.gameObject.activeSelf&&!entry.visible,"전부 회수 후 빈 완료 화면/목록 숨김 실패");
-            Check(ui.usedCellsLabel.text=="사용 중 0칸"&&ui.feeLabel.text=="예정 보관료 0 G"&&!ui.recoverButton.interactable&&!ui.recoverEnabledArtwork.gameObject.activeSelf&&ui.recoverDisabledArtwork.gameObject.activeSelf,"마지막 빈 상태 예시의 0칸/0G/비활성 회수 버튼 실패");
+            Check(ui.usedCellsLabel.text=="사용 중 0칸"&&ui.feeLabel.text=="보관료 0 G"&&!ui.recoverButton.interactable&&!ui.recoverEnabledArtwork.gameObject.activeSelf&&ui.recoverDisabledArtwork.gameObject.activeSelf,"마지막 빈 상태 예시의 0칸/0G/비활성 회수 버튼 실패");
             ui.RecoverAll();Check(runtime.Model.Gold==gold&&runtime.Model.UnpaidCosts==debt,"회수 버튼에서 보관료를 즉시 부과하거나 두 번 이동했습니다.");
             ui.Close();var motion=ui.window.GetComponent<ManagementWindowMotion>();motion.Advance(1);Call(menu,"ContinueWindowSwitch");
             Check(!ui.window.gameObject.activeSelf&&!keys.HandleKey(KeyCode.S),"빈 완료 화면을 닫은 뒤 다시 열었습니다.");

@@ -6,7 +6,7 @@ namespace GeneralStore.Inventory
     [DisallowMultipleComponent]
     public sealed class StoreLayoutRoot : MonoBehaviour
     {
-        [HideInInspector] public int schemaVersion=8;
+        [HideInInspector] public int schemaVersion=17;
         public ButtonArtworkCatalog buttonArtwork;
         public global::UnityEngine.UI.Image backgroundImage;
         public InventoryRuntime inventory;

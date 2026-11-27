@@ -38,20 +38,26 @@ namespace GeneralStore.Inventory
             var parent=(RectTransform)window.parent;
             // This window lives under Screen Edge UI, whose origin already includes viewport offset.
             region=new Rect(parent.rect.xMin,parent.rect.yMin,region.width,region.height);
+            dragRegion=region;hasRegion=true;
             var workshop=panel.GetComponentInChildren<WorkshopUI>(true);if(workshop!=null&&workshop.window!=null&&workshop.window.activeSelf){region.xMin+=104;region.width=Mathf.Max(400,region.width-956);}
             float unit=cellReference.cellWidth*Mathf.Abs(cellReference.transform.lossyScale.x)/Mathf.Max(.0001f,Mathf.Abs(parent.lossyScale.x));
             float scale=Mathf.Min(matchWarehouseCells?unit/grid.cellWidth:1,Mathf.Min(Mathf.Max(1,region.width-viewportMargin*2)/window.rect.width,Mathf.Max(1,region.height-viewportMargin*2)/window.rect.height));
             window.localScale=new Vector3(scale,scale,1);
             var target=new Vector2(region.xMin+(region.width-window.rect.width*scale)*.5f,region.yMax-(region.height-window.rect.height*scale)*.5f);
-            dragRegion=region;hasRegion=true;
             if(hasDraggedPosition)target=ClampPosition(draggedPosition);
             if(motion==null)motion=ManagementWindowMotion.Ensure(window.gameObject,window);motion.SetTarget(target);
         }
         Vector2 ClampPosition(Vector2 point)
         {
             var region=hasRegion?dragRegion:((RectTransform)window.parent).rect;
-            var p=WindowDragGeometry.Clamp(point.x-region.xMin,point.y-region.yMax,window.rect.width*Mathf.Abs(window.localScale.x),window.rect.height*Mathf.Abs(window.localScale.y),Mathf.Max(1,region.width),Mathf.Max(1,region.height));
-            return new Vector2(p.x+region.xMin,p.y+region.yMax);
+            float width=window.rect.width*Mathf.Abs(window.localScale.x);
+            float height=window.rect.height*Mathf.Abs(window.localScale.y);
+            // Leave a draggable portion of the header reachable on every edge.
+            float gripWidth=Mathf.Min(120*Mathf.Abs(window.localScale.x),width*.5f,region.width*.5f);
+            float headerHeight=height*.22f;
+            float gripHeight=Mathf.Min(32*Mathf.Abs(window.localScale.y),headerHeight,region.height*.5f);
+            return new Vector2(Mathf.Clamp(point.x,region.xMin-width+gripWidth,region.xMax-gripWidth),
+                Mathf.Clamp(point.y,region.yMin+gripHeight,region.yMax+headerHeight-gripHeight));
         }
         public void SetDraggedPosition(Vector2 point)
         {
@@ -120,7 +126,7 @@ namespace GeneralStore.Inventory
             if(useStorageArtwork)
             {
                 long cost=checked(cells*Mathf.Max(0,panel.inventory.storageCellFee));
-                feeLabel.text="예정 보관료 "+cost.ToString("N0")+" G";
+                feeLabel.text="보관료 "+cost.ToString("N0")+" G";
                 if(usedCellsLabel!=null)usedCellsLabel.text="사용 중 "+cells+"칸";
                 SetRecoveryState(!recovering&&panel.Model.TemporaryItemCount>0);
             }

@@ -25,7 +25,7 @@ namespace GeneralStore.Inventory
         protected override void OnCanvasHierarchyChanged(){base.OnCanvasHierarchyChanged();Prepare();}
         public void Configure(Color tint,float thickness)
         {
-            thickness=Mathf.Clamp(thickness,0,6);
+            thickness=Mathf.Clamp(thickness,0,9);
             if(outlineColor!=tint||width!=thickness){outlineColor=tint;width=thickness;if(graphic!=null)graphic.SetVerticesDirty();}
             enabled=width>0;
             if(enabled)Prepare();

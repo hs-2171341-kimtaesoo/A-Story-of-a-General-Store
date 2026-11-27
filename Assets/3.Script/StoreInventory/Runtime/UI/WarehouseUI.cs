@@ -37,7 +37,7 @@ namespace GeneralStore.Inventory
             panel.UpdateDetails();panel.shop.CancelDisplayPrice();
             if(grid.gameObject.activeInHierarchy)grid.Refresh();dirty=true;if(SelectionChanged!=null)SelectionChanged();
         }
-        string Caption(string id){return id=="warehouse"?"상자 1":"상자 "+id.Substring("warehouse_".Length);}
+        string Caption(string id){string number=id=="warehouse"?"1":id.Substring("warehouse_".Length);return tabs.numberedArtwork?number:"상자 "+number;}
         void LateUpdate()
         {
             if(!ready||!dirty)return;dirty=false;var ids=panel.Model.WarehouseIds();if(index>=ids.Count)index=0;grid.containerId=ids[index];

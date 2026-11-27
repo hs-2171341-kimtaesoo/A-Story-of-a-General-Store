@@ -6,6 +6,7 @@ namespace GeneralStore.Inventory
     {
         public global::UnityEngine.UI.Image portrait;public global::UnityEngine.UI.Image[] sampleIcons;
         public Text nameLabel,descriptionLabel,statusLabel;public Button selectButton,tradeButton;
+        public string supplierId;
         SupplierUI owner;string id;
         public void Bind(SupplierUI ui,SupplierDefinition def,SupplierState state)
         {
@@ -14,8 +15,9 @@ namespace GeneralStore.Inventory
                 owner=ui;id=def.id;selectButton.onClick.RemoveAllListeners();selectButton.onClick.AddListener(()=>{owner.SelectSupplierForTest(id);owner.OpenTrade(id);});
                 if(tradeButton!=selectButton){tradeButton.onClick.RemoveAllListeners();tradeButton.onClick.AddListener(()=>owner.OpenTrade(id));}
             }
-            portrait.sprite=ui.FindPortrait(def.portraitKey);portrait.enabled=portrait.sprite!=null;portrait.preserveAspect=true;
-            nameLabel.text=def.name;descriptionLabel.text=def.description;statusLabel.text=state.blocked?"거래 불가: "+state.blockReason:"거래 가능 · 물품 "+state.stocks.Count+"종";
+            if(ui.selectedRow!=null){var background=selectButton.image;bool selected=ui.IsSelected(id);background.sprite=selected?ui.selectedRow:ui.normalRow;background.color=background.sprite!=null?Color.white:Color.clear;}
+            portrait.sprite=ui.Emblem(def);portrait.enabled=portrait.sprite!=null;portrait.preserveAspect=true;
+            nameLabel.text=def.name;descriptionLabel.text=def.description;statusLabel.text=state.blocked?"거래 불가: "+state.blockReason:"";
             selectButton.interactable=!state.blocked;tradeButton.interactable=!state.blocked;
             if(sampleIcons!=null)for(int n=0;n<sampleIcons.Length;n++)
             {

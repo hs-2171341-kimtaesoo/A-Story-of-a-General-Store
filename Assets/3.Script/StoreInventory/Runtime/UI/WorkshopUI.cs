@@ -11,6 +11,10 @@ namespace GeneralStore.Inventory
         public Text titleLabel,account,probabilityLabel,collectLabel,repeatLabel,nightLabel;
         [HideInInspector]public Text hireLabel; // Only used to hide the button in older scenes.
         public Button collectButton,nightButton,repeatModeButton;public InputField repeatCountInput;public WorkshopJobView[] rows;
+        public ProcessingPanelView processingView;
+        public GameObject[] legacyPanelControls;
+        public global::UnityEngine.UI.Image legacyBackground;
+        bool StyledProcessing{get{return processingView!=null&&StationId=="processing";}}
         public string StationId{get;private set;}="processing";
         public InventoryModel Model{get{return panel.Model;}}public WorkshopDefinition Definition{get{return Model.Workshops.Find(StationId);}}
         readonly HashSet<WorkshopJobView> usedRows=new HashSet<WorkshopJobView>();
@@ -27,6 +31,7 @@ namespace GeneralStore.Inventory
         {
             string error;if(panel==null||window==null||frame==null||rows==null||rows.Length<3||titleLabel==null||collectButton==null||!panel.inventory.TryInitialize(out error)||Model.Workshops==null){Debug.LogError("공방 UI 참조를 갱신하세요. 기존 씬 업데이트 메뉴 또는 Create Latest Demo를 사용하세요.",this);enabled=false;return;}
             foreach(var row in rows)row.Initialize(this);
+            if(processingView!=null)processingView.job.Initialize(this);
             for(int n=0;n<tabs.Length;n++)tabs[n]=frame.Find(stationNames[n]) as RectTransform;
             if(hireLabel!=null){var oldButton=hireLabel.GetComponentInParent<Button>();if(oldButton!=null)oldButton.gameObject.SetActive(false);}
             menu=panel.transform.root.GetComponentInChildren<RightSideMenu>(true);motion=ManagementWindowMotion.Ensure(window,frame,true);
@@ -42,7 +47,7 @@ namespace GeneralStore.Inventory
         void RefreshLayout()
         {
             var root=(RectTransform)window.transform;var canvas=(RectTransform)panel.canvas.transform;
-            float height=StationId=="smith"?664:StationId=="processing"?508:404;
+            float height=StyledProcessing?((RectTransform)processingView.transform).rect.height:StationId=="smith"?664:StationId=="processing"?508:404;
             if(shownPanelHeight!=height)
             {
                 shownPanelHeight=height;frame.sizeDelta=new Vector2(860,height);
@@ -62,7 +67,10 @@ namespace GeneralStore.Inventory
             for(int n=0;n<stationIds.Length;n++)
             {
                 bool available=Model.IsWorkshopUnlocked(stationIds[n]);if(available&&first==null)first=stationIds[n];
-                if(tabs[n]!=null&&tabs[n].gameObject.activeSelf!=available)tabs[n].gameObject.SetActive(available);
+                bool showLegacy=available&&!StyledProcessing;
+                if(tabs[n]!=null&&tabs[n].gameObject.activeSelf!=showLegacy)tabs[n].gameObject.SetActive(showLegacy);
+                if(processingView!=null&&processingView.tabs[n].gameObject.activeSelf!=available)
+                    processingView.tabs[n].gameObject.SetActive(available);
             }
             if(menu!=null)menu.SetUnlocked("workshops",first!=null);
             if(first==null){window.SetActive(false);return;}
@@ -73,7 +81,13 @@ namespace GeneralStore.Inventory
         public void Close(){if(!Busy){if(motion!=null)motion.fromBelow=true;ManagementWindowMotion.CloseWindow(window);}}
         public void Processing(){Switch("processing");}public void Smith(){Switch("smith");}public void Alchemy(){Switch("alchemy");}
         void Switch(string id){if(!ready||Busy||!Model.IsWorkshopUnlocked(id))return;SelectStation(id);}
-        void SelectStation(string id){StationId=id;selected=null;bound.Clear();repeatMode=Model.GetWorkshop(id).jobs[0].repeatMode;MarkDirty();}
+        void SelectStation(string id)
+        {
+            if(StationId==id)return;
+            StationId=id;selected=null;bound.Clear();
+            if(id=="processing"){repeatMode=Model.GetWorkshop(id).jobs[0].repeatMode;RestoreRepeatCount();}
+            MarkDirty();
+        }
         public void Hire()
         {if(ready)panel.ShowMessage("해금된 공방은 자동으로 고용됩니다.");}
         public void PayNightWork()
@@ -88,15 +102,39 @@ namespace GeneralStore.Inventory
             int index=choices.FindIndex(recipe=>recipe.id==current.recipeId);string error;bool ok=Model.TryChooseWorkshopRecipe(StationId,job,choices[(index+1)%choices.Count].id,out error);Message(ok,"제작 결과 후보를 바꿨습니다.",error);
         }
         void RestoreRepeatCount(){var job=Model.GetWorkshop("processing").jobs[0];if(job.repeatMode==1)repeatCountInput.text=Math.Min(9999,job.cycles).ToString();}
-        public void CycleRepeatMode(){if(!ready||Busy||Model.GetWorkshop("processing").jobs[0].started)return;repeatMode=(repeatMode+1)%3;ApplyRepeat();MarkDirty();}
-        public void RepeatEdited(string ignored){if(ready&&!Busy)ApplyRepeat();}
-        bool ApplyRepeat()
+        public void CycleRepeatMode(){SetRepeatMode((repeatMode+1)%3);}
+        public void SetRepeatMode(int mode)
         {
-            int count;if(!int.TryParse(repeatCountInput.text,out count)||count<1||count>9999){panel.ShowMessage("반복 횟수는1~9999입니다.");return false;}
-            var job=Model.GetWorkshop("processing").jobs[0];string error;bool ok=Model.TrySetProcessingRepeat(job.id,repeatMode,count,out error);if(!ok)panel.ShowMessage(error);MarkDirty();return ok;
+            if(!ready||Busy||StationId!="processing")return;
+            if(ApplyRepeat(mode)){repeatMode=mode;MarkDirty();}
+        }
+        public void StepRepeatCount(int step)
+        {
+            if(!ready||Busy||StationId!="processing"||repeatMode!=1||Model.GetWorkshop("processing").jobs[0].started)return;
+            int count;
+            if(!int.TryParse(repeatCountInput.text,out count))count=1;
+            repeatCountInput.SetTextWithoutNotify(Mathf.Clamp(Mathf.Clamp(count,1,9999)+step,1,9999).ToString());
+            ApplyRepeat(repeatMode);
+        }
+        public void RepeatEdited(string ignored){if(ready&&!Busy&&StationId=="processing")ApplyRepeat(repeatMode);}
+        bool ApplyRepeat(int mode)
+        {
+            int count=1;
+            if(mode==1&&(!int.TryParse(repeatCountInput.text,out count)||count<1||count>9999))
+            {
+                panel.ShowMessage("반복 횟수는 1~9999입니다.");
+                return false;
+            }
+            var job=Model.GetWorkshop("processing").jobs[0];
+            if(!job.started&&mode==job.repeatMode&&(mode!=1||count==job.cycles))return true;
+            string error;
+            bool ok=Model.TrySetProcessingRepeat(job.id,mode,count,out error);
+            if(!ok)panel.ShowMessage(error);
+            MarkDirty();
+            return ok;
         }
         public void StartJob(string job)
-        {if(!ready||Busy)return;if(StationId=="processing"&&!ApplyRepeat())return;string error;bool ok=Model.TryStartWorkshopJob(StationId,job,out error);selected=job;Message(ok,"제작 시작. 휴무에는 진행도가 보존됩니다.",error);}
+        {if(!ready||Busy)return;if(StationId=="processing"&&!ApplyRepeat(repeatMode))return;string error;bool ok=Model.TryStartWorkshopJob(StationId,job,out error);selected=job;Message(ok,"제작 시작. 휴무에는 진행도가 보존됩니다.",error);}
         public void CancelJob(string job)
         {if(!ready||Busy)return;string error;bool ok=Model.TryCancelWorkshopJob(StationId,job,"warehouse",out error);Message(ok,"남은 재료와 완성품을 상자/임시 저장고로 회수했습니다.",error);}
         public void MoveJob(string job,int direction)
@@ -113,7 +151,23 @@ namespace GeneralStore.Inventory
         {
             var w=Model.GetWorkshop(StationId);var definition=Definition;titleLabel.text=definition.name;
             account.text="고용 중 · 일급 "+definition.dailyWage+" G · 정산 "+w.wageDue+" + 추가 "+w.extraDue+" G";
-            repeatControls.SetActive(StationId=="processing");repeatModeButton.interactable=!w.jobs[0].started;repeatCountInput.interactable=repeatMode==1&&!w.jobs[0].started;repeatLabel.text=repeatMode==0?"1회":repeatMode==1?"횟수 지정":"재료 소진까지";
+            if(processingView!=null)
+            {
+                processingView.gameObject.SetActive(StyledProcessing);
+                legacyBackground.enabled=!StyledProcessing;
+                foreach(var control in legacyPanelControls)control.SetActive(!StyledProcessing);
+            }
+            repeatControls.SetActive(StationId=="processing");
+            repeatCountInput.interactable=repeatMode==1&&!w.jobs[0].started;
+            if(StyledProcessing)
+            {
+                processingView.ShowRepeat(repeatMode,w.jobs[0].started);
+                processingView.job.Bind(this,w.jobs[0],0,1);
+                RenderProgress();
+                return;
+            }
+            if(repeatModeButton!=null)repeatModeButton.interactable=!w.jobs[0].started;
+            if(repeatLabel!=null)repeatLabel.text=repeatMode==0?"1회":repeatMode==1?"횟수 지정":"재료 소진까지";
             int count=StationId=="smith"?3:1;var used=usedRows;used.Clear();
             for(int index=0;index<count;index++)
             {
@@ -134,9 +188,17 @@ namespace GeneralStore.Inventory
         void RenderProgress()
         {
             nextProgress=Time.unscaledTime+Mathf.Max(.05f,progressRefreshSeconds);var status=Model.ReadWorkshopProgress(StationId);int count=status.resultCount;
+            bool canPay=status.hired&&status.unlocked&&!status.nightPaid&&panel.inventory.Clock.Phase==ShopPhase.Night;
+            if(StyledProcessing)
+            {
+                processingView.ShowStatus(count,canPay,status.nightPaid,Model.NightWorkFee(StationId));
+                var row=processingView.job;
+                row.RefreshProgress(this,Model.ReadWorkshopProgress(StationId,row.JobId));
+                return;
+            }
             if(shownResultCount!=count){shownResultCount=count;collectLabel.text="완성품 받기 "+count;}collectButton.interactable=count>0;
             if(shownNightPaid!=status.nightPaid||shownNightFee!=Model.NightWorkFee(StationId)){shownNightPaid=status.nightPaid;shownNightFee=Model.NightWorkFee(StationId);nightLabel.text=status.nightPaid?"야간 신청 완료":"야간 +"+shownNightFee+" G";}
-            nightButton.interactable=status.hired&&status.unlocked&&!status.nightPaid&&panel.inventory.Clock.Phase==ShopPhase.Night;
+            nightButton.interactable=canPay;
             foreach(var row in rows)if(row.gameObject.activeSelf)row.RefreshProgress(this,Model.ReadWorkshopProgress(StationId,row.JobId));
         }
         int shownResultCount=-1;bool shownNightPaid;long shownNightFee=-1;

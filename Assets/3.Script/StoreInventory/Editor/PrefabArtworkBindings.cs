@@ -55,6 +55,19 @@ internal static class PrefabArtworkBindings
         return JsonUtility.FromJson<T>(json.text);
     }
 
+    internal static bool CheckWarehouseControls(GameObject root,bool repair)
+    {
+        const string folder=Base+"WarehouseControls/";
+        var toggle=root.GetComponentInChildren<WarehouseToggleButton>(true);
+        var tabs=root.GetComponentInChildren<WarehouseUI>(true).tabs;
+        if(toggle==null || tabs==null)throw new InvalidOperationException("상자 토글 또는 번호 탭 참조 누락");
+        bool changed=SpriteSlot(toggle.closedSprite,folder+"dropdown_normal",512,repair,s=>toggle.closedSprite=s);
+        changed |= SpriteSlot(toggle.openedSprite,folder+"dropdown_selected",512,repair,s=>toggle.openedSprite=s);
+        changed |= SpriteSlot(tabs.normalSprite,folder+"tab_1_normal",512,repair,s=>tabs.normalSprite=s);
+        changed |= SpriteSlot(tabs.selectedSprite,folder+"tab_1_selected",512,repair,s=>tabs.selectedSprite=s);
+        return changed;
+    }
+
     internal static bool Check(GameObject root, bool repair)
     {
         bool changed = false;
@@ -72,6 +85,7 @@ internal static class PrefabArtworkBindings
             if(visitor.browsingStops!=null)foreach(var pose in visitor.browsingStops)
                 if(pose!=null)changed |= SpriteSlot(pose.sprite,"temporary_customer",StoreTextureBudget.Customer,repair,s => pose.sprite=s);
         }
+        changed |= CheckWarehouseControls(root,repair);
         var furniture = Definitions<FurnitureSceneLayout>("furniture_layout");
         var spots = root.GetComponentsInChildren<SceneFurnitureHotspot>(true);
         var catalog = layout.management.art;
@@ -134,6 +148,16 @@ internal static class PrefabArtworkBindings
             if(coin!=null){
                 var coinImage=coin.GetComponent<UIImage>();
                 changed |= SpriteSlot(coinImage.sprite,Base+"TemporaryStorage/coin",256,repair,s=>coinImage.sprite=s);
+            }
+            if(layout.schemaVersion>=10)
+            {
+                var recovery=storage.recoverButton;
+                var graphic=recovery.targetGraphic as UIImage;
+                if(graphic==null||graphic.sprite==null||recovery.spriteState.pressedSprite==null)
+                {
+                    changed=true;
+                    if(repair)TemporaryStorageArtBuilder.ApplyRecoveryControls(storage);
+                }
             }
             var close=storage.window.Find("Close/Artwork");
             if(close!=null){

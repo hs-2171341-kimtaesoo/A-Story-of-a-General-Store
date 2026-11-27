@@ -65,6 +65,22 @@ namespace GeneralStore.Inventory.Verification
             m=Model();Hire(m,"processing");job=Draft(m,"processing");Put(m,"processing",job,0,"R001");Put(m,"processing",job,1,"R001");Check(m.TryAdd("warehouse","R001","common",5,1,out error),error);
             Check(m.TrySetProcessingRepeat(job,1,2,out error)&&m.TryStartWorkshopJob("processing",job,out error),error);m.AdvanceWorkshopsDuring(1000,duration*10,ShopPhase.Day,1);
             Check(m.GetWorkshop("processing").jobs[0].completed==2&&m.GetContainer("warehouse").items.Count==3,"횟수 지정2회만 소비");
+            // Cancel from the primary action during a later batch with an uncollected result.
+            m=Model();job=Draft(m,"processing");
+            Put(m,"processing",job,0,"R001");Put(m,"processing",job,1,"R001");
+            Check(m.TryAdd("warehouse","R001","common",2,1,out error),error);
+            Check(m.TryChooseWorkshopRecipe("processing",job,"recipe_M001",out error),error);
+            Check(m.TrySetProcessingRepeat(job,1,3,out error)&&m.TryStartWorkshopJob("processing",job,out error),error);
+            m.AdvanceWorkshopsDuring(duration*1.25,duration*1.25,ShopPhase.Day,1);
+            var working=m.GetWorkshop("processing").jobs[0];
+            var progress=m.ReadWorkshopProgress("processing",job);
+            Check(working.started&&working.results.Count==1&&working.inputs.Count==2&&Math.Abs(progress.ratio-.25f)<.001f,"다음 회차 진행막과 미수령 결과");
+            Check(m.TryCancelWorkshopJob("processing",job,"warehouse",out error),error);
+            var cancelled=m.GetWorkshop("processing").jobs[0];
+            Check(!cancelled.started&&cancelled.inputs.Count==0&&cancelled.results.Count==0&&m.ReadWorkshopProgress("processing",job).ratio==0,"취소 후 진행 및 버튼 상태 초기화");
+            var recovered=m.GetContainer("warehouse").items;
+            Check(recovered.Exists(item=>item.instanceId==working.results[0].instanceId)&&working.inputs.TrueForAll(material=>recovered.Exists(item=>item.instanceId==material.item.instanceId)),"취소 시 완성품과 진행 중 재료 회수");
+
             // Two smith rows compete for one active workstation; reordering preserves progress.
             m=Model();Hire(m,"smith");string first=Draft(m,"smith",0),second=Draft(m,"smith",1);Put(m,"smith",first,0,"M006");Put(m,"smith",second,0,"M006");
             Check(m.TryChooseWorkshopRecipe("smith",first,"recipe_M011",out error)&&m.TryChooseWorkshopRecipe("smith",second,"recipe_M012",out error),error);

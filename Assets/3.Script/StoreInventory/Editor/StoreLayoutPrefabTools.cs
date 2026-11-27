@@ -14,7 +14,7 @@ using Object=UnityEngine.Object;
 // Subsequent demos only instantiate the saved layout. They never regenerate authored UI.
 public static class StoreLayoutPrefabTools
 {
-    public const int CurrentSchema=8;
+    public const int CurrentSchema=17;
     public const string Folder="Assets/StoreInventorySettings/Prefabs";
     public const string LayoutPath=Folder+"/StoreLayout.prefab";
     public const string DisplayRowPath=Folder+"/Rows/OwnedDisplayRow.prefab";
@@ -28,6 +28,7 @@ public static class StoreLayoutPrefabTools
     {
         if(EditorApplication.isPlayingOrWillChangePlaymode)return;
         TemporaryStorageArtBuilder.ValidateArt();TemporaryStorageArtBuilder.PrepareArt();CounterDemoSceneBuilder.PrepareSprites();ButtonArtworkEditor.ValidateSources();
+        SupplierSceneBuilder.Prepare();
         var prefab=Existing(LayoutPath);
         // All validation precedes the save/new-scene dialog. A broken prefab is never replaced.
         if(prefab!=null)
@@ -56,6 +57,7 @@ public static class StoreLayoutPrefabTools
         else
         {
             if(prefab.GetComponent<StoreLayoutRoot>().schemaVersion<CurrentSchema)prefab=UpgradeControls(LayoutPath);
+            SupplierSceneBuilder.RepairRowArtwork(prefab.GetComponentInChildren<SupplierUI>(true));
             prefab=DemoSceneArtwork.RepairPrefab(prefab,LayoutPath);
             root=InstantiateLayout(prefab);
             Undo.RegisterCreatedObjectUndo(root,"Create Prefab Demo");
@@ -178,6 +180,9 @@ public static class StoreLayoutPrefabTools
         layout.viewport.Apply();
         layout.viewport.CaptureAuthoredManagementPlacement();
         ConfigureControls(root);
+        ApplyWarehouseControls(root);
+        ApplyActionLabelStyles(layout);
+        WorkshopArtworkBuilder.ApplyHud(layout.panel);
     }
     // Preserve authored transforms while connecting new controls and button states.
     internal static GameObject UpgradeControls(string path)
@@ -202,7 +207,26 @@ public static class StoreLayoutPrefabTools
                 if(left.autoHide)((RectTransform)left.transform).anchoredPosition+=Vector2.left*leftShift;
                 right.window.anchoredPosition+=(right.dockRight?Vector2.right:Vector2.left)*rightShift;
             }
-            TemporaryStorageArtBuilder.ApplyBronzeLayout(delivery);
+            if(layout.schemaVersion<8)TemporaryStorageArtBuilder.ApplyBronzeLayout(delivery);
+            if(layout.schemaVersion<9)ApplyWarehouseControls(contents);
+            if(layout.schemaVersion<10){
+                ApplyActionLabelStyles(layout);
+                TemporaryStorageArtBuilder.ApplyRecoveryControls(delivery);
+            }
+            var supplier=contents.GetComponentInChildren<SupplierUI>(true);
+            if(layout.schemaVersion<11)SupplierSceneBuilder.Upgrade(supplier);
+            else if(layout.schemaVersion<12)SupplierSceneBuilder.ApplyOrderArtwork(supplier);
+            if(layout.schemaVersion<13)SupplierSceneBuilder.AuthorRows(supplier);
+            if(layout.schemaVersion<14)SupplierSceneBuilder.AlignSupplierPanel(supplier);
+            if(layout.schemaVersion<15)SupplierSceneBuilder.UpgradeEmblemLayout(supplier);
+            if(layout.schemaVersion<16)SupplierSceneBuilder.CenterMarkedSections(supplier);
+            SupplierSceneBuilder.RepairRowArtwork(supplier);
+            if(layout.schemaVersion<12)SizeWarehouseControls(contents);
+            else if(layout.schemaVersion<13)AlignWarehouseHandle(contents.GetComponentInChildren<WarehouseToggleButton>(true));
+            SupplierSceneBuilder.CheckArtwork(supplier,true);
+            WorkshopArtworkBuilder.Prepare();
+            WorkshopArtworkBuilder.ApplyHud(layout.panel);
+            WorkshopArtworkBuilder.ApplyProcessing(contents.GetComponentInChildren<WorkshopUI>(true));
             layout.schemaVersion=CurrentSchema;ValidateLayout(contents);
             bool success;var asset=PrefabUtility.SaveAsPrefabAsset(contents,path,out success);
             if(!success||asset==null)throw new InvalidOperationException("단축키/임시 저장고 Prefab 갱신 실패: "+path);
@@ -210,6 +234,63 @@ public static class StoreLayoutPrefabTools
         }
         finally{PrefabUtility.UnloadPrefabContents(contents);}
     }
+    static void ApplyActionLabelStyles(StoreLayoutRoot layout)
+    {
+        foreach(var action in new[]{layout.management.openButton,layout.purchases.addDisplayButton,layout.purchases.storageActionButton})
+        {
+            action.transform.Find("Text").GetComponent<UnityEngine.UI.Text>().fontStyle=FontStyle.Normal;
+            action.transform.parent.Find("닫기/Text").GetComponent<UnityEngine.UI.Text>().fontStyle=FontStyle.Normal;
+        }
+    }
+    static void ApplyWarehouseControls(GameObject root)
+    {
+        foreach(var hover in root.GetComponentsInChildren<FurnitureHoverPresenter>(true))hover.tint=Color.white;
+        var toggle=root.GetComponentInChildren<WarehouseToggleButton>(true);
+        var tabs=root.GetComponentInChildren<WarehouseUI>(true).tabs;
+        const string folder="StoreInventory/WarehouseControls/";
+        foreach(var name in new[]{"dropdown_normal","dropdown_selected","tab_1_normal","tab_1_selected"})
+            SideMenuSceneBuilder.PreparePanelTexture(folder+name,512);
+        toggle.closedSprite=PrefabArtworkBindings.LoadSprite(folder+"dropdown_normal",512);
+        toggle.openedSprite=PrefabArtworkBindings.LoadSprite(folder+"dropdown_selected",512);
+        tabs.normalSprite=PrefabArtworkBindings.LoadSprite(folder+"tab_1_normal",512);
+        tabs.selectedSprite=PrefabArtworkBindings.LoadSprite(folder+"tab_1_selected",512);
+        toggle.image.sprite=toggle.drawer.startClosed?toggle.closedSprite:toggle.openedSprite;
+        toggle.image.color=Color.white;
+        toggle.image.preserveAspect=true;
+        SizeWarehouseControls(root);
+        var arrow=toggle.transform.Find("Toggle Arrow");
+        if(arrow!=null)arrow.gameObject.SetActive(false);
+
+        tabs.showLabels=true;
+        tabs.numberedArtwork=true;
+        tabs.useWhiteWhenSprite=true;
+    }
+
+    static void SizeWarehouseControls(GameObject root)
+    {
+        var toggle=root.GetComponentInChildren<WarehouseToggleButton>(true);
+        var warehouse=root.GetComponentInChildren<WarehouseUI>(true);
+        var drawer=toggle.drawer;
+        float width=drawer.window.rect.width*.16f;
+        float height=width*192f/528f;
+        toggle.image.rectTransform.sizeDelta=new Vector2(width,height);
+        AlignWarehouseHandle(toggle);
+        drawer.peekHeight=Mathf.Max(drawer.peekHeight,-toggle.image.rectTransform.anchoredPosition.y+height);
+        var tabs=warehouse.tabs;
+        tabs.tabWidth=width;tabs.tabHeight=height;
+        var viewport=(RectTransform)tabs.transform;
+        viewport.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,height);
+        var position=viewport.anchoredPosition;
+        position.y=Mathf.Max(position.y,warehouse.grid.Rect.anchoredPosition.y+height+4);
+        viewport.anchoredPosition=position;
+    }
+
+    static void AlignWarehouseHandle(WarehouseToggleButton toggle)
+    {
+        // The middle of the handle spans x=622.5 on the 1254-pixel source image.
+        toggle.image.rectTransform.anchoredPosition=new Vector2((622.5f/1254f-.5f)*toggle.drawer.window.rect.width,-2);
+    }
+
     static void ConfigureControls(GameObject root)
     {
         var layout=root.GetComponent<StoreLayoutRoot>();var menu=root.GetComponentInChildren<RightSideMenu>(true);
@@ -239,6 +320,13 @@ public static class StoreLayoutPrefabTools
         ReplaceTemplate(layout.management.cardTemplate,DisplayRowPath,row=>layout.management.cardTemplate=row);
         ReplaceTemplate(layout.management.stockTemplate,StockRowPath,row=>layout.management.stockTemplate=row);
         ReplaceTemplate(layout.purchases.cardTemplate,PurchaseRowPath,row=>layout.purchases.cardTemplate=row);
+        var supplier=root.GetComponentInChildren<SupplierUI>(true);
+        SupplierSceneBuilder.AuthorRows(supplier);
+        SupplierSceneBuilder.AlignSupplierPanel(supplier);
+        SupplierSceneBuilder.UpgradeEmblemLayout(supplier);
+        SupplierSceneBuilder.CenterMarkedSections(supplier);
+        SupplierSceneBuilder.RepairRowArtwork(supplier);
+        SupplierSceneBuilder.CheckArtwork(supplier,true);
         var grids=root.GetComponentsInChildren<InventoryGridView>(true);
         var item=layout.panel.grids[0].itemTemplate;
         ReplaceTemplate(item,ItemPath,row=>{foreach(var grid in grids)if(grid.itemTemplate==item)grid.itemTemplate=row;});
@@ -300,6 +388,10 @@ public static class StoreLayoutPrefabTools
             throw new InvalidOperationException("양쪽 메뉴의 Prefab 참조가 누락되었습니다.");
         if(layout.schemaVersion==CurrentSchema)
         {
+            var supplier=root.GetComponentInChildren<SupplierUI>(true);
+            if(supplier==null||supplier.supplierTemplate==null||supplier.offerTemplate==null||
+                !EditorUtility.IsPersistent(supplier.supplierTemplate)||!EditorUtility.IsPersistent(supplier.offerTemplate))
+                throw new InvalidOperationException("거래처 행 Prefab 연결을 확인하세요.");
             if(layout.buttonArtwork==null||managementMenu.buttonArtwork==null||displayMenu.buttonArtwork==null)
                 throw new InvalidOperationException("버튼 기본/누름/선택 Sprite 연결이 누락되었습니다.");
             var delivery=root.GetComponentInChildren<DeliveryUI>(true);var drag=delivery==null||delivery.window==null?null:delivery.window.GetComponent<TemporaryStorageWindowDrag>();

@@ -49,6 +49,14 @@ namespace GeneralStore.Inventory
             var rect = (RectTransform)go.transform;
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1); return rect;
         }
+        readonly HashSet<string> returningItems = new HashSet<string>();
+        public void SetReturnInFlight(string uid, bool inFlight)
+        {
+            if (inFlight) returningItems.Add(uid);
+            else returningItems.Remove(uid);
+            shownVersion = -2;
+            if (Panel != null && isActiveAndEnabled) Refresh();
+        }
         public void Refresh(){Refresh(null);}
         public void Refresh(ContainerRecord snapshot)
         {
@@ -87,7 +95,7 @@ namespace GeneralStore.Inventory
             seen.Clear();reservedItems.Clear();
             foreach (ItemRecord record in container.items)
             {
-                if(!IsVisible(record))continue;
+                if(!IsVisible(record)||returningItems.Contains(record.instanceId))continue;
                 if(Panel.inventory.Sales.CounterPresented&&Panel.Model.IsReserved(record.instanceId)){reservedItems.Add(record);continue;}
                 seen.Add(record.instanceId);InventoryItemView view;
                 if(!itemObjects.TryGetValue(record.instanceId,out view))

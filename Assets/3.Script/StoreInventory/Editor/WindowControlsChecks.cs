@@ -135,7 +135,7 @@ public static class WindowControlsChecks
             Check(drag.IsDragging&&Close(image.rectTransform.anchoredPosition,start+new Vector2(40,-30)),"임시 저장고가 포인터 이동량을 따르지 않습니다.");
             drag.OnPointerUp(pointer);drag.OnEndDrag(pointer);Check(!panel.IsWindowDragging&&behindInput.blocksRaycasts,"창 이동 종료 후 입력 복원 실패");
             delivery.SetDraggedPosition(new Vector2(99999,-99999));
-            var position=image.rectTransform.anchoredPosition;Check(position.x+300<=layer.rect.width+.01f&&position.y-200>=-layer.rect.height-.01f,"이동한 임시 저장고가 화면 밖에 남습니다.");
+            var position=image.rectTransform.anchoredPosition;Check(position.x<layer.rect.xMax&&position.x+300>layer.rect.xMax&&position.y>layer.rect.yMin&&position.y-200<layer.rect.yMin,"임시 저장고를 화면 밖으로 드래그하거나 다시 잡을 수 없습니다.");
             delivery.SetDraggedPosition(start+new Vector2(40,-30));position=image.rectTransform.anchoredPosition;
             ManagementWindowMotion.CloseWindow(image.gameObject);motion.Advance(.1f);Check(image.gameObject.activeSelf,"독립 저장고 닫기에서 즉시 사라졌습니다.");
             motion.Advance(1);Check(!image.gameObject.activeSelf,"독립 저장고 퇴장 완료 후 비활성화 실패");

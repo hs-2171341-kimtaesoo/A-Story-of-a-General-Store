@@ -62,6 +62,13 @@
       "maximumTextureSize": 256,
       "sourceWidth": 1254,
       "sourceHeight": 1254
+    },
+    {
+      "id": "recover_pressed",
+      "spriteKey": "StoreInventory/TemporaryStorage/recover_pressed",
+      "sourceWidth": 1949,
+      "sourceHeight": 807,
+      "maximumTextureSize": 256
     }
   ]
 }

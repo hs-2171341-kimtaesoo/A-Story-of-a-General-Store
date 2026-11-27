@@ -27,7 +27,8 @@ public static class PanelPresentationEditor
     public static void ApplyTextButtons(GameObject window)
     {
         if(window==null)return;
-        foreach(var button in window.GetComponentsInChildren<Button>(true))InventorySceneBuilder.UseTextButtonFeedback(button);
+        foreach(var button in window.GetComponentsInChildren<Button>(true))
+            if(button.transition!=Selectable.Transition.SpriteSwap)InventorySceneBuilder.UseTextButtonFeedback(button);
     }
     public static void Apply(GameObject root)
     {

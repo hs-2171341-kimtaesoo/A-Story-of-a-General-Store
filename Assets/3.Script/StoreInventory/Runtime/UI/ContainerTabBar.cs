@@ -14,11 +14,17 @@ namespace GeneralStore.Inventory
         public float tabWidth=190,tabHeight=42,gap=8;
         public Sprite normalSprite,selectedSprite;
         public bool useWhiteWhenSprite=true;
+        public bool numberedArtwork;
         public bool showLabels=false; // 번호가 포함된 Sprite를 기본으로 사용합니다.
         public ContainerTabSkin[] skins;
         public Color selectedColor=new Color(.65f,.4f,.1f),normalColor=new Color(.22f,.18f,.12f);
         readonly Dictionary<string,ContainerTabView> views=new Dictionary<string,ContainerTabView>();
         readonly HashSet<string> seen=new HashSet<string>();readonly List<string> removed=new List<string>();
+        public RectTransform FindTab(string id)
+        {
+            ContainerTabView tab;
+            return views.TryGetValue(id, out tab) ? (RectTransform)tab.transform : null;
+        }
         public void Sync(List<string> ids,string selected,Func<string,string> title,Action<string> select)
         {
             seen.Clear();
@@ -31,7 +37,24 @@ namespace GeneralStore.Inventory
                     tab.button.onClick.AddListener(()=>select(id));
                 }
                 if(warehouse!=null){var t=tab.GetComponent<WarehouseTabTarget>();if(t==null)t=tab.gameObject.AddComponent<WarehouseTabTarget>();t.warehouse=warehouse;t.containerId=id;}
-                if(tab.label!=null)tab.label.text=title(id);bool active=id==selected;
+                bool active=id==selected;
+                if(tab.label!=null)
+                {
+                    tab.label.text=title(id);
+                    if(numberedArtwork)
+                    {
+                        tab.label.color=active?new Color32(58,35,15,255):new Color32(246,221,168,255);
+                        var labelRect=tab.label.rectTransform;
+                        labelRect.anchorMin=new Vector2(.55f,.10f);
+                        labelRect.anchorMax=new Vector2(.86f,.9f);
+                        labelRect.offsetMin=labelRect.offsetMax=Vector2.zero;
+                        tab.label.alignment=TextAnchor.MiddleCenter;
+                        tab.label.resizeTextForBestFit=true;
+                        tab.label.resizeTextMinSize=9;
+                        tab.label.resizeTextMaxSize=Mathf.RoundToInt(tabHeight*.61f);
+                        tab.label.raycastTarget=false;
+                    }
+                }
                 // Pressed는 누르는 순간일 뿐, 선택 유지 상태는 이 코드가 직접 바꿉니다.
                 var normal=normalSprite;var chosen=selectedSprite;bool hideLabel=false;
                 if(skins!=null)foreach(var skin in skins)if(skin!=null&&skin.containerId==id)
